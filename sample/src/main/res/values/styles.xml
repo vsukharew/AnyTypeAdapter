@@ -4,12 +4,11 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorSecondary">@color/colorSecondary</item>
     </style>
 
     <style name="AppBottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="android:background">#2d2d2d</item>
         <item name="itemIconTint">@drawable/background_item_bottom_navigation_view</item>
         <item name="itemTextColor">?attr/colorSecondary</item>
         <item name="itemRippleColor">@drawable/background_ripple_bottom_navigation_view</item>
