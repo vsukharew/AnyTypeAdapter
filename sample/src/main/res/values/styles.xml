@@ -9,7 +9,6 @@
     </style>
 
     <style name="AppBottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="android:background">#2d2d2d</item>
         <item name="itemIconTint">@drawable/background_item_bottom_navigation_view</item>
         <item name="itemTextColor">?attr/colorSecondary</item>
         <item name="itemRippleColor">@drawable/background_ripple_bottom_navigation_view</item>
