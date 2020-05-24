@@ -18,6 +18,15 @@ android {
         consumerProguardFiles 'consumer-rules.pro'
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -41,8 +50,10 @@ dependencies {
     implementation 'com.github.moxy-community:moxy:2.1.2'
     kapt 'com.github.moxy-community:moxy-compiler:2.1.2'
     implementation 'com.github.moxy-community:moxy-androidx:2.1.2'
-    kapt 'com.squareup.inject:assisted-inject-processor-dagger2:2.27'
+
+    kapt 'com.squareup.inject:assisted-inject-processor-dagger2:0.5.0'
     compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:0.5.0'
+
     kapt 'com.google.dagger:dagger-compiler:2.27'
     kapt 'com.google.dagger:dagger-android-processor:2.27'
     api 'com.google.dagger:dagger:2.27'
