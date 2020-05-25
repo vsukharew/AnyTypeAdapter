@@ -6,4 +6,8 @@ import moxy.MvpAppCompatFragment
  * Fragment showing the list of tracks
  */
 class TracksFragment : MvpAppCompatFragment() {
+
+    companion object {
+        fun newInstance(): TracksFragment = TracksFragment()
+    }
 }

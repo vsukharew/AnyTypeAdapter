@@ -7,4 +7,7 @@ import moxy.MvpAppCompatFragment
  */
 class AlbumsFragment : MvpAppCompatFragment() {
 
+    companion object {
+        fun newInstance(): AlbumsFragment = AlbumsFragment()
+    }
 }

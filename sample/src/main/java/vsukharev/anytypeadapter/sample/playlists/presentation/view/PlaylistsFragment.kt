@@ -6,4 +6,8 @@ import moxy.MvpAppCompatFragment
  * Fragment showing a playlists
  */
 class PlaylistsFragment : MvpAppCompatFragment() {
+
+    companion object {
+        fun newInstance(): PlaylistsFragment = PlaylistsFragment()
+    }
 }
