@@ -7,7 +7,7 @@ import ru.terrakok.cicerone.android.support.SupportAppScreen
  * Abstraction describing the screen with tracks list
  */
 class TracksScreen : SupportAppScreen() {
-    override fun getFragment(): Fragment? {
+    override fun getFragment(): Fragment {
         return TracksFragment.newInstance()
     }
 }
