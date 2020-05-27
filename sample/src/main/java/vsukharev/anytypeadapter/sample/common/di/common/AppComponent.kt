@@ -4,8 +4,10 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import vsukharev.anytypeadapter.sample.SampleApp
+import javax.inject.Singleton
 
-@Component(modules = [AppModule::class])
+@Component(modules = [NavigationModule::class])
+@Singleton
 interface AppComponent {
     fun inject(app: SampleApp)
 
