@@ -6,6 +6,7 @@ import vsukharev.anytypeadapter.sample.albums.di.AlbumsScope
 import vsukharev.anytypeadapter.sample.albums.domain.model.Album
 import javax.inject.Inject
 
+@AlbumsScope
 class AlbumsInteractor @Inject constructor(private val repository: AlbumsRepository) {
 
     suspend fun getAlbumsBasedOnPreferences(): Result<List<Album>> {
