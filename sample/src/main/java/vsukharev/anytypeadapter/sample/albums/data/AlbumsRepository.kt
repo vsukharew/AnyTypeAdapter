@@ -5,6 +5,9 @@ import vsukharev.anytypeadapter.sample.albums.domain.model.Album
 import java.util.*
 import javax.inject.Inject
 
+/**
+ * Repository returning a single album or a list of the albums
+ */
 @AlbumsScope
 class AlbumsRepository @Inject constructor() {
     private val albums = listOf(
@@ -28,20 +31,6 @@ class AlbumsRepository @Inject constructor() {
             performer = "21 Savage",
             issueYear = 2017,
             coverUrl = "https://i.pinimg.com/originals/a0/1e/75/a01e75fc6283593b75e1d694d0280107.jpg"
-        ),
-        Album(
-            UUID.randomUUID().toString(),
-            name = "ANTI",
-            performer = "Rihanna",
-            issueYear = 2016,
-            coverUrl = "https://i.pinimg.com/474x/24/cd/46/24cd466e5d9a17063f06a5e6b9026cd0--album-cover-rihanna.jpg"
-        ),
-        Album(
-            UUID.randomUUID().toString(),
-            name = "Culture II",
-            performer = "Migos",
-            issueYear = 2018,
-            coverUrl = "https://static.billboard.com/files/media/migos-culture-2-album-art-2018-billboard-1240-compressed.jpg"
         ),
         Album(
             UUID.randomUUID().toString(),
@@ -77,6 +66,41 @@ class AlbumsRepository @Inject constructor() {
             performer = "Radiohead",
             issueYear = 2003,
             coverUrl = "https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/c348b23b-ab05-492b-9fc7-07144eb27edf/16.jpg"
+        ),
+        Album(
+            UUID.randomUUID().toString(),
+            name = "That's The Spirit",
+            performer = "Bring Me The Horizon",
+            issueYear = 2015,
+            coverUrl = "https://i.pinimg.com/originals/55/8f/e2/558fe20a719d037b66e83a3df2095a03.jpg"
+        ),
+        Album(
+            UUID.randomUUID().toString(),
+            name = "#willpower",
+            performer = "will.i.am",
+            issueYear = 2015,
+            coverUrl = "https://images.genius.com/d78ed94ac5ae8c3b0f4051302e06eef8.1000x1000x1.jpg"
+        ),
+        Album(
+            UUID.randomUUID().toString(),
+            name = "Tramp",
+            performer = "Sharon van Etten",
+            issueYear = 2012,
+            coverUrl = "https://images.genius.com/f924ceedfbe7557ac63c999101c38829.1000x1000x1.jpg"
+        ),
+        Album(
+            UUID.randomUUID().toString(),
+            name = "Compass",
+            performer = "Dj Okawari",
+            issueYear = 2017,
+            coverUrl = "https://img.discogs.com/Qkte8XpFqrdbalUYoEXW_HwVoSY=/fit-in/600x600/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-9649132-1484670699-1248.jpeg.jpg"
+        ),
+        Album(
+            UUID.randomUUID().toString(),
+            name = "Always Outnumbered, Never Outgunned",
+            performer = "The Prodigy",
+            issueYear = 2004,
+            coverUrl = "https://img.discogs.com/ePO_qyy5oaWhGSa7GOD9nJx_kg4=/fit-in/600x600/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-313346-1249454385.jpeg.jpg"
         )
     )
 
