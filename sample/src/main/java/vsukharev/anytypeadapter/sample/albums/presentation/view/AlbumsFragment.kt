@@ -15,6 +15,8 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.albums.presentation.AlbumsPresenter
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSectionAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSectionDelegate
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.HeaderAdapterItem
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate
 import javax.inject.Inject
 
 /**
@@ -22,6 +24,11 @@ import javax.inject.Inject
  */
 class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
     private val adapter = AnyTypeAdapter()
+    private val headerDelegate = PartiallyColoredHeaderDelegate(
+        android.R.color.white,
+        R.color.colorSecondary
+    )
+    private val albumsSectionDelegate = AlbumsSectionDelegate()
 
     @Inject
     @InjectPresenter
@@ -59,7 +66,8 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
 
     override fun showItems(items: AlbumsSectionAdapterItem) {
         Collection.Builder()
-            .add(items, AlbumsSectionDelegate())
+            .add(HeaderAdapterItem(getString(R.string.albums_fragment_based_on_your_preferences)), headerDelegate)
+            .add(items, albumsSectionDelegate)
             .build()
             .also { adapter.setItems(it) }
     }
