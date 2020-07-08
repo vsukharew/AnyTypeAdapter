@@ -23,6 +23,8 @@ class AlbumsDelegate : BaseDelegate<AlbumAdapterItem, Holder>() {
         override fun bind(item: AlbumAdapterItem) {
             Glide.with(itemView.context)
                 .load(item.album.coverUrl)
+                .placeholder(R.drawable.ic_album_placeholder)
+                .error(R.drawable.ic_album_placeholder)
                 .into(coverIv)
         }
     }
