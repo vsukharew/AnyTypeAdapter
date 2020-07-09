@@ -15,8 +15,7 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.albums.presentation.AlbumsPresenter
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSectionAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSectionDelegate
-import vsukharev.anytypeadapter.sample.common.presentation.delegate.HeaderAdapterItem
-import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
 import javax.inject.Inject
 
 /**
@@ -29,6 +28,8 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
         R.color.colorSecondary
     )
     private val albumsSectionDelegate = AlbumsSectionDelegate()
+    private val dividerDelegate = DividerDelegate()
+    private val iconWithTextDelegate = IconWithTextDelegate()
 
     @Inject
     @InjectPresenter
@@ -68,6 +69,28 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
         Collection.Builder()
             .add(HeaderAdapterItem(getString(R.string.albums_fragment_based_on_your_preferences)), headerDelegate)
             .add(items, albumsSectionDelegate)
+            .add(DividerAdapterItem(R.dimen.dp16), dividerDelegate)
+            .add(
+                IconWithTextAdapterItem(
+                    R.drawable.ic_fresh_release,
+                    R.string.albums_fragment_fresh_releases
+                ),
+                iconWithTextDelegate
+            )
+            .add(
+                IconWithTextAdapterItem(
+                    R.drawable.ic_chart,
+                    R.string.albums_fragment_chart
+                ),
+                iconWithTextDelegate
+            )
+            .add(
+                IconWithTextAdapterItem(
+                    R.drawable.ic_mic,
+                    R.string.albums_fragment_podcasts
+                ),
+                iconWithTextDelegate
+            )
             .build()
             .also { adapter.setItems(it) }
     }

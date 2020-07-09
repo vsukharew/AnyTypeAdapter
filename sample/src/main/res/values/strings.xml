@@ -5,4 +5,7 @@
     <string name="bottom_navigation_tracks">Tracks</string>
     <string name="albums_fragment_based_on_your_preferences">Based on your preferences</string>
     <string name="albums_fragment_view_all_btn">All</string>
+    <string name="albums_fragment_fresh_releases">Fresh releases</string>
+    <string name="albums_fragment_chart">Chart</string>
+    <string name="albums_fragment_podcasts">Podcasts</string>
 </resources>
