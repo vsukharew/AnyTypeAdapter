@@ -9,6 +9,7 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsDelegate.Holder
 
 /**
+ * TODO rename after deleting "based on preferences" label
  * The single "based on preferences" album delegate
  */
 class AlbumsDelegate : BaseDelegate<AlbumAdapterItem, Holder>() {

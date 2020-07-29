@@ -7,6 +7,7 @@ import vsukharev.anytypeadapter.sample.albums.domain.model.Album
 import javax.inject.Inject
 
 /**
+ * TODO edit comment
  * Interactor of the albums feature
  */
 @AlbumsScope

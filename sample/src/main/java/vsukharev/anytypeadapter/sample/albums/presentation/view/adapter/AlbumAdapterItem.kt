@@ -4,6 +4,7 @@ import vsukharev.anytypeadapter.item.AdapterItem
 import vsukharev.anytypeadapter.sample.albums.domain.model.Album
 
 /**
+ * TODO rename after deleting "based on preferences" label
  * The [AdapterItem] wrapping a single "based on preferences" album
  */
 data class AlbumAdapterItem(val album: Album) : AdapterItem {

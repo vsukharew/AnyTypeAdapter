@@ -12,6 +12,7 @@ import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Spa
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.SpannedGridLayoutManager.SpanInfo
 
 /**
+ * TODO rename after deleting "based on preferences" label
  * The "based on preferences" section delegate
  */
 class AlbumsSectionDelegate : BaseDelegate<AlbumsSectionAdapterItem, Holder>() {
