@@ -15,6 +15,8 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.albums.presentation.AlbumsPresenter
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSectionAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSectionDelegate
+import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceSectionAdapterItem
+import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
 import javax.inject.Inject
 
@@ -30,6 +32,8 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
     private val albumsSectionDelegate = AlbumsSectionDelegate()
     private val dividerDelegate = DividerDelegate()
     private val iconWithTextDelegate = IconWithTextDelegate()
+    private val headerWithButtonDelegate = HeaderWithButtonDelegate()
+    private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
 
     @Inject
     @InjectPresenter
@@ -65,10 +69,10 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
         }
     }
 
-    override fun showItems(items: AlbumsSectionAdapterItem) {
+    override fun showItems(items: Pair<AlbumsSectionAdapterItem, EditorsChoiceSectionAdapterItem>) {
         Collection.Builder()
             .add(HeaderAdapterItem(getString(R.string.albums_fragment_based_on_your_preferences)), headerDelegate)
-            .add(items, albumsSectionDelegate)
+            .add(items.first, albumsSectionDelegate)
             .add(DividerAdapterItem(R.dimen.dp16), dividerDelegate)
             .add(
                 IconWithTextAdapterItem(
@@ -90,6 +94,17 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
                     R.string.albums_fragment_podcasts
                 ),
                 iconWithTextDelegate
+            )
+            .add(
+                HeaderWithButtonAdapterItem(
+                    R.string.albums_fragment_often_listened_to,
+                    R.string.albums_fragment_view_all_btn
+                ),
+                headerWithButtonDelegate
+            )
+            .add(
+                items.second,
+                editorsChoiceDelegate
             )
             .build()
             .also { adapter.setItems(it) }

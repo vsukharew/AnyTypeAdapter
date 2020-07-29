@@ -8,4 +8,5 @@
     <string name="albums_fragment_fresh_releases">Fresh releases</string>
     <string name="albums_fragment_chart">Chart</string>
     <string name="albums_fragment_podcasts">Podcasts</string>
+    <string name="albums_fragment_often_listened_to">Often listened to</string>
 </resources>
