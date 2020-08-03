@@ -12,9 +12,14 @@ import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.Collection
 import vsukharev.anytypeadapter.sample.Injector
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.albums.domain.model.Album
+import vsukharev.anytypeadapter.sample.albums.domain.model.EditorsChoice
 import vsukharev.anytypeadapter.sample.albums.presentation.AlbumsPresenter
+import vsukharev.anytypeadapter.sample.albums.presentation.model.HomePageUi
+import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSectionAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSectionDelegate
+import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceSectionAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
@@ -69,45 +74,88 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
         }
     }
 
-    override fun showItems(items: Pair<AlbumsSectionAdapterItem, EditorsChoiceSectionAdapterItem>) {
+    override fun showData(data: HomePageUi) {
         Collection.Builder()
-            .add(HeaderAdapterItem(getString(R.string.albums_fragment_based_on_your_preferences)), headerDelegate)
-            .add(items.first, albumsSectionDelegate)
-            .add(DividerAdapterItem(R.dimen.dp16), dividerDelegate)
-            .add(
+            .apply {
+                with(data) {
+                    addAlbumsSection(albums)
+                    addMenuItems()
+                    addEditorsChoiceSection(editorsChoice)
+                }
+            }
+            .build()
+            .also { adapter.setItems(it) }
+    }
+
+    private fun Collection.Builder.addAlbumsSection(
+        items: List<Album>
+    ): Collection.Builder {
+        return apply {
+            with(items) {
+                if (isNotEmpty()) {
+                    val section = AlbumsSectionAdapterItem(
+                        map { AlbumAdapterItem(it) }
+                    )
+                    add(
+                        HeaderAdapterItem(getString(R.string.albums_fragment_based_on_your_preferences)),
+                        headerDelegate
+                    )
+                    add(section, albumsSectionDelegate)
+                }
+            }
+        }
+    }
+
+    private fun Collection.Builder.addMenuItems(): Collection.Builder {
+        return apply {
+            add(DividerAdapterItem(R.dimen.dp16), dividerDelegate)
+            add(
                 IconWithTextAdapterItem(
                     R.drawable.ic_fresh_release,
                     R.string.albums_fragment_fresh_releases
                 ),
                 iconWithTextDelegate
             )
-            .add(
+            add(
                 IconWithTextAdapterItem(
                     R.drawable.ic_chart,
                     R.string.albums_fragment_chart
                 ),
                 iconWithTextDelegate
             )
-            .add(
+            add(
                 IconWithTextAdapterItem(
                     R.drawable.ic_mic,
                     R.string.albums_fragment_podcasts
                 ),
                 iconWithTextDelegate
             )
-            .add(
-                HeaderWithButtonAdapterItem(
-                    R.string.albums_fragment_often_listened_to,
-                    R.string.albums_fragment_view_all_btn
-                ),
-                headerWithButtonDelegate
-            )
-            .add(
-                items.second,
-                editorsChoiceDelegate
-            )
-            .build()
-            .also { adapter.setItems(it) }
+        }
+    }
+
+    private fun Collection.Builder.addEditorsChoiceSection(
+        editorsChoices: List<EditorsChoice>
+    ): Collection.Builder {
+        return apply {
+            with(editorsChoices) {
+                if (isNotEmpty()) {
+                    val section = EditorsChoiceSectionAdapterItem(
+                        map { EditorsChoiceAdapterItem(it) }
+                    )
+                    add(
+                        HeaderWithButtonAdapterItem(
+                            R.string.albums_fragment_often_listened_to,
+                            R.string.albums_fragment_view_all_btn
+                        ),
+                        headerWithButtonDelegate
+                    )
+                    add(
+                        section,
+                        editorsChoiceDelegate
+                    )
+                }
+            }
+        }
     }
 
     companion object {
