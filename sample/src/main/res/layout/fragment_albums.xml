@@ -4,6 +4,8 @@
     android:id="@+id/albums_rv"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingTop="@dimen/dp16"
+    android:paddingBottom="@dimen/dp16"
     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
 
 </androidx.recyclerview.widget.RecyclerView>
