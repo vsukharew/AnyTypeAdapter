@@ -6,4 +6,12 @@ package vsukharev.anytypeadapter.sample.common.errorhandling
 sealed class Result<out T> {
     data class Success<T>(val data: T) : Result<T>()
     data class Failure(var e: Throwable) : Result<Nothing>()
+
+    val dataOrNull: T? by lazy {
+        if (this is Success) {
+            data
+        } else {
+            null
+        }
+    }
 }
