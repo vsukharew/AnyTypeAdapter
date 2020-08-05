@@ -25,7 +25,7 @@ class AlbumsPresenter @Inject constructor(
     private var isItemHeld = false
     private var itemHoldingTime = 0L
     private var mainLoadingJob: Job? = null
-    private var jobAfterItemRelease: Job? = null
+    private var loadingAfterItemReleaseJob: Job? = null
 
     override fun onFirstViewAttach() {
         getAlbums()
@@ -39,8 +39,8 @@ class AlbumsPresenter @Inject constructor(
     fun onAlbumReleased() {
         itemHoldingTime = System.currentTimeMillis() - itemHoldingTime
         mainLoadingJob?.cancel()
-        jobAfterItemRelease?.cancel()
-        jobAfterItemRelease = startJobOnMain {
+        loadingAfterItemReleaseJob?.cancel()
+        loadingAfterItemReleaseJob = startJobOnMain {
             delay(RELOADING_DELAY - itemHoldingTime)
             getAlbums()
         }
