@@ -20,15 +20,15 @@ open class BasePresenter<V: BaseView> : MvpPresenter<V>() {
         }
     }
 
-    protected fun startJobOnMain(block: suspend CoroutineScope.() -> Unit) {
-        startJob(Dispatchers.Main, block = block)
+    protected fun startJobOnMain(block: suspend CoroutineScope.() -> Unit): Job {
+        return startJob(Dispatchers.Main, block = block)
     }
 
     private fun startJob(
         context: CoroutineContext = EmptyCoroutineContext,
         start: CoroutineStart = CoroutineStart.DEFAULT,
         block: suspend CoroutineScope.() -> Unit
-    ) : Job {
+    ): Job {
         return GlobalScope.launch(context, start, block).also { jobs.add(it) }
     }
 

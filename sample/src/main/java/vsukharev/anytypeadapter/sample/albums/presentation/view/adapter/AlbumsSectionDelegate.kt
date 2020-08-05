@@ -15,8 +15,10 @@ import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Spa
  * TODO rename after deleting "based on preferences" label
  * The "based on preferences" section delegate
  */
-class AlbumsSectionDelegate : BaseDelegate<AlbumsSectionAdapterItem, Holder>() {
-    private val delegate = AlbumsDelegate()
+class AlbumsSectionDelegate(
+    onHoldItemListener: (Boolean) -> Unit
+) : BaseDelegate<AlbumsSectionAdapterItem, Holder>() {
+    private val delegate = AlbumsDelegate(onHoldItemListener)
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 

@@ -1,8 +1,6 @@
 package vsukharev.anytypeadapter.sample.albums.presentation
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import moxy.InjectViewState
 import vsukharev.anytypeadapter.sample.albums.domain.interactor.AlbumsInteractor
 import vsukharev.anytypeadapter.sample.albums.domain.interactor.EditorsChoiceInteractor
@@ -13,6 +11,8 @@ import vsukharev.anytypeadapter.sample.common.di.common.PerScreen
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
 import javax.inject.Inject
 
+private const val RELOADING_DELAY = 5000L
+
 /**
  * [AlbumsFragment]'s presenter
  */
@@ -22,13 +22,32 @@ class AlbumsPresenter @Inject constructor(
     private val albumsInteractor: AlbumsInteractor,
     private val editorsChoiceInteractor: EditorsChoiceInteractor
 ) : BasePresenter<AlbumsView>() {
+    private var isItemHeld = false
+    private var itemHoldingTime = 0L
+    private var mainLoadingJob: Job? = null
+    private var jobAfterItemRelease: Job? = null
 
     override fun onFirstViewAttach() {
         getAlbums()
     }
 
+    fun onAlbumHeld() {
+        isItemHeld = true
+        itemHoldingTime = System.currentTimeMillis()
+    }
+
+    fun onAlbumReleased() {
+        itemHoldingTime = System.currentTimeMillis() - itemHoldingTime
+        mainLoadingJob?.cancel()
+        jobAfterItemRelease?.cancel()
+        jobAfterItemRelease = startJobOnMain {
+            delay(RELOADING_DELAY - itemHoldingTime)
+            getAlbums()
+        }
+    }
+
     private fun getAlbums() {
-        startJobOnMain {
+        mainLoadingJob = startJobOnMain {
             while (true) {
                 val albums = withContext(Dispatchers.Default) {
                     albumsInteractor.getAlbumsBasedOnPreferences()
@@ -38,7 +57,7 @@ class AlbumsPresenter @Inject constructor(
                 }.dataOrNull ?: emptyList()
                 val homePageUi = HomePageUi(albums, editorsChoice)
                 viewState.showData(homePageUi)
-                delay(5000)
+                delay(RELOADING_DELAY)
             }
         }
     }

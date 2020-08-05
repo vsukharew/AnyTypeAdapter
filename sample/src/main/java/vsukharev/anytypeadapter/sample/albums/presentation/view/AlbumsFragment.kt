@@ -34,7 +34,13 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
         android.R.color.white,
         R.color.colorSecondary
     )
-    private val albumsSectionDelegate = AlbumsSectionDelegate()
+    private val albumsSectionDelegate = AlbumsSectionDelegate {
+        if (it) {
+            presenter.onAlbumHeld()
+        } else {
+            presenter.onAlbumReleased()
+        }
+    }
     private val dividerDelegate = DividerDelegate()
     private val iconWithTextDelegate = IconWithTextDelegate()
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
