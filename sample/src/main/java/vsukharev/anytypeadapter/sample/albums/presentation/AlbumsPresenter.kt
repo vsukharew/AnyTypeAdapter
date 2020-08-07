@@ -8,6 +8,7 @@ import vsukharev.anytypeadapter.sample.albums.presentation.model.HomePageUi
 import vsukharev.anytypeadapter.sample.albums.presentation.view.AlbumsFragment
 import vsukharev.anytypeadapter.sample.albums.presentation.view.AlbumsView
 import vsukharev.anytypeadapter.sample.common.di.common.PerScreen
+import vsukharev.anytypeadapter.sample.common.errorhandling.Result.Failure
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
 import javax.inject.Inject
 
@@ -46,18 +47,39 @@ class AlbumsPresenter @Inject constructor(
         }
     }
 
+    fun reloadData() {
+        viewState.hideError()
+        viewState.showProgress()
+        getAlbums()
+    }
+
     private fun getAlbums() {
         mainLoadingJob = startJobOnMain {
-            while (true) {
-                val albums = withContext(Dispatchers.Default) {
+            loop@ while (true) {
+                val albumsResult = withContext(Dispatchers.IO) {
                     albumsInteractor.getAlbumsBasedOnPreferences()
-                }.dataOrNull ?: emptyList()
-                val editorsChoice = withContext(Dispatchers.Default) {
+                }
+                val editorsChoiceResult = withContext(Dispatchers.IO) {
                     editorsChoiceInteractor.getEditorsChoice()
-                }.dataOrNull ?: emptyList()
-                val homePageUi = HomePageUi(albums, editorsChoice)
-                viewState.showData(homePageUi)
-                delay(RELOADING_DELAY)
+                }
+                viewState.hideProgress()
+                when {
+                    albumsResult is Failure -> {
+                        showError(albumsResult.e)
+                        break@loop
+                    }
+                    editorsChoiceResult is Failure -> {
+                        showError(editorsChoiceResult.e)
+                        break@loop
+                    }
+                    else -> {
+                        val albums = albumsResult.dataOrNull ?: emptyList()
+                        val editorsChoice = editorsChoiceResult.dataOrNull ?: emptyList()
+                        val homePageUi = HomePageUi(albums, editorsChoice)
+                        viewState.showData(homePageUi)
+                        delay(RELOADING_DELAY)
+                    }
+                }
             }
         }
     }

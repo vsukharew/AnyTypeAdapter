@@ -2,6 +2,7 @@ package vsukharev.anytypeadapter.sample.albums.data
 
 import vsukharev.anytypeadapter.sample.albums.di.AlbumsScope
 import vsukharev.anytypeadapter.sample.albums.domain.model.Album
+import vsukharev.anytypeadapter.sample.common.network.makeSimpleRequest
 import java.util.*
 import javax.inject.Inject
 
@@ -105,6 +106,7 @@ class AlbumsRepository @Inject constructor() {
     )
 
     suspend fun getAlbumsBasedOnPreferences(): List<Album> {
-        return albums.shuffled().take(5)
+        makeSimpleRequest() // make request so that if there's no internet the error will be displayed
+        return albums
     }
 }

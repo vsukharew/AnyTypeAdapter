@@ -3,6 +3,7 @@ package vsukharev.anytypeadapter.sample.albums.data
 import vsukharev.anytypeadapter.sample.albums.di.AlbumsScope
 import java.util.*
 import vsukharev.anytypeadapter.sample.albums.domain.model.EditorsChoice
+import vsukharev.anytypeadapter.sample.common.network.makeSimpleRequest
 import javax.inject.Inject
 
 /**
@@ -33,6 +34,7 @@ class EditorsChoiceRepository @Inject constructor() {
     )
 
     suspend fun getAlbumsOftenListenedTo(): List<EditorsChoice> {
+        makeSimpleRequest() // make request so that if there's no internet the error will be displayed
         return editorsChoiceMusic
     }
 }

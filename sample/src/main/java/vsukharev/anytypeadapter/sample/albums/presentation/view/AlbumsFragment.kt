@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.fragment_albums.*
-import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
@@ -22,13 +22,14 @@ import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSe
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceSectionAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate
+import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
 import javax.inject.Inject
 
 /**
  * Fragment showing the list of albums
  */
-class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
+class AlbumsFragment : BaseFragment(), AlbumsView {
     private val adapter = AnyTypeAdapter()
     private val headerDelegate = PartiallyColoredHeaderDelegate(
         android.R.color.white,
@@ -69,6 +70,7 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         albums_rv.adapter = adapter
+        albums_retry_btn.setOnClickListener { presenter.reloadData() }
     }
 
     override fun onDestroy() {
@@ -81,6 +83,7 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
     }
 
     override fun showData(data: HomePageUi) {
+        albums_error_container.isVisible = false
         Collection.Builder()
             .apply {
                 with(data) {
@@ -91,6 +94,22 @@ class AlbumsFragment : MvpAppCompatFragment(), AlbumsView {
             }
             .build()
             .also { adapter.setItems(it) }
+    }
+
+    override fun showProgress() {
+        albums_pb.isVisible = true
+    }
+
+    override fun hideProgress() {
+        albums_pb.isVisible = false
+    }
+
+    override fun showNoInternetError(e: Throwable) {
+        albums_error_container.isVisible = true
+    }
+
+    override fun hideError() {
+        albums_error_container.isVisible = false
     }
 
     private fun Collection.Builder.addAlbumsSection(

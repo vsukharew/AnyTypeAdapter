@@ -8,12 +8,12 @@ import javax.inject.Inject
 
 @AlbumsScope
 class EditorsChoiceInteractor @Inject constructor(private val repository: EditorsChoiceRepository) {
+    private var editorsChoice: List<EditorsChoice>? = null
 
     suspend fun getEditorsChoice(): Result<List<EditorsChoice>> {
-        return try {
-            Result.Success(repository.getAlbumsOftenListenedTo())
-        }
-        catch (e: Throwable) {
+        return editorsChoice?.let { Result.Success(it) } ?: try {
+            Result.Success(repository.getAlbumsOftenListenedTo()).also { editorsChoice = it.data }
+        } catch (e: Throwable) {
             Result.Failure(e)
         }
     }
