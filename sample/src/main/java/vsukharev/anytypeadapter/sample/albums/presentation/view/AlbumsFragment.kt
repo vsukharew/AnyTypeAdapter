@@ -112,6 +112,10 @@ class AlbumsFragment : BaseFragment(), AlbumsView {
         albums_error_container.isVisible = false
     }
 
+    override fun onNetworkAvailable() {
+        presenter.reloadData()
+    }
+
     private fun Collection.Builder.addAlbumsSection(
         items: List<Album>
     ): Collection.Builder {
