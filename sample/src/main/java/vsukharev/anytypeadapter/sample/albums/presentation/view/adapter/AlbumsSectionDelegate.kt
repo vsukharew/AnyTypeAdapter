@@ -44,7 +44,7 @@ class AlbumsSectionDelegate(
 
         override fun bind(item: AlbumsSectionAdapterItem) {
             Collection.Builder()
-                .add(item.adapterAlbums.take(5), delegate)
+                .add(item.adapterAlbums, delegate)
                 .build()
                 .let { anyTypeAdapter.setItems(it) }
         }

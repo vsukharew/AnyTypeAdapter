@@ -18,7 +18,10 @@ class AlbumsInteractor @Inject constructor(private val repository: AlbumsReposit
 
     suspend fun getAlbumsBasedOnPreferences(): Result<List<Album>> {
         return albums?.let { Result.Success(it.shuffled().take(ALBUMS_PORTION)) } ?: try {
-            Result.Success(repository.getAlbumsBasedOnPreferences()).also { albums = it.data }
+            repository.getAlbumsBasedOnPreferences()
+                .also { albums = it }
+                .take(ALBUMS_PORTION)
+                .let { Result.Success(it) }
         }
         catch (e: Throwable) {
             Result.Failure(e)
