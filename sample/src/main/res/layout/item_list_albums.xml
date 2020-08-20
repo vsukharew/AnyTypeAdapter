@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
+    android:foreground="@drawable/album_cover_ripple"
     android:outlineProvider="background"
     android:stateListAnimator="@animator/raise_animation">
 
