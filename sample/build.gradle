@@ -67,4 +67,6 @@ dependencies {
     api 'com.google.dagger:dagger:2.27'
     api 'com.google.dagger:dagger-android:2.27'
     api 'com.google.dagger:dagger-android-support:2.27'
+
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
 }

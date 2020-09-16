@@ -22,6 +22,7 @@ import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.AlbumsSe
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceSectionAdapterItem
 import vsukharev.anytypeadapter.sample.albums.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate
+import vsukharev.anytypeadapter.sample.common.network.ConnectivityObserver
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
 import javax.inject.Inject
@@ -47,6 +48,10 @@ class AlbumsFragment : BaseFragment(), AlbumsView {
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
     private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
 
+    private val connectivityObserver by lazy {
+        ConnectivityObserver(requireActivity()) { presenter.reloadData() }
+    }
+
     @Inject
     @InjectPresenter
     lateinit var presenter: AlbumsPresenter
@@ -71,6 +76,11 @@ class AlbumsFragment : BaseFragment(), AlbumsView {
         super.onViewCreated(view, savedInstanceState)
         albums_rv.adapter = adapter
         albums_retry_btn.setOnClickListener { presenter.reloadData() }
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        connectivityObserver.let { lifecycle.addObserver(it) }
     }
 
     override fun onDestroy() {
@@ -110,10 +120,6 @@ class AlbumsFragment : BaseFragment(), AlbumsView {
 
     override fun hideError() {
         albums_error_container.isVisible = false
-    }
-
-    override fun onNetworkAvailable() {
-        presenter.reloadData()
     }
 
     private fun Collection.Builder.addAlbumsSection(

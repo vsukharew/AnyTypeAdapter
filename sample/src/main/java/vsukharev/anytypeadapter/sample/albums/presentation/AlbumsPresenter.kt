@@ -9,10 +9,12 @@ import vsukharev.anytypeadapter.sample.albums.presentation.view.AlbumsFragment
 import vsukharev.anytypeadapter.sample.albums.presentation.view.AlbumsView
 import vsukharev.anytypeadapter.sample.common.di.common.PerScreen
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result.Failure
+import vsukharev.anytypeadapter.sample.common.presentation.LoadState
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
 import javax.inject.Inject
 
-private const val RELOADING_DELAY = 5000L
+private const val NORMAL_RELOADING_DELAY = 5000L
+private const val DEFAULT_RELOADING_DELAY_AFTER_RELEASING = 2000L
 
 /**
  * [AlbumsFragment]'s presenter
@@ -23,31 +25,35 @@ class AlbumsPresenter @Inject constructor(
     private val albumsInteractor: AlbumsInteractor,
     private val editorsChoiceInteractor: EditorsChoiceInteractor
 ) : BasePresenter<AlbumsView>() {
-    private var isItemHeld = false
     private var itemHoldingTime = 0L
     private var mainLoadingJob: Job? = null
     private var loadingAfterItemReleaseJob: Job? = null
+    private var loadState = LoadState.NONE
 
     override fun onFirstViewAttach() {
+        loadState = LoadState.LOADING
         getAlbums()
     }
 
     fun onAlbumHeld() {
-        isItemHeld = true
         itemHoldingTime = System.currentTimeMillis()
+        mainLoadingJob?.cancel()
+        loadingAfterItemReleaseJob?.cancel()
     }
 
     fun onAlbumReleased() {
         itemHoldingTime = System.currentTimeMillis() - itemHoldingTime
-        mainLoadingJob?.cancel()
-        loadingAfterItemReleaseJob?.cancel()
         loadingAfterItemReleaseJob = startJobOnMain {
-            delay(RELOADING_DELAY - itemHoldingTime)
+            delay(timeMillis = (NORMAL_RELOADING_DELAY - itemHoldingTime)
+                .takeIf { it > 0 }
+                ?: DEFAULT_RELOADING_DELAY_AFTER_RELEASING
+            )
             getAlbums()
         }
     }
 
     fun reloadData() {
+        if (loadState != LoadState.ERROR) return
         viewState.hideError()
         viewState.showProgress()
         getAlbums()
@@ -66,18 +72,21 @@ class AlbumsPresenter @Inject constructor(
                 when {
                     albumsResult is Failure -> {
                         showError(albumsResult.e)
+                        loadState = LoadState.ERROR
                         break@loop
                     }
                     editorsChoiceResult is Failure -> {
                         showError(editorsChoiceResult.e)
+                        loadState = LoadState.ERROR
                         break@loop
                     }
                     else -> {
                         val albums = albumsResult.dataOrNull ?: emptyList()
                         val editorsChoice = editorsChoiceResult.dataOrNull ?: emptyList()
                         val homePageUi = HomePageUi(albums, editorsChoice)
+                        loadState = LoadState.NONE
                         viewState.showData(homePageUi)
-                        delay(RELOADING_DELAY)
+                        delay(NORMAL_RELOADING_DELAY)
                     }
                 }
             }
