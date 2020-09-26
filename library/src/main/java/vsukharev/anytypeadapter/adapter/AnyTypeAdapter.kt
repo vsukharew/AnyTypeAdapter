@@ -61,11 +61,12 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() 
 
     fun setItems(collection: Collection) {
         this.collection = collection
-        asyncListDiffer ?: AsyncListDiffer(this, Callback())
-            .also {
-                asyncListDiffer = it
-                it.submitList(collection.items)
-            }
+        asyncListDiffer?.submitList(collection.items)
+            ?: AsyncListDiffer(this, Callback())
+                .also {
+                    asyncListDiffer = it
+                    it.submitList(collection.items)
+                }
     }
 
     private class Callback : DiffUtil.ItemCallback<AdapterItem>() {
