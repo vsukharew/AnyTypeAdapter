@@ -11,10 +11,8 @@ import vsukharev.anytypeadapter.item.AdapterItem
 /**
  * Adapter that is able to display items of any view type together
  */
-class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() {
-    private val asyncListDiffer = AsyncListDiffer<AdapterItem>(this,
-        Callback()
-    )
+open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() {
+    private var asyncListDiffer: AsyncListDiffer<AdapterItem>? = null
     private var collection: Collection =
         Collection.EMPTY
     private var currentItemViewType = 0
@@ -39,7 +37,7 @@ class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() {
             loop@ for (i in 1 until size()) {
                 // Each two adjacent values of the map represent the positions range
                 // in which the items with the same viewType are placed
-                val range = keyAt(i-1) until keyAt(i)
+                val range = keyAt(i - 1) until keyAt(i)
 
                 // For the last items portion it's enough to know only the left bound of the range.
                 // The viewType will be the same until the collection ends
@@ -63,7 +61,11 @@ class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() {
 
     fun setItems(collection: Collection) {
         this.collection = collection
-        asyncListDiffer.submitList(collection.items)
+        asyncListDiffer ?: AsyncListDiffer(this, Callback())
+            .also {
+                asyncListDiffer = it
+                it.submitList(collection.items)
+            }
     }
 
     private class Callback : DiffUtil.ItemCallback<AdapterItem>() {
