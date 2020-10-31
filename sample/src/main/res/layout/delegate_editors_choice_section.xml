@@ -4,7 +4,8 @@
     android:id="@+id/editors_choice_section_rv"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    android:clipToPadding="false"
     android:orientation="horizontal"
-    android:layout_marginEnd="8dp" />
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
