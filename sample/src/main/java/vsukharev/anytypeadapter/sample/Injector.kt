@@ -1,10 +1,10 @@
 package vsukharev.anytypeadapter.sample
 
 import android.content.Context
-import vsukharev.anytypeadapter.sample.albums.di.AlbumsComponent
-import vsukharev.anytypeadapter.sample.albums.di.AlbumsScreenComponent
-import vsukharev.anytypeadapter.sample.albums.di.DaggerAlbumsComponent
-import vsukharev.anytypeadapter.sample.albums.di.DaggerAlbumsScreenComponent
+import vsukharev.anytypeadapter.sample.feed.di.FeedComponent
+import vsukharev.anytypeadapter.sample.feed.di.FeedScreenComponent
+import vsukharev.anytypeadapter.sample.feed.di.DaggerFeedComponent
+import vsukharev.anytypeadapter.sample.feed.di.DaggerFeedScreenComponent
 import vsukharev.anytypeadapter.sample.common.di.common.AppComponent
 import vsukharev.anytypeadapter.sample.common.di.common.DaggerAppComponent
 
@@ -13,8 +13,8 @@ import vsukharev.anytypeadapter.sample.common.di.common.DaggerAppComponent
  */
 object Injector {
     private var appComponent: AppComponent? = null
-    private var albumsComponent: AlbumsComponent? = null
-    private var albumsScreenComponent: AlbumsScreenComponent? = null
+    private var feedComponent: FeedComponent? = null
+    private var feedScreenComponent: FeedScreenComponent? = null
 
     fun buildAppComponent(context: Context): AppComponent {
         return DaggerAppComponent.factory()
@@ -22,27 +22,27 @@ object Injector {
             .also { appComponent = it }
     }
 
-    private fun buildAlbumsComponent(): AlbumsComponent {
-        return albumsComponent ?: DaggerAlbumsComponent.builder()
+    private fun buildFeedComponent(): FeedComponent {
+        return feedComponent ?: DaggerFeedComponent.builder()
             .build()
-            .also { albumsComponent = it }
+            .also { feedComponent = it }
     }
 
-    fun buildAlbumsScreenComponent(): AlbumsScreenComponent {
-        return albumsScreenComponent ?: DaggerAlbumsScreenComponent.builder()
-            .albumsComponent(buildAlbumsComponent())
+    fun buildAlbumsScreenComponent(): FeedScreenComponent {
+        return feedScreenComponent ?: DaggerFeedScreenComponent.builder()
+            .feedComponent(buildFeedComponent())
             .build()
-            .also { albumsScreenComponent = it }
+            .also { feedScreenComponent = it }
     }
 
     fun destroyAlbumsComponent() {
-        if (albumsScreenComponent == null) {
-            albumsComponent = null
+        if (feedScreenComponent == null) {
+            feedComponent = null
         }
     }
 
     fun destroyAlbumsScreenComponent() {
-        albumsScreenComponent = null
+        feedScreenComponent = null
         destroyAlbumsComponent()
     }
 }
