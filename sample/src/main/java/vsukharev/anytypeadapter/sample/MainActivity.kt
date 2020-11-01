@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import kotlinx.android.synthetic.main.activity_main.*
+import vsukharev.anytypeadapter.sample.albums.presentation.view.AlbumsFragment
 import vsukharev.anytypeadapter.sample.albums.presentation.view.flow.AlbumsFlowScreen
 import vsukharev.anytypeadapter.sample.common.extension.commitShowAndHide
 import vsukharev.anytypeadapter.sample.common.extension.doIfEmpty
@@ -39,7 +40,7 @@ class MainActivity : BaseActivity() {
         supportFragmentManager.apply {
             val tag = initialSelectedTabId.toString()
             findFragmentByTag(tag) ?: run {
-                val activeFragment = AlbumsFlowScreen().fragment
+                val activeFragment = AlbumsFragment.newInstance()
                 beginTransaction()
                     .add(R.id.main_container, activeFragment, tag)
                     .addToBackStack(tag)

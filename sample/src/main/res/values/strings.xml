@@ -3,4 +3,14 @@
     <string name="bottom_navigation_albums">Albums</string>
     <string name="bottom_navigation_playlists">Playlists</string>
     <string name="bottom_navigation_tracks">Tracks</string>
+    <string name="albums_fragment_based_on_your_preferences">Based on your preferences</string>
+    <string name="albums_fragment_view_all_btn">All</string>
+    <string name="albums_fragment_fresh_releases">Fresh releases</string>
+    <string name="albums_fragment_chart">Chart</string>
+    <string name="albums_fragment_podcasts">Podcasts</string>
+    <string name="albums_fragment_often_listened_to">Often listened to</string>
+    <string name="no_internet_error_title_text">Connection error</string>
+    <string name="no_internet_error_description_text">Check your internet connection and try again</string>
+    <string name="unknown_error_text">Unknown error</string>
+    <string name="retry_btn">Retry</string>
 </resources>
