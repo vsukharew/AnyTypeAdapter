@@ -5,8 +5,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import kotlinx.android.synthetic.main.activity_main.*
-import vsukharev.anytypeadapter.sample.albums.presentation.view.AlbumsFragment
-import vsukharev.anytypeadapter.sample.albums.presentation.view.flow.AlbumsFlowScreen
+import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedFragment
+import vsukharev.anytypeadapter.sample.feed.presentation.view.flow.FeedFlowScreen
 import vsukharev.anytypeadapter.sample.common.extension.commitShowAndHide
 import vsukharev.anytypeadapter.sample.common.extension.doIfEmpty
 import vsukharev.anytypeadapter.sample.common.extension.getFirstVisibleFragment
@@ -40,7 +40,7 @@ class MainActivity : BaseActivity() {
         supportFragmentManager.apply {
             val tag = initialSelectedTabId.toString()
             findFragmentByTag(tag) ?: run {
-                val activeFragment = AlbumsFragment.newInstance()
+                val activeFragment = FeedFragment.newInstance()
                 beginTransaction()
                     .add(R.id.main_container, activeFragment, tag)
                     .addToBackStack(tag)
@@ -114,7 +114,7 @@ class MainActivity : BaseActivity() {
 
     private fun getFragmentByMenuItemId(itemId: Int): Fragment? {
         return when (itemId) {
-            R.id.albums -> AlbumsFlowScreen().fragment
+            R.id.albums -> FeedFlowScreen().fragment
             R.id.playlists -> PlaylistsFlowScreen().fragment
             R.id.tracks -> TracksFlowScreen().fragment
             else -> null
