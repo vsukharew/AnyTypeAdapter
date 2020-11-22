@@ -1,6 +1,7 @@
 package vsukharev.anytypeadapter.sample.feed.presentation.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,6 @@ import vsukharev.anytypeadapter.sample.Injector
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
-import vsukharev.anytypeadapter.sample.feed.presentation.AlbumsPresenter
 import vsukharev.anytypeadapter.sample.feed.presentation.model.HomePageUi
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumAdapterItem
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsSectionAdapterItem
@@ -25,7 +25,11 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorscho
 import vsukharev.anytypeadapter.sample.common.network.ConnectivityObserver
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
+import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.presentation.FeedPresenter
+import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivityAdapterItem
+import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionAdapterItem
+import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionDelegate
 import javax.inject.Inject
 
 /**
@@ -48,6 +52,7 @@ class FeedFragment : BaseFragment(), FeedView {
     private val iconWithTextDelegate = IconWithTextDelegate()
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
     private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
+    private val activitiesDelegate = ActivitySectionDelegate()
 
     private val connectivityObserver by lazy {
         ConnectivityObserver(requireActivity()) { presenter.reloadData() }
@@ -98,8 +103,10 @@ class FeedFragment : BaseFragment(), FeedView {
         Collection.Builder()
             .apply {
                 with(data) {
+                    Log.d("Test", "albums.size - ${albums.size}activities.size - ${activities.size}")
                     addAlbumsSection(albums)
                     addMenuItems()
+                    addActivitiesSection(activities)
                     addEditorsChoiceSection(editorsChoice)
                 }
             }
@@ -186,6 +193,19 @@ class FeedFragment : BaseFragment(), FeedView {
                     section,
                     editorsChoiceDelegate
                 )
+            }
+        }
+    }
+
+    private fun Collection.Builder.addActivitiesSection(
+        activities: List<Activity>
+    ): Collection.Builder {
+        return apply {
+            with(activities) {
+                val adapterItems = ActivitySectionAdapterItem(
+                    map { ActivityAdapterItem(it) }
+                )
+                add(adapterItems, activitiesDelegate)
             }
         }
     }

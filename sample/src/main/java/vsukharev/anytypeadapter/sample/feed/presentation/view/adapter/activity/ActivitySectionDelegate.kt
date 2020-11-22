@@ -11,6 +11,7 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.A
 
 class ActivitySectionDelegate : BaseDelegate<ActivitySectionAdapterItem, Holder>() {
     private val delegate = ActivityDelegate()
+    private val anyTypeAdapter = AnyTypeAdapter()
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 
@@ -18,17 +19,20 @@ class ActivitySectionDelegate : BaseDelegate<ActivitySectionAdapterItem, Holder>
 
     inner class Holder(itemView: View) : BaseViewHolder<ActivitySectionAdapterItem>(itemView) {
         private val recyclerView = itemView.delegate_activity_section_rv
-        private val adapter = AnyTypeAdapter()
 
         init {
-            recyclerView.adapter = adapter
+            recyclerView.apply {
+                if (adapter == null) {
+                    adapter = anyTypeAdapter
+                }
+            }
         }
 
         override fun bind(item: ActivitySectionAdapterItem) {
             Collection.Builder()
                 .add(item.activityItems, delegate)
                 .build()
-                .let { adapter.setItems(it) }
+                .let { anyTypeAdapter.setItems(it) }
         }
     }
 }

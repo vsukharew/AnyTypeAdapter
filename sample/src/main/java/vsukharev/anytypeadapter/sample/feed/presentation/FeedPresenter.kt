@@ -11,6 +11,7 @@ import vsukharev.anytypeadapter.sample.common.errorhandling.Result
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result.Failure
 import vsukharev.anytypeadapter.sample.common.presentation.LoadState
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
+import vsukharev.anytypeadapter.sample.feed.domain.interactor.FeedInteractor.ShuffleMode
 import javax.inject.Inject
 
 private const val NORMAL_RELOADING_DELAY = 5000L
@@ -26,6 +27,7 @@ class FeedPresenter @Inject constructor(
 ) : BasePresenter<FeedView>() {
     private var itemHoldingTime = 0L
     private var mainLoadingJob: Job? = null
+    private var mainLoadingJob2: Job? = null
     private var loadingAfterItemReleaseJob: Job? = null
     private var loadState = LoadState.NONE
 
@@ -59,24 +61,42 @@ class FeedPresenter @Inject constructor(
     }
 
     private fun getAlbums() {
-        mainLoadingJob = startJobOnMain {
-            loop@ while (true) {
-                val feedResult = withContext(Dispatchers.IO) {
-                    feedInteractor.getFeed()
+        mainLoadingJob = getFeed()
+//        mainLoadingJob = startJobOnMain {
+//            delay(NORMAL_RELOADING_DELAY)
+//            loop@ while (isActive) {
+//                getFeed(ShuffleMode.ALBUM_COVERS)
+//                delay(NORMAL_RELOADING_DELAY)
+//            }
+//        }
+        mainLoadingJob2 = startJobOnMain {
+            delay(5000)
+            loop@ while (isActive) {
+                getFeed(ShuffleMode.ACTIVITIES)
+                delay(5000)
+            }
+        }
+    }
+
+    private fun getFeed(shuffleMode: ShuffleMode = ShuffleMode.NONE): Job {
+        return startJobOnMain {
+            val feedResult = withContext(Dispatchers.IO) {
+                feedInteractor.getFeed(shuffleMode)
+            }
+            viewState.hideProgress()
+            when (feedResult) {
+                is Failure -> {
+                    showError(feedResult.e)
+                    loadState = LoadState.ERROR
                 }
-                viewState.hideProgress()
-                when (feedResult) {
-                    is Failure -> {
-                        showError(feedResult.e)
-                        loadState = LoadState.ERROR
-                        break@loop
-                    }
-                    is Result.Success -> {
-                        val homePageUi = HomePageUi(feedResult.data.albums, feedResult.data.editorsChoice)
-                        loadState = LoadState.NONE
-                        viewState.showData(homePageUi)
-                        delay(NORMAL_RELOADING_DELAY)
-                    }
+                is Result.Success -> {
+                    val homePageUi = HomePageUi(
+                        feedResult.data.albums,
+                        feedResult.data.editorsChoice,
+                        feedResult.data.activities
+                    )
+                    loadState = LoadState.NONE
+                    viewState.showData(homePageUi)
                 }
             }
         }
