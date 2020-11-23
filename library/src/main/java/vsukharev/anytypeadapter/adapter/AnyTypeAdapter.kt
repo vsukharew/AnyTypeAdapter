@@ -1,21 +1,36 @@
 package vsukharev.anytypeadapter.adapter
 
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import vsukharev.anytypeadapter.holder.BaseViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
+import java.util.concurrent.*
 
 /**
  * Adapter that is able to display items of any view type together
  */
 open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() {
-    private var asyncListDiffer: AsyncListDiffer<AdapterItem>? = null
-    private var collection: Collection =
-        Collection.EMPTY
+    private var collection: Collection = Collection.EMPTY
     private var currentItemViewType = 0
+
+    private val backgroundThreadExecutor = ThreadPoolExecutor(
+        1,
+        1,
+        0L,
+        TimeUnit.SECONDS,
+        SynchronousQueue<Runnable>()
+    )
+
+    private val mainThreadExecutor = object : Executor {
+        private val handler = Handler(Looper.getMainLooper())
+        override fun execute(command: Runnable) {
+            handler.post(command)
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AdapterItem> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
@@ -60,22 +75,29 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() 
     }
 
     fun setItems(collection: Collection) {
-        this.collection = collection
-        asyncListDiffer?.submitList(collection.items)
-            ?: AsyncListDiffer(this, Callback())
-                .also {
-                    asyncListDiffer = it
-                    it.submitList(collection.items)
-                }
+        backgroundThreadExecutor.execute {
+            val diffResult =
+                DiffUtil.calculateDiff(DiffUtilCallback(this.collection.items, collection.items))
+            mainThreadExecutor.execute {
+                this.collection = collection
+                diffResult.dispatchUpdatesTo(this)
+            }
+        }
     }
 
-    private class Callback : DiffUtil.ItemCallback<AdapterItem>() {
-        override fun areItemsTheSame(oldItem: AdapterItem, newItem: AdapterItem): Boolean {
-            return oldItem.areItemsTheSame(newItem)
-        }
+    private class DiffUtilCallback(
+        private val oldList: List<AdapterItem>,
+        private val newList: List<AdapterItem>
+    ) : DiffUtil.Callback() {
 
-        override fun areContentsTheSame(oldItem: AdapterItem, newItem: AdapterItem): Boolean {
-            return oldItem.areContentsTheSame(newItem)
-        }
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+            oldList[oldItemPosition].areItemsTheSame(newList[newItemPosition])
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+            oldList[oldItemPosition].areContentsTheSame(newList[newItemPosition])
     }
 }
