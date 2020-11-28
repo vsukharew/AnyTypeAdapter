@@ -14,18 +14,20 @@ import vsukharev.anytypeadapter.sample.R
  */
 open class HeaderDelegate(
     @ColorRes protected val defaultColor: Int
-) : BaseDelegate<HeaderAdapterItem, HeaderDelegate.HeaderViewHolder>() {
+) : BaseDelegate<String, HeaderDelegate.HeaderViewHolder>() {
 
     override fun createViewHolder(itemView: View): HeaderViewHolder  = HeaderViewHolder(itemView)
 
     override fun getItemViewType(): Int = R.layout.header_view
 
-    open inner class HeaderViewHolder(itemView: View) : BaseViewHolder<HeaderAdapterItem>(itemView) {
+    override fun getItemId(item: String): String = item
+
+    open inner class HeaderViewHolder(itemView: View) : BaseViewHolder<String>(itemView) {
         protected val headerView: TextView = itemView.findViewById(R.id.header_delegate_header_tv)
 
-        override fun bind(item: HeaderAdapterItem) {
+        override fun bind(item: String) {
             headerView.setTextColor(ContextCompat.getColor(itemView.context, defaultColor))
-            headerView.text = item.text
+            headerView.text = item
         }
     }
 }

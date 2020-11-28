@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import vsukharev.anytypeadapter.delegate.BaseDelegate
 import vsukharev.anytypeadapter.holder.BaseViewHolder
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsDelegate.Holder
 
 /**
@@ -17,20 +18,22 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsDele
  */
 class AlbumsDelegate(
     private val onHoldItemListener: (Boolean) -> Unit
-) : BaseDelegate<AlbumAdapterItem, Holder>() {
+) : BaseDelegate<Album, Holder>() {
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 
     override fun getItemViewType(): Int = R.layout.item_list_albums
 
-    inner class Holder(itemView: View) : BaseViewHolder<AlbumAdapterItem>(itemView) {
+    override fun getItemId(item: Album): String = item.id
+
+    inner class Holder(itemView: View) : BaseViewHolder<Album>(itemView) {
         private val coverIv = itemView.findViewById<ImageView>(R.id.albums_list_cover_iv)
         private val container = itemView.findViewById<FrameLayout>(R.id.albums_list_container)
 
         @SuppressLint("ClickableViewAccessibility")
-        override fun bind(item: AlbumAdapterItem) {
+        override fun bind(item: Album) {
             Glide.with(itemView.context)
-                .load(item.album.coverUrl)
+                .load(item.coverUrl)
                 .placeholder(R.drawable.ic_album_placeholder)
                 .error(R.drawable.ic_album_placeholder)
                 .into(coverIv)

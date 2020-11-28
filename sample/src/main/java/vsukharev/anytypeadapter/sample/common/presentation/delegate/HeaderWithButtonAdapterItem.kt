@@ -1,17 +1,14 @@
 package vsukharev.anytypeadapter.sample.common.presentation.delegate
 
 import androidx.annotation.StringRes
-import vsukharev.anytypeadapter.item.AdapterItem
+import java.util.*
 
 /**
- * The adapter item describing the view that consists of a text and a button
+ * Data describing the view that contains a text and button
  */
 class HeaderWithButtonAdapterItem(
     @StringRes val headerTextResId: Int,
     @StringRes val btnTextResId: Int,
-    val onClickListener: (() -> Unit)? = null
-) : AdapterItem {
-    override fun areItemsTheSame(other: AdapterItem): Boolean = true
-
-    override fun areContentsTheSame(other: AdapterItem): Boolean = true
-}
+    val onClickListener: (() -> Unit)? = null,
+    val id: String = UUID.randomUUID().toString()
+)

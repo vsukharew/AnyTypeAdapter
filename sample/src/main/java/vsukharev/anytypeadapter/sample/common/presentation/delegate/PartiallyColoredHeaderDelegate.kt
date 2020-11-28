@@ -21,16 +21,16 @@ class PartiallyColoredHeaderDelegate(
         PartiallyColoredHeaderViewHolder(itemView)
 
     inner class PartiallyColoredHeaderViewHolder(itemView: View) : HeaderViewHolder(itemView) {
-        override fun bind(item: HeaderAdapterItem) {
+        override fun bind(item: String) {
             with(item) {
                 with(itemView) {
-                    val spannableString = SpannableString(item.text)
+                    val spannableString = SpannableString(item)
                     spannableString.setSpan(
                         ForegroundColorSpan(
                             ContextCompat.getColor(context, highlightColor)
                         ),
-                        text.lastIndexOf(SPACE),
-                        text.length,
+                        lastIndexOf(SPACE),
+                        length,
                         SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
                     )
                     headerView.setTextColor(ContextCompat.getColor(context, defaultColor))
