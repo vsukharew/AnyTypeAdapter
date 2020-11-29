@@ -13,7 +13,7 @@ import java.util.concurrent.*
 /**
  * Adapter that is able to display items of any view type together
  */
-open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() {
+open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
     private var collection: Collection = Collection.EMPTY
     private var currentItemViewType = 0
 
@@ -32,12 +32,12 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() 
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AdapterItem> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Any> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return collection.viewTypeToDelegateMap.get(viewType).createViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder<AdapterItem>, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
         with(collection) {
             val itemType = positionToViewTypeMap[currentItemViewType]
             val controller = viewTypeToDelegateMap[itemType]
@@ -74,20 +74,21 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() 
         }
     }
 
-    fun setItems(collection: Collection) {
+    fun setCollection(collection: Collection, onUpdatesDispatch: ((Collection) -> Unit)? = null) {
         backgroundThreadExecutor.execute {
             val diffResult =
                 DiffUtil.calculateDiff(DiffUtilCallback(this.collection.items, collection.items))
             mainThreadExecutor.execute {
                 this.collection = collection
                 diffResult.dispatchUpdatesTo(this)
+                onUpdatesDispatch?.invoke(collection)
             }
         }
     }
 
     private class DiffUtilCallback(
-        private val oldList: List<AdapterItem>,
-        private val newList: List<AdapterItem>
+        private val oldList: List<AdapterItem<*>>,
+        private val newList: List<AdapterItem<*>>
     ) : DiffUtil.Callback() {
 
         override fun getOldListSize(): Int = oldList.size

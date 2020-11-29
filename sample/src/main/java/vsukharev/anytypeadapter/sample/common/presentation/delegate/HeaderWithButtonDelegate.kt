@@ -17,6 +17,8 @@ class HeaderWithButtonDelegate :
 
     override fun getItemViewType(): Int = R.layout.delegate_header_with_button
 
+    override fun getItemId(item: HeaderWithButtonAdapterItem): String = item.id
+
     class ButtonViewHolder(itemView: View) : BaseViewHolder<HeaderWithButtonAdapterItem>(itemView) {
         private val textView: TextView = itemView.findViewById(R.id.delegate_header_with_button_tv)
         private val button: AppCompatButton = itemView.findViewById(R.id.delegate_header_with_button_btn)

@@ -3,7 +3,6 @@ package vsukharev.anytypeadapter.sample.common.presentation.delegate
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
 import vsukharev.anytypeadapter.delegate.BaseDelegate
 import vsukharev.anytypeadapter.holder.BaseViewHolder
 import vsukharev.anytypeadapter.sample.R
@@ -17,6 +16,8 @@ class IconWithTextDelegate : BaseDelegate<IconWithTextAdapterItem, Holder>() {
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 
     override fun getItemViewType(): Int = R.layout.delegate_icon_with_text
+
+    override fun getItemId(item: IconWithTextAdapterItem): String = item.id
 
     class Holder(itemView: View) : BaseViewHolder<IconWithTextAdapterItem>(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.delegate_icon_with_text_iv)
