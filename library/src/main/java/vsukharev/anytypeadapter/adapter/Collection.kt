@@ -47,9 +47,20 @@ class Collection private constructor(
                     }
                 }
                 list.add(AdapterItem(controller.getItemId(item), item))
+
+                /**
+                 * Cast is safe if you don't need to know the exact type later
+                 * and if you change [viewTypeToDelegateMap] only when building new [Collection].
+                 *
+                 * This way [items], [positionToViewTypeMap], and [viewTypeToDelegateMap] are synced
+                 * i.e. having position as a key you can get the right view type and then
+                 * the delegate, that is able to bind data
+                 */
+                @Suppress("UNCHECKED_CAST")
                 // put corresponding controller by key equal the viewType of the current item
                 viewTypeToDelegateMap[controller.getItemViewType()] =
                     controller as BaseDelegate<Any, BaseViewHolder<Any>>
+
                 // as a result, have two collections:
                 // the first that represents the positions range items at which have the same viewType
                 // and the second that shows which controller each viewType has
