@@ -24,6 +24,7 @@ class Collection private constructor(
         private val viewTypeToDelegateMap =
             SparseArray<BaseDelegate<Any, BaseViewHolder<Any>>>()
         private val positionToViewTypeMap = SparseIntArray()
+        private var sameViewTypesInARow = 1
 
         /**
          * Adds the single item and the corresponding controller
@@ -33,8 +34,18 @@ class Collection private constructor(
             controller: BaseDelegate<T, H>
         ): Builder {
             return apply {
-                // put corresponding viewType by key equal the size of the items collection
-                positionToViewTypeMap[list.size] = controller.getItemViewType()
+                // Put new view type only if it isn't equal to the previous one
+                when {
+                    list.isEmpty() -> positionToViewTypeMap[list.size] =
+                        controller.getItemViewType()
+                    positionToViewTypeMap[list.size - sameViewTypesInARow] == controller.getItemViewType() -> {
+                        sameViewTypesInARow++
+                    }
+                    else -> {
+                        positionToViewTypeMap[list.size] = controller.getItemViewType()
+                        sameViewTypesInARow = 1
+                    }
+                }
                 list.add(AdapterItem(controller.getItemId(item), item))
                 // put corresponding controller by key equal the viewType of the current item
                 viewTypeToDelegateMap[controller.getItemViewType()] =
@@ -52,14 +63,7 @@ class Collection private constructor(
             items: List<T>,
             controller: BaseDelegate<T, H>
         ): Builder {
-            return apply {
-                items.forEach {
-                    positionToViewTypeMap[list.size] = controller.getItemViewType()
-                    list.add(AdapterItem(controller.getItemId(it), it))
-                }
-                viewTypeToDelegateMap[controller.getItemViewType()] =
-                    controller as BaseDelegate<Any, BaseViewHolder<Any>>
-            }
+            return apply { items.forEach { add(it, controller) } }
         }
 
         /**
