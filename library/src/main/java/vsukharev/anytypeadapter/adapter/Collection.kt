@@ -13,32 +13,53 @@ import vsukharev.anytypeadapter.item.AdapterItem
  * - view types to [BaseDelegate]s
  */
 class Collection private constructor(
-    val items: List<AdapterItem>,
-    val viewTypeToDelegateMap: SparseArray<BaseDelegate<AdapterItem, BaseViewHolder<AdapterItem>>>,
+    val items: List<AdapterItem<Any>>,
+    val viewTypeToDelegateMap: SparseArray<BaseDelegate<Any, BaseViewHolder<Any>>>,
     val positionToViewTypeMap: SparseIntArray
 ) {
     val size: Int = items.size
 
     class Builder {
-        private val list = mutableListOf<AdapterItem>()
-        private val viewTypeToControllerMap =
-            SparseArray<BaseDelegate<AdapterItem, BaseViewHolder<AdapterItem>>>()
+        private val list = mutableListOf<AdapterItem<Any>>()
+        private val viewTypeToDelegateMap =
+            SparseArray<BaseDelegate<Any, BaseViewHolder<Any>>>()
         private val positionToViewTypeMap = SparseIntArray()
+        private var sameViewTypesInARow = 1
 
         /**
          * Adds the single item and the corresponding controller
          */
-        fun <T : AdapterItem, H : BaseViewHolder<T>> add(
+        fun <T: Any, H : BaseViewHolder<T>> add(
             item: T,
             controller: BaseDelegate<T, H>
         ): Builder {
             return apply {
-                // put corresponding viewType by key equal the size of the items collection
-                positionToViewTypeMap[list.size] = controller.getItemViewType()
-                list.add(item)
+                // Put new view type only if it isn't equal to the previous one
+                when {
+                    list.isEmpty() -> positionToViewTypeMap[list.size] =
+                        controller.getItemViewType()
+                    positionToViewTypeMap[list.size - sameViewTypesInARow] == controller.getItemViewType() -> {
+                        sameViewTypesInARow++
+                    }
+                    else -> {
+                        positionToViewTypeMap[list.size] = controller.getItemViewType()
+                        sameViewTypesInARow = 1
+                    }
+                }
+                list.add(AdapterItem(controller.getItemId(item), item))
+
+                /**
+                 * Cast is safe if you don't need to know the exact type later
+                 * and if you change [viewTypeToDelegateMap] only when building new [Collection].
+                 *
+                 * This way [items], [positionToViewTypeMap], and [viewTypeToDelegateMap] are synced
+                 * i.e. having position as a key you can get the right view type and then
+                 * the delegate, that is able to bind data
+                 */
+                @Suppress("UNCHECKED_CAST")
                 // put corresponding controller by key equal the viewType of the current item
-                viewTypeToControllerMap[controller.getItemViewType()] =
-                    controller as BaseDelegate<AdapterItem, BaseViewHolder<AdapterItem>>
+                viewTypeToDelegateMap[controller.getItemViewType()] =
+                    controller as BaseDelegate<Any, BaseViewHolder<Any>>
 
                 // as a result, have two collections:
                 // the first that represents the positions range items at which have the same viewType
@@ -49,24 +70,20 @@ class Collection private constructor(
         /**
          * Adds items and the corresponding controller
          */
-        fun <T : AdapterItem, H : BaseViewHolder<T>> add(
+        fun <T: Any, H : BaseViewHolder<T>> add(
             items: List<T>,
             controller: BaseDelegate<T, H>
         ): Builder {
-            return apply {
-                for (item in items) {
-                    add(item, controller)
-                }
-            }
+            return apply { items.forEach { add(it, controller) } }
         }
 
         /**
          * Adds items and the corresponding controller only if predicate is true
          * @param predicate the condition determining whether the items and controller should be added
          */
-        fun <T : AdapterItem, H : BaseViewHolder<T>> addIf(
+        fun <T: Any, H : BaseViewHolder<List<T>>> addIf(
             items: List<T>,
-            controller: BaseDelegate<T, H>,
+            controller: BaseDelegate<List<T>, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
@@ -79,18 +96,14 @@ class Collection private constructor(
         /**
          * Adds items and the corresponding controller only if the list of items is not empty
          */
-        fun <T : AdapterItem, H : BaseViewHolder<T>> addIfNotEmpty(
+        fun <T: Any, H : BaseViewHolder<List<T>>> addIfNotEmpty(
             items: List<T>,
-            controller: BaseDelegate<T, H>
+            controller: BaseDelegate<List<T>, H>
         ): Builder {
             return apply { addIf(items, controller) { items.isNotEmpty() } }
         }
 
-        fun build() = Collection(
-            list,
-            viewTypeToControllerMap,
-            positionToViewTypeMap
-        )
+        fun build() = Collection(list, viewTypeToDelegateMap, positionToViewTypeMap)
     }
 
     companion object {

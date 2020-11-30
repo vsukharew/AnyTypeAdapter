@@ -1,30 +1,47 @@
 package vsukharev.anytypeadapter.adapter
 
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.core.util.size
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import vsukharev.anytypeadapter.holder.BaseViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
+import java.util.concurrent.*
+import kotlin.math.min
 
 /**
  * Adapter that is able to display items of any view type together
  */
-open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() {
-    private var asyncListDiffer: AsyncListDiffer<AdapterItem>? = null
-    private var collection: Collection =
-        Collection.EMPTY
-    private var currentItemViewType = 0
+open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
+    private var collection: Collection = Collection.EMPTY
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AdapterItem> {
+    private val backgroundThreadExecutor = ThreadPoolExecutor(
+        1,
+        1,
+        0L,
+        TimeUnit.SECONDS,
+        SynchronousQueue<Runnable>(),
+        ThreadPoolExecutor.DiscardOldestPolicy()
+    )
+    private val mainThreadExecutor = object : Executor {
+        private val handler = Handler(Looper.getMainLooper())
+        override fun execute(command: Runnable) {
+            handler.post(command)
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Any> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return collection.viewTypeToDelegateMap.get(viewType).createViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder<AdapterItem>, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
         with(collection) {
-            val itemType = positionToViewTypeMap[currentItemViewType]
+            val index = min(positionToViewTypeMap.size - 1, position)
+            val itemType = positionToViewTypeMap[positionToViewTypeMap.keyAt(index)]
             val controller = viewTypeToDelegateMap[itemType]
             controller.bind(items[position], holder)
         }
@@ -34,48 +51,62 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<AdapterItem>>() 
 
     override fun getItemViewType(position: Int): Int {
         return with(collection.positionToViewTypeMap) {
-            loop@ for (i in 1 until size()) {
-                // Each two adjacent values of the map represent the positions range
-                // in which the items with the same viewType are placed
-                val range = keyAt(i - 1) until keyAt(i)
+            val currentItemViewTypePosition = if (size == 1) {
+                0
+            } else {
+                var result = 0
+                loop@ for (i in 1 until size) {
+                    // Each two adjacent values of the map represent the positions range
+                    // in which the items with the same viewType are placed
+                    val range = keyAt(i - 1) until keyAt(i)
 
-                // For the last items portion it's enough to know only the left bound of the range.
-                // The viewType will be the same until the collection ends
-                val lastViewTypeStartPosition = keyAt(size() - 1)
+                    // For the last items portion it's enough to know only the left bound of the range.
+                    // The viewType will be the same until the collection ends
+                    val lastViewTypeStartPosition = keyAt(size - 1)
 
-                // The following code is looking for the range the current position fits in
-                when {
-                    position in range -> {
-                        currentItemViewType = range.first
-                        break@loop
-                    }
-                    position >= lastViewTypeStartPosition -> {
-                        currentItemViewType = lastViewTypeStartPosition
-                        break@loop
+                    // The following code is looking for the range the current position fits in
+                    when {
+                        position in range -> {
+                            result = range.first
+                            break@loop
+                        }
+                        position >= lastViewTypeStartPosition -> {
+                            result = lastViewTypeStartPosition
+                            break@loop
+                        }
                     }
                 }
+                result
             }
-            get(currentItemViewType)
+            get(currentItemViewTypePosition)
         }
     }
 
-    fun setItems(collection: Collection) {
-        this.collection = collection
-        asyncListDiffer?.submitList(collection.items)
-            ?: AsyncListDiffer(this, Callback())
-                .also {
-                    asyncListDiffer = it
-                    it.submitList(collection.items)
-                }
+    fun setCollection(collection: Collection, onUpdatesDispatch: ((Collection) -> Unit)? = null) {
+        backgroundThreadExecutor.execute {
+            val diffResult =
+                DiffUtil.calculateDiff(DiffUtilCallback(this.collection.items, collection.items))
+            mainThreadExecutor.execute {
+                this.collection = collection
+                diffResult.dispatchUpdatesTo(this)
+                onUpdatesDispatch?.invoke(collection)
+            }
+        }
     }
 
-    private class Callback : DiffUtil.ItemCallback<AdapterItem>() {
-        override fun areItemsTheSame(oldItem: AdapterItem, newItem: AdapterItem): Boolean {
-            return oldItem.areItemsTheSame(newItem)
-        }
+    private class DiffUtilCallback(
+        private val oldList: List<AdapterItem<*>>,
+        private val newList: List<AdapterItem<*>>
+    ) : DiffUtil.Callback() {
 
-        override fun areContentsTheSame(oldItem: AdapterItem, newItem: AdapterItem): Boolean {
-            return oldItem.areContentsTheSame(newItem)
-        }
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+            oldList[oldItemPosition].areItemsTheSame(newList[newItemPosition])
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+            oldList[oldItemPosition].areContentsTheSame(newList[newItemPosition])
     }
 }

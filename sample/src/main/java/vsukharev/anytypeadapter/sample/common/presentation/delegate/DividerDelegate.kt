@@ -10,18 +10,21 @@ import vsukharev.anytypeadapter.sample.common.presentation.delegate.DividerDeleg
 /**
  * The delegate responsible for the divider section creation
  */
-class DividerDelegate : BaseDelegate<DividerAdapterItem, Holder>() {
+class DividerDelegate : BaseDelegate<Int, Holder>() {
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 
     override fun getItemViewType(): Int = R.layout.delegate_divider
 
-    class Holder(itemView: View) : BaseViewHolder<DividerAdapterItem>(itemView) {
+    override fun getItemId(item: Int): String = item.toString()
+
+    class Holder(itemView: View) : BaseViewHolder<Int>(itemView) {
+
         private val view: View = itemView.findViewById(R.id.delegate_divider_view)
 
-        override fun bind(item: DividerAdapterItem) {
+        override fun bind(item: Int) {
             view.updateLayoutParams {
-                height = itemView.context.resources.getDimension(item.height).toInt()
+                height = itemView.context.resources.getDimension(item).toInt()
             }
         }
     }

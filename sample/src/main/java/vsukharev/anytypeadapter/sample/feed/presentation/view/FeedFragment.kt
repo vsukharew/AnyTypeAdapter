@@ -1,7 +1,6 @@
 package vsukharev.anytypeadapter.sample.feed.presentation.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,23 +12,16 @@ import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.Collection
 import vsukharev.anytypeadapter.sample.Injector
 import vsukharev.anytypeadapter.sample.R
-import vsukharev.anytypeadapter.sample.feed.domain.model.Album
-import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
-import vsukharev.anytypeadapter.sample.feed.presentation.model.HomePageUi
-import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumAdapterItem
-import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsSectionAdapterItem
-import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsSectionDelegate
-import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice.EditorsChoiceAdapterItem
-import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice.EditorsChoiceSectionAdapterItem
-import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate
 import vsukharev.anytypeadapter.sample.common.network.ConnectivityObserver
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
-import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
+import vsukharev.anytypeadapter.sample.feed.domain.model.Album
+import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
 import vsukharev.anytypeadapter.sample.feed.presentation.FeedPresenter
-import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivityAdapterItem
-import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionAdapterItem
+import vsukharev.anytypeadapter.sample.feed.presentation.model.HomePageUi
+import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsSectionDelegate
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionDelegate
+import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate
 import javax.inject.Inject
 
 /**
@@ -53,6 +45,23 @@ class FeedFragment : BaseFragment(), FeedView {
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
     private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
     private val activitiesDelegate = ActivitySectionDelegate()
+
+    private val freshReleaseAdapterItem = IconWithTextAdapterItem(
+        R.drawable.ic_fresh_release,
+        R.string.albums_fragment_fresh_releases
+    )
+    private val chartAdapterItem = IconWithTextAdapterItem(
+        R.drawable.ic_chart,
+        R.string.albums_fragment_chart
+    )
+    private val podcastsAdapterItem = IconWithTextAdapterItem(
+        R.drawable.ic_mic,
+        R.string.albums_fragment_podcasts
+    )
+    private val oftenListenedToItem = HeaderWithButtonAdapterItem(
+        R.string.albums_fragment_often_listened_to,
+        R.string.albums_fragment_view_all_btn
+    )
 
     private val connectivityObserver by lazy {
         ConnectivityObserver(requireActivity()) { presenter.reloadData() }
@@ -103,7 +112,6 @@ class FeedFragment : BaseFragment(), FeedView {
         Collection.Builder()
             .apply {
                 with(data) {
-                    Log.d("Test", "albums.size - ${albums.size}activities.size - ${activities.size}")
                     addAlbumsSection(albums)
                     addMenuItems()
                     addActivitiesSection(activities)
@@ -111,7 +119,7 @@ class FeedFragment : BaseFragment(), FeedView {
                 }
             }
             .build()
-            .also { adapter.setItems(it) }
+            .also { adapter.setCollection(it) }
     }
 
     override fun showProgress() {
@@ -134,43 +142,17 @@ class FeedFragment : BaseFragment(), FeedView {
         items: List<Album>
     ): Collection.Builder {
         return apply {
-            with(items) {
-                add(
-                    HeaderAdapterItem(getString(R.string.albums_fragment_based_on_your_preferences)),
-                    headerDelegate
-                )
-                val section = AlbumsSectionAdapterItem(
-                    map { AlbumAdapterItem(it) }
-                )
-                add(section, albumsSectionDelegate)
-            }
+            add(getString(R.string.albums_fragment_based_on_your_preferences), headerDelegate)
+            add(items, albumsSectionDelegate)
         }
     }
 
     private fun Collection.Builder.addMenuItems(): Collection.Builder {
         return apply {
-            add(DividerAdapterItem(R.dimen.dp16), dividerDelegate)
-            add(
-                IconWithTextAdapterItem(
-                    R.drawable.ic_fresh_release,
-                    R.string.albums_fragment_fresh_releases
-                ),
-                iconWithTextDelegate
-            )
-            add(
-                IconWithTextAdapterItem(
-                    R.drawable.ic_chart,
-                    R.string.albums_fragment_chart
-                ),
-                iconWithTextDelegate
-            )
-            add(
-                IconWithTextAdapterItem(
-                    R.drawable.ic_mic,
-                    R.string.albums_fragment_podcasts
-                ),
-                iconWithTextDelegate
-            )
+            add(R.dimen.dp16, dividerDelegate)
+            add(freshReleaseAdapterItem, iconWithTextDelegate)
+            add(chartAdapterItem, iconWithTextDelegate)
+            add(podcastsAdapterItem, iconWithTextDelegate)
         }
     }
 
@@ -178,22 +160,8 @@ class FeedFragment : BaseFragment(), FeedView {
         editorsChoices: List<EditorsChoice>
     ): Collection.Builder {
         return apply {
-            with(editorsChoices) {
-                add(
-                    HeaderWithButtonAdapterItem(
-                        R.string.albums_fragment_often_listened_to,
-                        R.string.albums_fragment_view_all_btn
-                    ),
-                    headerWithButtonDelegate
-                )
-                val section = EditorsChoiceSectionAdapterItem(
-                    map { EditorsChoiceAdapterItem(it) }
-                )
-                add(
-                    section,
-                    editorsChoiceDelegate
-                )
-            }
+            add(oftenListenedToItem, headerWithButtonDelegate)
+            add(editorsChoices, editorsChoiceDelegate)
         }
     }
 
