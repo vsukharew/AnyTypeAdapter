@@ -14,7 +14,8 @@ import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresent
 import vsukharev.anytypeadapter.sample.feed.domain.interactor.FeedInteractor.ShuffleMode
 import javax.inject.Inject
 
-private const val NORMAL_RELOADING_DELAY = 5000L
+private const val ALBUMS_RELOADING_DELAY = 5000L
+private const val ACTIVITIES_RELOADING_DELAY = 3000L
 private const val DEFAULT_RELOADING_DELAY_AFTER_RELEASING = 2000L
 
 /**
@@ -26,31 +27,27 @@ class FeedPresenter @Inject constructor(
     private val feedInteractor: FeedInteractor
 ) : BasePresenter<FeedView>() {
     private var itemHoldingTime = 0L
-    private var mainLoadingJob: Job? = null
-    private var mainLoadingJob2: Job? = null
+    private var loadAlbumsJob: Job? = null
+    private var loadActivitiesJob: Job? = null
     private var loadingAfterItemReleaseJob: Job? = null
     private var loadState = LoadState.NONE
 
     override fun onFirstViewAttach() {
         loadState = LoadState.LOADING
+        getFeed()
         getAlbums()
     }
 
     fun onAlbumHeld() {
         itemHoldingTime = System.currentTimeMillis()
-        mainLoadingJob?.cancel()
+        loadAlbumsJob?.cancel()
+        loadActivitiesJob?.cancel()
         loadingAfterItemReleaseJob?.cancel()
     }
 
     fun onAlbumReleased() {
         itemHoldingTime = System.currentTimeMillis() - itemHoldingTime
-        loadingAfterItemReleaseJob = startJobOnMain {
-            delay(timeMillis = (NORMAL_RELOADING_DELAY - itemHoldingTime)
-                .takeIf { it > 0 }
-                ?: DEFAULT_RELOADING_DELAY_AFTER_RELEASING
-            )
-            getAlbums()
-        }
+        loadingAfterItemReleaseJob = startJobOnMain { getAlbums() }
     }
 
     fun reloadData() {
@@ -61,28 +58,25 @@ class FeedPresenter @Inject constructor(
     }
 
     private fun getAlbums() {
-        mainLoadingJob = getFeed()
-//        mainLoadingJob = startJobOnMain {
-//            delay(NORMAL_RELOADING_DELAY)
-//            loop@ while (isActive) {
-//                getFeed(ShuffleMode.ALBUM_COVERS)
-//                delay(NORMAL_RELOADING_DELAY)
-//            }
-//        }
-        mainLoadingJob2 = startJobOnMain {
-            delay(5000)
+        loadAlbumsJob = startJobOnMain {
+            delay(getDelayAfterRelease(ShuffleMode.ALBUM_COVERS, itemHoldingTime))
+            loop@ while (isActive) {
+                getFeed(ShuffleMode.ALBUM_COVERS)
+                delay(ALBUMS_RELOADING_DELAY)
+            }
+        }
+        loadActivitiesJob = startJobOnMain {
+            delay(getDelayAfterRelease(ShuffleMode.ACTIVITIES, itemHoldingTime))
             loop@ while (isActive) {
                 getFeed(ShuffleMode.ACTIVITIES)
-                delay(5000)
+                delay(ACTIVITIES_RELOADING_DELAY)
             }
         }
     }
 
     private fun getFeed(shuffleMode: ShuffleMode = ShuffleMode.NONE): Job {
         return startJobOnMain {
-            val feedResult = withContext(Dispatchers.IO) {
-                feedInteractor.getFeed(shuffleMode)
-            }
+            val feedResult = withContext(Dispatchers.IO) { feedInteractor.getFeed(shuffleMode) }
             viewState.hideProgress()
             when (feedResult) {
                 is Failure -> {
@@ -100,5 +94,15 @@ class FeedPresenter @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun getDelayAfterRelease(shuffleMode: ShuffleMode, itemHoldingTime: Long): Long {
+        val featureDelay = when (shuffleMode) {
+            ShuffleMode.ALBUM_COVERS -> ALBUMS_RELOADING_DELAY
+            ShuffleMode.ACTIVITIES -> ACTIVITIES_RELOADING_DELAY
+            else -> 0
+        }
+        return (featureDelay - itemHoldingTime).takeIf { it > 0 }
+            ?: DEFAULT_RELOADING_DELAY_AFTER_RELEASING
     }
 }

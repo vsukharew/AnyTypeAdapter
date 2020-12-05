@@ -15,6 +15,7 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.network.ConnectivityObserver
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
+import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
 import vsukharev.anytypeadapter.sample.feed.presentation.FeedPresenter
@@ -156,25 +157,21 @@ class FeedFragment : BaseFragment(), FeedView {
         }
     }
 
-    private fun Collection.Builder.addEditorsChoiceSection(
-        editorsChoices: List<EditorsChoice>
-    ): Collection.Builder {
-        return apply {
-            add(oftenListenedToItem, headerWithButtonDelegate)
-            add(editorsChoices, editorsChoiceDelegate)
-        }
-    }
-
     private fun Collection.Builder.addActivitiesSection(
         activities: List<Activity>
     ): Collection.Builder {
         return apply {
-            with(activities) {
-                val adapterItems = ActivitySectionAdapterItem(
-                    map { ActivityAdapterItem(it) }
-                )
-                add(adapterItems, activitiesDelegate)
-            }
+            add(activities, activitiesDelegate)
+        }
+    }
+
+    private fun Collection.Builder.addEditorsChoiceSection(
+        editorsChoices: List<EditorsChoice>
+    ): Collection.Builder {
+        return apply {
+            add(R.dimen.dp16, dividerDelegate)
+            add(oftenListenedToItem, headerWithButtonDelegate)
+            add(editorsChoices, editorsChoiceDelegate)
         }
     }
 

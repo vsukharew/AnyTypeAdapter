@@ -7,9 +7,10 @@ import vsukharev.anytypeadapter.adapter.Collection
 import vsukharev.anytypeadapter.delegate.BaseDelegate
 import vsukharev.anytypeadapter.holder.BaseViewHolder
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionDelegate.Holder
 
-class ActivitySectionDelegate : BaseDelegate<ActivitySectionAdapterItem, Holder>() {
+class ActivitySectionDelegate : BaseDelegate<List<Activity>, Holder>() {
     private val delegate = ActivityDelegate()
     private val anyTypeAdapter = AnyTypeAdapter()
 
@@ -17,22 +18,22 @@ class ActivitySectionDelegate : BaseDelegate<ActivitySectionAdapterItem, Holder>
 
     override fun getItemViewType(): Int = R.layout.delegate_activity_section
 
-    inner class Holder(itemView: View) : BaseViewHolder<ActivitySectionAdapterItem>(itemView) {
-        private val recyclerView = itemView.delegate_activity_section_rv
+    override fun getItemId(item: List<Activity>): String = ITEM_ID
 
+    inner class Holder(itemView: View) : BaseViewHolder<List<Activity>>(itemView) {
         init {
-            recyclerView.apply {
-                if (adapter == null) {
-                    adapter = anyTypeAdapter
-                }
-            }
+            itemView.delegate_activity_section_rv.adapter = anyTypeAdapter
         }
 
-        override fun bind(item: ActivitySectionAdapterItem) {
+        override fun bind(item: List<Activity>) {
             Collection.Builder()
-                .add(item.activityItems, delegate)
+                .add(item, delegate)
                 .build()
-                .let { anyTypeAdapter.setItems(it) }
+                .let { anyTypeAdapter.setCollection(it) }
         }
+    }
+
+    private companion object {
+        val ITEM_ID: String = java.util.UUID.randomUUID().toString()
     }
 }

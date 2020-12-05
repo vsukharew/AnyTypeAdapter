@@ -38,7 +38,7 @@ object ActivitiesSource {
         ),
         Activity(
             id = "romantic",
-            name = "Romantic\ndinner",
+            name = "Your day",
             iconRes = R.drawable.ic_hearts
         ),
         Activity(
