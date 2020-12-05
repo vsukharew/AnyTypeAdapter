@@ -10,6 +10,10 @@ class FeedRepository @Inject constructor() {
 
     suspend fun getFeed(): Feed {
         makeSimpleRequest() // make request so that if there's no internet the error will be displayed
-        return Feed(AlbumsSource.albums, EditorsChoiceSource.editorsChoiceMusic)
+        return Feed(
+            albums = AlbumsSource.albums,
+            editorsChoice = EditorsChoiceSource.editorsChoiceMusic,
+            activities = ActivitiesSource.activities
+        )
     }
 }

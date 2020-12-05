@@ -15,11 +15,13 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.network.ConnectivityObserver
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
+import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
 import vsukharev.anytypeadapter.sample.feed.presentation.FeedPresenter
 import vsukharev.anytypeadapter.sample.feed.presentation.model.HomePageUi
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsSectionDelegate
+import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionDelegate
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate
 import javax.inject.Inject
 
@@ -43,6 +45,7 @@ class FeedFragment : BaseFragment(), FeedView {
     private val iconWithTextDelegate = IconWithTextDelegate()
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
     private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
+    private val activitiesDelegate = ActivitySectionDelegate()
 
     private val freshReleaseAdapterItem = IconWithTextAdapterItem(
         R.drawable.ic_fresh_release,
@@ -112,6 +115,7 @@ class FeedFragment : BaseFragment(), FeedView {
                 with(data) {
                     addAlbumsSection(albums)
                     addMenuItems()
+                    addActivitiesSection(activities)
                     addEditorsChoiceSection(editorsChoice)
                 }
             }
@@ -153,10 +157,19 @@ class FeedFragment : BaseFragment(), FeedView {
         }
     }
 
+    private fun Collection.Builder.addActivitiesSection(
+        activities: List<Activity>
+    ): Collection.Builder {
+        return apply {
+            add(activities, activitiesDelegate)
+        }
+    }
+
     private fun Collection.Builder.addEditorsChoiceSection(
         editorsChoices: List<EditorsChoice>
     ): Collection.Builder {
         return apply {
+            add(R.dimen.dp16, dividerDelegate)
             add(oftenListenedToItem, headerWithButtonDelegate)
             add(editorsChoices, editorsChoiceDelegate)
         }

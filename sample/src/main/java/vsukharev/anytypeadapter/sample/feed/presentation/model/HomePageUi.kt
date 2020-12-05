@@ -1,5 +1,6 @@
 package vsukharev.anytypeadapter.sample.feed.presentation.model
 
+import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
 
@@ -8,5 +9,6 @@ import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
  */
 data class HomePageUi(
     val albums: List<Album>,
-    val editorsChoice: List<EditorsChoice>
+    val editorsChoice: List<EditorsChoice>,
+    val activities: List<Activity>
 )
