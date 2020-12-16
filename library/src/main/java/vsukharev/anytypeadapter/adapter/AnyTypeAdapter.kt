@@ -4,16 +4,18 @@ import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.util.size
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import vsukharev.anytypeadapter.holder.BaseViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
-import java.util.concurrent.*
-import kotlin.math.min
+import vsukharev.anytypeadapter.item.AdapterItemMetaData
+import java.util.concurrent.Executor
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /**
- * Adapter that is able to display items of any view type together
+ * Adapter that is able to display items of any view type at the same time
  */
 open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
     private var collection: Collection = Collection.EMPTY
@@ -35,14 +37,14 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Any> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return collection.viewTypeToDelegateMap.get(viewType).createViewHolder(view)
+        return with(collection) {
+            delegateAt(currentItemViewTypePosition).createViewHolder(view)
+        }
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
         with(collection) {
-            val index = min(positionToViewTypeMap.size - 1, position)
-            val itemType = positionToViewTypeMap[positionToViewTypeMap.keyAt(index)]
-            val controller = viewTypeToDelegateMap[itemType]
+            val controller = delegateAt(currentItemViewTypePosition)
             controller.bind(items[position], holder)
         }
     }
@@ -50,38 +52,17 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
     override fun getItemCount(): Int = collection.size
 
     override fun getItemViewType(position: Int): Int {
-        return with(collection.positionToViewTypeMap) {
-            val currentItemViewTypePosition = if (size == 1) {
-                0
-            } else {
-                var result = 0
-                loop@ for (i in 1 until size) {
-                    // Each two adjacent values of the map represent the positions range
-                    // in which the items with the same viewType are placed
-                    val range = keyAt(i - 1) until keyAt(i)
-
-                    // For the last items portion it's enough to know only the left bound of the range.
-                    // The viewType will be the same until the collection ends
-                    val lastViewTypeStartPosition = keyAt(size - 1)
-
-                    // The following code is looking for the range the current position fits in
-                    when {
-                        position in range -> {
-                            result = range.first
-                            break@loop
-                        }
-                        position >= lastViewTypeStartPosition -> {
-                            result = lastViewTypeStartPosition
-                            break@loop
-                        }
-                    }
-                }
-                result
-            }
-            get(currentItemViewTypePosition)
+        return with(collection) {
+            findCurrentItemViewTypePosition(itemsMetaData, position)
+                .also { currentItemViewTypePosition = it }
+                .let { delegateAt(it).getItemViewType() }
         }
     }
 
+    /**
+     * Sets new [Collection] to adapter and fires [onUpdatesDispatch]
+     * callback as soon as [Collection] is set
+     */
     fun setCollection(collection: Collection, onUpdatesDispatch: ((Collection) -> Unit)? = null) {
         backgroundThreadExecutor.execute {
             val diffResult =
@@ -90,6 +71,47 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
                 this.collection = collection
                 diffResult.dispatchUpdatesTo(this)
                 onUpdatesDispatch?.invoke(collection)
+            }
+        }
+    }
+
+    /**
+     * Finds position inside [itemsMetaData] for the current item view type
+     * given current [adapterPosition]
+     * @see [Collection.itemsMetaData]
+     */
+    private fun findCurrentItemViewTypePosition(
+        itemsMetaData: List<AdapterItemMetaData<Any>>,
+        adapterPosition: Int
+    ): Int {
+        return with(itemsMetaData) {
+            if (size == 1) {
+                0
+            } else {
+                var result = 0
+                // Each two adjacent values in the list represent the positions range
+                // in which the items with the same viewType are placed
+                val positionsRanges = zipWithNext { first, second ->
+                    first.position until second.position
+                }
+
+                /**
+                 * The following code is looking for the range the [adapterPosition] fits in
+                 * or determines that [adapterPosition] is larger than right border of the last range
+                 */
+                loop@ for (i in positionsRanges.indices) {
+                    when {
+                        adapterPosition in positionsRanges[i] -> {
+                            result = i
+                            break@loop
+                        }
+                        adapterPosition > positionsRanges.last().last -> {
+                            result = positionsRanges.size
+                            break@loop
+                        }
+                    }
+                }
+                result
             }
         }
     }
