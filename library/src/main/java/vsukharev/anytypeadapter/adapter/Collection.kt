@@ -78,6 +78,22 @@ class Collection private constructor(
         }
 
         /**
+         * Adds item and the corresponding controller only if predicate is true
+         * @param predicate the condition determining whether the items and controller should be added
+         */
+        fun <T: Any, H : BaseViewHolder<T>> addIf(
+            item: T,
+            controller: BaseDelegate<T, H>,
+            predicate: () -> Boolean
+        ): Builder {
+            return apply {
+                if (predicate.invoke()) {
+                    add(item, controller)
+                }
+            }
+        }
+
+        /**
          * Adds items and the corresponding controller only if predicate is true
          * @param predicate the condition determining whether the items and controller should be added
          */

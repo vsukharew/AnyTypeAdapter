@@ -2,21 +2,23 @@ package vsukharev.anytypeadapter.sample.feed.presentation
 
 import kotlinx.coroutines.*
 import moxy.InjectViewState
+import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.feed.domain.interactor.FeedInteractor
-import vsukharev.anytypeadapter.sample.feed.presentation.model.HomePageUi
+import vsukharev.anytypeadapter.sample.feed.presentation.model.FeedUi
 import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedFragment
 import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedView
 import vsukharev.anytypeadapter.sample.common.di.common.PerScreen
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result.Failure
 import vsukharev.anytypeadapter.sample.common.presentation.LoadState
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.IconWithTextAdapterItem
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
-import vsukharev.anytypeadapter.sample.feed.domain.interactor.FeedInteractor.ShuffleMode
+import vsukharev.anytypeadapter.sample.feed.data.CHART_MENU_ITEM_ID
+import vsukharev.anytypeadapter.sample.feed.data.RELEASES_MENU_ITEM_ID
+import vsukharev.anytypeadapter.sample.feed.domain.model.Feed
 import javax.inject.Inject
 
-private const val ALBUMS_RELOADING_DELAY = 5000L
-private const val ACTIVITIES_RELOADING_DELAY = 3000L
-private const val DEFAULT_RELOADING_DELAY_AFTER_RELEASING = 2000L
+private const val ALBUMS_RELOADING_DELAY = 1000L
 
 /**
  * [FeedFragment]'s presenter
@@ -26,83 +28,62 @@ private const val DEFAULT_RELOADING_DELAY_AFTER_RELEASING = 2000L
 class FeedPresenter @Inject constructor(
     private val feedInteractor: FeedInteractor
 ) : BasePresenter<FeedView>() {
-    private var itemHoldingTime = 0L
-    private var loadAlbumsJob: Job? = null
-    private var loadActivitiesJob: Job? = null
-    private var loadingAfterItemReleaseJob: Job? = null
     private var loadState = LoadState.NONE
+    private var getFeedJob: Job? = null
 
     override fun onFirstViewAttach() {
         loadState = LoadState.LOADING
         getFeed()
-        getAlbums()
-    }
-
-    fun onAlbumHeld() {
-        itemHoldingTime = System.currentTimeMillis()
-        loadAlbumsJob?.cancel()
-        loadActivitiesJob?.cancel()
-        loadingAfterItemReleaseJob?.cancel()
-    }
-
-    fun onAlbumReleased() {
-        itemHoldingTime = System.currentTimeMillis() - itemHoldingTime
-        loadingAfterItemReleaseJob = startJobOnMain { getAlbums() }
     }
 
     fun reloadData() {
         if (loadState != LoadState.ERROR) return
         viewState.hideError()
         viewState.showProgress()
-        getAlbums()
+        getFeed()
     }
 
-    private fun getAlbums() {
-        loadAlbumsJob = startJobOnMain {
-            delay(getDelayAfterRelease(ShuffleMode.ALBUM_COVERS, itemHoldingTime))
-            loop@ while (isActive) {
-                getFeed(ShuffleMode.ALBUM_COVERS)
+    fun getFeed(isStaticInterface: Boolean = false) {
+        getFeedJob?.cancel()
+        getFeedJob = startJobOnMain {
+            do {
+                val feedResult =
+                    withContext(Dispatchers.IO) { feedInteractor.getFeed(isStaticInterface) }
+                viewState.hideProgress()
+                when (feedResult) {
+                    is Failure -> {
+                        showError(feedResult.e)
+                        loadState = LoadState.ERROR
+                    }
+                    is Result.Success -> {
+                        val feedUi = feedResult.data.toFeedUi(isStaticInterface)
+                        loadState = LoadState.NONE
+                        viewState.showData(feedUi)
+                    }
+                }
                 delay(ALBUMS_RELOADING_DELAY)
-            }
-        }
-        loadActivitiesJob = startJobOnMain {
-            delay(getDelayAfterRelease(ShuffleMode.ACTIVITIES, itemHoldingTime))
-            loop@ while (isActive) {
-                getFeed(ShuffleMode.ACTIVITIES)
-                delay(ACTIVITIES_RELOADING_DELAY)
-            }
+            } while (isActive && !isStaticInterface)
         }
     }
 
-    private fun getFeed(shuffleMode: ShuffleMode = ShuffleMode.NONE): Job {
-        return startJobOnMain {
-            val feedResult = withContext(Dispatchers.IO) { feedInteractor.getFeed(shuffleMode) }
-            viewState.hideProgress()
-            when (feedResult) {
-                is Failure -> {
-                    showError(feedResult.e)
-                    loadState = LoadState.ERROR
+    private fun Feed.toFeedUi(isStaticInterface: Boolean): FeedUi {
+        val iconWithTextItems = menuItems.map {
+            IconWithTextAdapterItem(
+                id = it.id,
+                text = it.name,
+                imageResId = when (it.id) {
+                    RELEASES_MENU_ITEM_ID -> R.drawable.ic_fresh_release
+                    CHART_MENU_ITEM_ID -> R.drawable.ic_chart
+                    else -> R.drawable.ic_mic
                 }
-                is Result.Success -> {
-                    val homePageUi = HomePageUi(
-                        feedResult.data.albums,
-                        feedResult.data.editorsChoice,
-                        feedResult.data.activities
-                    )
-                    loadState = LoadState.NONE
-                    viewState.showData(homePageUi)
-                }
-            }
+            )
         }
-    }
-
-    private fun getDelayAfterRelease(shuffleMode: ShuffleMode, itemHoldingTime: Long): Long {
-        val featureDelay = when (shuffleMode) {
-            ShuffleMode.ALBUM_COVERS -> ALBUMS_RELOADING_DELAY
-            ShuffleMode.ACTIVITIES -> ACTIVITIES_RELOADING_DELAY
-            else -> 0
-        }
-        return (featureDelay - itemHoldingTime).takeIf { it > 0 }
-            ?: DEFAULT_RELOADING_DELAY_AFTER_RELEASING
+        return FeedUi(
+            isStaticInterface = isStaticInterface,
+            albums = albums,
+            menuItems = iconWithTextItems,
+            activities = activities,
+            editorsChoice = editorsChoice
+        )
     }
 }

@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
  * Adapter that is able to display items of any view type at the same time
  */
 open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
-    private var collection: Collection = Collection.EMPTY
+    protected var collection: Collection = Collection.EMPTY
 
     private val backgroundThreadExecutor = ThreadPoolExecutor(
         1,

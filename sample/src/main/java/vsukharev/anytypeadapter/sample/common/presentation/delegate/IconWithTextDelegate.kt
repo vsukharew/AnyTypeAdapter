@@ -26,7 +26,7 @@ class IconWithTextDelegate : BaseDelegate<IconWithTextAdapterItem, Holder>() {
         override fun bind(item: IconWithTextAdapterItem) {
             with(item) {
                 imageView.setImageResource(imageResId)
-                textView.setText(textResId)
+                textView.text = text
             }
         }
     }

@@ -35,26 +35,35 @@ class AlbumsSectionDelegate(
 
         init {
             recyclerView.apply {
-                layoutManager = SpannedGridLayoutManager(
-                    { position ->
-                        when (position) {
-                            0, 1 -> SpanInfo(3, 3)
-                            else -> SpanInfo(2, 2)
-                        }
-                    }, 6,
-                    1f
-                )
                 (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
                 adapter = anyTypeAdapter
             }
         }
 
         override fun bind(item: List<Album>) {
+            initLayoutManager(recyclerView, item)
             Collection.Builder()
                 .add(item, delegate)
                 .build()
                 .let { anyTypeAdapter.setCollection(it) }
         }
+
+        private fun initLayoutManager(rv: RecyclerView, items: List<Album>) {
+            rv.layoutManager = SpannedGridLayoutManager(
+                { position ->
+                    when {
+                        shouldRender2x2Table(items) -> SpanInfo(3,3)
+                        shouldRender3x3Table(items) -> SpanInfo(2,2)
+                        position in 0..1 -> SpanInfo(3, 3)
+                        else -> SpanInfo(2, 2)
+                    }
+                }, 6,
+                1f
+            )
+        }
+
+        private fun shouldRender2x2Table(items: List<Album>) : Boolean = items.size == 4
+        private fun shouldRender3x3Table(items: List<Album>) : Boolean = items.size == 6
     }
 
     private companion object {

@@ -1,10 +1,9 @@
 package vsukharev.anytypeadapter.sample.feed.presentation.view
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_feed.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
@@ -19,7 +18,7 @@ import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
 import vsukharev.anytypeadapter.sample.feed.presentation.FeedPresenter
-import vsukharev.anytypeadapter.sample.feed.presentation.model.HomePageUi
+import vsukharev.anytypeadapter.sample.feed.presentation.model.FeedUi
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsSectionDelegate
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionDelegate
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate
@@ -34,34 +33,14 @@ class FeedFragment : BaseFragment(), FeedView {
         android.R.color.white,
         R.color.colorSecondary
     )
-    private val albumsSectionDelegate = AlbumsSectionDelegate {
-        if (it) {
-            presenter.onAlbumHeld()
-        } else {
-            presenter.onAlbumReleased()
-        }
-    }
+    private val albumsSectionDelegate = AlbumsSectionDelegate {}
     private val dividerDelegate = DividerDelegate()
     private val iconWithTextDelegate = IconWithTextDelegate()
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
     private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
     private val activitiesDelegate = ActivitySectionDelegate()
-
-    private val freshReleaseAdapterItem = IconWithTextAdapterItem(
-        R.drawable.ic_fresh_release,
-        R.string.albums_fragment_fresh_releases
-    )
-    private val chartAdapterItem = IconWithTextAdapterItem(
-        R.drawable.ic_chart,
-        R.string.albums_fragment_chart
-    )
-    private val podcastsAdapterItem = IconWithTextAdapterItem(
-        R.drawable.ic_mic,
-        R.string.albums_fragment_podcasts
-    )
     private val oftenListenedToItem = HeaderWithButtonAdapterItem(
-        R.string.albums_fragment_often_listened_to,
-        R.string.albums_fragment_view_all_btn
+        R.string.albums_fragment_often_listened_to, R.string.albums_fragment_view_all_btn
     )
 
     private val connectivityObserver by lazy {
@@ -90,7 +69,28 @@ class FeedFragment : BaseFragment(), FeedView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        feed_toolbar.inflateMenu(R.menu.interface_settings_menu)
+        feed_toolbar.setOnMenuItemClickListener {
+            when(it.itemId) {
+                R.id.is_static_interface -> {
+                    it.isChecked = !it.isChecked
+                    presenter.getFeed(it.isChecked)
+                    true
+                }
+                else -> false
+            }
+        }
         albums_rv.adapter = adapter
+        albums_rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (recyclerView.canScrollVertically(-1)) {
+                    feed_toolbar.elevation = 56f
+                } else {
+                    feed_toolbar.elevation = 0f
+                }
+            }
+        })
         albums_retry_btn.setOnClickListener { presenter.reloadData() }
     }
 
@@ -108,13 +108,13 @@ class FeedFragment : BaseFragment(), FeedView {
         }
     }
 
-    override fun showData(data: HomePageUi) {
+    override fun showData(data: FeedUi) {
         albums_error_container.isVisible = false
         Collection.Builder()
             .apply {
                 with(data) {
                     addAlbumsSection(albums)
-                    addMenuItems()
+                    addMenuItems(menuItems)
                     addActivitiesSection(activities)
                     addEditorsChoiceSection(editorsChoice)
                 }
@@ -143,17 +143,15 @@ class FeedFragment : BaseFragment(), FeedView {
         items: List<Album>
     ): Collection.Builder {
         return apply {
-            add(getString(R.string.albums_fragment_based_on_your_preferences), headerDelegate)
+            addIf(getString(R.string.albums_fragment_based_on_your_preferences), headerDelegate) { items.isNotEmpty() }
             add(items, albumsSectionDelegate)
         }
     }
 
-    private fun Collection.Builder.addMenuItems(): Collection.Builder {
+    private fun Collection.Builder.addMenuItems(items: List<IconWithTextAdapterItem>): Collection.Builder {
         return apply {
-            add(R.dimen.dp16, dividerDelegate)
-            add(freshReleaseAdapterItem, iconWithTextDelegate)
-            add(chartAdapterItem, iconWithTextDelegate)
-            add(podcastsAdapterItem, iconWithTextDelegate)
+            addDividerIfItemsNotEmpty(items)
+            add(items, iconWithTextDelegate)
         }
     }
 
@@ -161,6 +159,7 @@ class FeedFragment : BaseFragment(), FeedView {
         activities: List<Activity>
     ): Collection.Builder {
         return apply {
+            addDividerIfItemsNotEmpty(activities)
             add(activities, activitiesDelegate)
         }
     }
@@ -169,9 +168,17 @@ class FeedFragment : BaseFragment(), FeedView {
         editorsChoices: List<EditorsChoice>
     ): Collection.Builder {
         return apply {
-            add(R.dimen.dp16, dividerDelegate)
-            add(oftenListenedToItem, headerWithButtonDelegate)
+            addDividerIfItemsNotEmpty(editorsChoices)
+            addIf(oftenListenedToItem, headerWithButtonDelegate) { editorsChoices.isNotEmpty() }
             add(editorsChoices, editorsChoiceDelegate)
+        }
+    }
+
+    private fun <T> Collection.Builder.addDividerIfItemsNotEmpty(
+        items: List<T>
+    ): Collection.Builder {
+        return apply {
+            addIf(R.dimen.dp16, dividerDelegate) { items.isNotEmpty() }
         }
     }
 
