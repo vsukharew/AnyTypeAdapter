@@ -1,9 +1,10 @@
 package vsukharev.anytypeadapter.sample.feed.presentation.view
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_feed.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
@@ -71,7 +72,7 @@ class FeedFragment : BaseFragment(), FeedView {
         super.onViewCreated(view, savedInstanceState)
         feed_toolbar.inflateMenu(R.menu.interface_settings_menu)
         feed_toolbar.setOnMenuItemClickListener {
-            when(it.itemId) {
+            when (it.itemId) {
                 R.id.is_static_interface -> {
                     it.isChecked = !it.isChecked
                     presenter.getFeed(it.isChecked)
@@ -81,16 +82,6 @@ class FeedFragment : BaseFragment(), FeedView {
             }
         }
         albums_rv.adapter = adapter
-        albums_rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (recyclerView.canScrollVertically(-1)) {
-                    feed_toolbar.elevation = 56f
-                } else {
-                    feed_toolbar.elevation = 0f
-                }
-            }
-        })
         albums_retry_btn.setOnClickListener { presenter.reloadData() }
     }
 
@@ -143,7 +134,10 @@ class FeedFragment : BaseFragment(), FeedView {
         items: List<Album>
     ): Collection.Builder {
         return apply {
-            addIf(getString(R.string.albums_fragment_based_on_your_preferences), headerDelegate) { items.isNotEmpty() }
+            addIf(
+                getString(R.string.albums_fragment_based_on_your_preferences),
+                headerDelegate
+            ) { items.isNotEmpty() }
             add(items, albumsSectionDelegate)
         }
     }

@@ -1,30 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/feed_toolbar"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/albums_rv"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        />
+        android:layout_height="wrap_content"
+        android:descendantFocusability="beforeDescendants"
+        android:paddingBottom="@dimen/dp16"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:liftOnScroll="true">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/feed_toolbar"
+            style="@style/Widget.Toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/albums_rv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:descendantFocusability="beforeDescendants"
-            android:paddingBottom="@dimen/dp16"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
         <LinearLayout
             android:id="@+id/albums_error_container"
@@ -40,8 +46,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
                 android:drawableTop="@drawable/ic_transmission_tower"
+                android:gravity="center"
                 android:text="@string/no_internet_error_title_text"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
 
@@ -55,17 +61,17 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/albums_retry_btn"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
-                app:rippleColor="@color/colorPrimaryVariant"
-                android:textColor="@color/colorSecondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/retry_btn"/>
+                android:text="@string/retry_btn"
+                android:textColor="@color/colorSecondary"
+                app:rippleColor="@color/colorPrimaryVariant" />
         </LinearLayout>
 
         <ProgressBar
             android:id="@+id/albums_pb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
     </FrameLayout>
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
