@@ -4,7 +4,6 @@ import kotlinx.coroutines.*
 import moxy.MvpPresenter
 import vsukharev.anytypeadapter.sample.common.presentation.view.BaseView
 import vsukharev.anytypeadapter.sample.common.presentation.view.ErrorHandlerView
-import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -35,16 +34,11 @@ open class BasePresenter<V : BaseView> : MvpPresenter<V>() {
     }
 
     private fun List<Job>.cancel() {
-        forEach { it.cancel() }
+        forEach { it.cancelIfActive() }
     }
 
     protected fun showError(e: Throwable) {
         val view = viewState as? ErrorHandlerView
-        view?.let {
-            when (e) {
-                is IOException -> it.showNoInternetError(e)
-                else -> it.showUnknownError(e)
-            }
-        }
+        view?.showNoInternetError(e)
     }
 }

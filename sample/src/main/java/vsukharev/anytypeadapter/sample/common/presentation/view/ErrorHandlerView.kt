@@ -10,8 +10,5 @@ interface ErrorHandlerView : BaseView {
     fun showNoInternetError(e: Throwable)
 
     @AddToEndSingle
-    fun showUnknownError(e: Throwable)
-
-    @AddToEndSingle
     fun hideError()
 }

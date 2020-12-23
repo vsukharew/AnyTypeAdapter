@@ -13,7 +13,7 @@ import javax.inject.Inject
 @FeedScope
 class FeedInteractor @Inject constructor(private val repo: FeedRepository) {
 
-    suspend fun getFeed(isStaticInterface: Boolean): Result<Feed> {
+    fun getFeed(isStaticInterface: Boolean): Result<Feed> {
         return try {
             Result.Success(repo.getFeed(isStaticInterface))
         } catch (e: Throwable) {

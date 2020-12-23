@@ -10,15 +10,13 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedView
 import vsukharev.anytypeadapter.sample.common.di.common.PerScreen
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result.Failure
-import vsukharev.anytypeadapter.sample.common.presentation.LoadState
+import vsukharev.anytypeadapter.sample.common.presentation.LoadState.*
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.IconWithTextAdapterItem
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
 import vsukharev.anytypeadapter.sample.feed.data.CHART_MENU_ITEM_ID
 import vsukharev.anytypeadapter.sample.feed.data.RELEASES_MENU_ITEM_ID
 import vsukharev.anytypeadapter.sample.feed.domain.model.Feed
 import javax.inject.Inject
-
-private const val ALBUMS_RELOADING_DELAY = 1000L
 
 /**
  * [FeedFragment]'s presenter
@@ -28,41 +26,57 @@ private const val ALBUMS_RELOADING_DELAY = 1000L
 class FeedPresenter @Inject constructor(
     private val feedInteractor: FeedInteractor
 ) : BasePresenter<FeedView>() {
-    private var loadState = LoadState.NONE
+    private var loadState = NONE
     private var getFeedJob: Job? = null
 
     override fun onFirstViewAttach() {
-        loadState = LoadState.LOADING
-        getFeed()
-    }
-
-    fun reloadData() {
-        if (loadState != LoadState.ERROR) return
-        viewState.hideError()
+        loadState = LOADING
         viewState.showProgress()
-        getFeed()
+        reloadData()
     }
 
-    fun getFeed(isStaticInterface: Boolean = false) {
+    fun reloadData(isStaticInterface: Boolean = false) {
         getFeedJob?.cancel()
         getFeedJob = startJobOnMain {
             do {
-                val feedResult =
-                    withContext(Dispatchers.IO) { feedInteractor.getFeed(isStaticInterface) }
-                viewState.hideProgress()
-                when (feedResult) {
-                    is Failure -> {
-                        showError(feedResult.e)
-                        loadState = LoadState.ERROR
-                    }
-                    is Result.Success -> {
-                        val feedUi = feedResult.data.toFeedUi(isStaticInterface)
-                        loadState = LoadState.NONE
-                        viewState.showData(feedUi)
+                val reloadingDelay = when (loadState) {
+                    NONE -> 1000L
+                    else -> 3000L
+                }
+                viewState.apply {
+                    when (loadState) {
+                        ERROR -> {
+                            delay(reloadingDelay)
+                            hideError()
+                            showProgress()
+                        }
+                        LOADING -> {
+                            showProgress()
+                        }
+                        else -> {
+                        } // do nothing
                     }
                 }
-                delay(ALBUMS_RELOADING_DELAY)
+                delay(reloadingDelay)
+                getFeed(isStaticInterface)
             } while (isActive && !isStaticInterface)
+        }
+    }
+
+    private suspend fun getFeed(isStaticInterface: Boolean = false) {
+        val feedResult =
+            withContext(Dispatchers.IO) { feedInteractor.getFeed(isStaticInterface) }
+        viewState.hideProgress()
+        when (feedResult) {
+            is Failure -> {
+                showError(feedResult.e)
+                loadState = ERROR
+            }
+            is Result.Success -> {
+                val feedUi = feedResult.data.toFeedUi(isStaticInterface)
+                loadState = NONE
+                viewState.showData(feedUi)
+            }
         }
     }
 

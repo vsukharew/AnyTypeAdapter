@@ -11,8 +11,8 @@ import moxy.presenter.ProvidePresenter
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.Collection
 import vsukharev.anytypeadapter.sample.Injector
+import vsukharev.anytypeadapter.sample.NoInternetDelegate
 import vsukharev.anytypeadapter.sample.R
-import vsukharev.anytypeadapter.sample.common.network.ConnectivityObserver
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
 import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
@@ -40,13 +40,10 @@ class FeedFragment : BaseFragment(), FeedView {
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
     private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
     private val activitiesDelegate = ActivitySectionDelegate()
+    private val noInternetDelegate = NoInternetDelegate()
     private val oftenListenedToItem = HeaderWithButtonAdapterItem(
         R.string.albums_fragment_often_listened_to, R.string.albums_fragment_view_all_btn
     )
-
-    private val connectivityObserver by lazy {
-        ConnectivityObserver(requireActivity()) { presenter.reloadData() }
-    }
 
     @Inject
     @InjectPresenter
@@ -75,19 +72,13 @@ class FeedFragment : BaseFragment(), FeedView {
             when (it.itemId) {
                 R.id.is_static_interface -> {
                     it.isChecked = !it.isChecked
-                    presenter.getFeed(it.isChecked)
+                    presenter.reloadData(it.isChecked)
                     true
                 }
                 else -> false
             }
         }
         albums_rv.adapter = adapter
-        albums_retry_btn.setOnClickListener { presenter.reloadData() }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        connectivityObserver.let { lifecycle.addObserver(it) }
     }
 
     override fun onDestroy() {
@@ -100,7 +91,6 @@ class FeedFragment : BaseFragment(), FeedView {
     }
 
     override fun showData(data: FeedUi) {
-        albums_error_container.isVisible = false
         Collection.Builder()
             .apply {
                 with(data) {
@@ -123,11 +113,14 @@ class FeedFragment : BaseFragment(), FeedView {
     }
 
     override fun showNoInternetError(e: Throwable) {
-        albums_error_container.isVisible = true
+        Collection.Builder()
+            .apply { add(Unit, noInternetDelegate) }
+            .build()
+            .let { adapter.setCollection(it) }
     }
 
     override fun hideError() {
-        albums_error_container.isVisible = false
+        Collection.Builder().build().let { adapter.setCollection(it) }
     }
 
     private fun Collection.Builder.addAlbumsSection(

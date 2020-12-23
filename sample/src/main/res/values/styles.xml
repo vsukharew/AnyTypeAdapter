@@ -18,4 +18,9 @@
     <style name="Widget.Toolbar" parent="@style/Widget.Design.AppBarLayout">
         <item name="android:elevation">8dp</item>
     </style>
+
+    <style name="Widget.MainButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="rippleColor">@color/colorPrimaryVariant</item>
+        <item name="android:textColor">@color/colorSecondary</item>
+    </style>
 </resources>

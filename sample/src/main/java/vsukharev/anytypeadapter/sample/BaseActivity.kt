@@ -15,10 +15,6 @@ abstract class BaseActivity : MvpAppCompatActivity(), ErrorHandlerView {
         showErrorMessage(R.string.no_internet_error_title_text)
     }
 
-    override fun showUnknownError(e: Throwable) {
-        showErrorMessage(R.string.unknown_error_text)
-    }
-
     override fun hideError() {}
 
     private fun showErrorMessage(@StringRes message: Int) {

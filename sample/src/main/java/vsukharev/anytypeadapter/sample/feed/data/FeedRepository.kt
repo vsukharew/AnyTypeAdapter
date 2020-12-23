@@ -1,8 +1,8 @@
 package vsukharev.anytypeadapter.sample.feed.data
 
-import vsukharev.anytypeadapter.sample.common.network.makeSimpleRequest
 import vsukharev.anytypeadapter.sample.feed.di.FeedScope
 import vsukharev.anytypeadapter.sample.feed.domain.model.Feed
+import java.io.IOException
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -111,11 +111,25 @@ class FeedRepository @Inject constructor() {
             return feed.copy(albums = feed.albums.take(n))
         }
 
-    suspend fun getFeed(isStaticInterface: Boolean): Feed {
-        makeSimpleRequest() // make request so that if there's no internet the error will be displayed
+    fun getFeed(
+        isStaticInterface: Boolean
+    ): Feed {
         return when {
             isStaticInterface -> originalFeed
-            else -> nextFeed
+            else -> {
+                tryImitateError()
+                nextFeed
+            }
+        }
+    }
+
+
+    private fun tryImitateError() {
+        Random(System.currentTimeMillis()).nextInt(9).let {
+            //One of 10 cases results in an error
+            if (it == 0) {
+                throw IOException()
+            }
         }
     }
 }
