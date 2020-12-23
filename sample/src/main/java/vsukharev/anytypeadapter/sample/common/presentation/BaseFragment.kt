@@ -12,10 +12,6 @@ abstract class BaseFragment : MvpAppCompatFragment(), ErrorHandlerView {
         errorHandlerView?.showNoInternetError(e)
     }
 
-    override fun showUnknownError(e: Throwable) {
-        errorHandlerView?.showUnknownError(e)
-    }
-
     override fun hideError() {
         errorHandlerView?.hideError()
     }
