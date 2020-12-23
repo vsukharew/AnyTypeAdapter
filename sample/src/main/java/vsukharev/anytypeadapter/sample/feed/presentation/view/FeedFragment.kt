@@ -114,7 +114,7 @@ class FeedFragment : BaseFragment(), FeedView {
 
     override fun showNoInternetError(e: Throwable) {
         Collection.Builder()
-            .apply { add(Unit, noInternetDelegate) }
+            .add(noInternetDelegate)
             .build()
             .let { adapter.setCollection(it) }
     }
