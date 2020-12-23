@@ -8,7 +8,6 @@ import kotlin.random.Random
 
 @FeedScope
 class FeedRepository @Inject constructor() {
-    private var i = 0
 
     private val originalFeed = Feed(
         albums = AlbumsSource.albums,
@@ -118,9 +117,5 @@ class FeedRepository @Inject constructor() {
             isStaticInterface -> originalFeed
             else -> nextFeed
         }
-    }
-
-    private companion object {
-        private const val ALBUMS_PORTION = 5
     }
 }
