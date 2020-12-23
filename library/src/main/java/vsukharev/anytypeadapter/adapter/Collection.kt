@@ -5,6 +5,7 @@ import vsukharev.anytypeadapter.holder.BaseViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
 import vsukharev.anytypeadapter.item.AdapterItemMetaData
 import androidx.recyclerview.widget.RecyclerView
+import vsukharev.anytypeadapter.delegate.NoDataDelegate
 
 /**
  * Class that wraps items for [AnyTypeAdapter]
@@ -68,13 +69,20 @@ class Collection private constructor(
         }
 
         /**
-         * Adds items and the corresponding controller
+         * Adds items list and the corresponding controller
          */
         fun <T : Any, H : BaseViewHolder<T>> add(
             items: List<T>,
             controller: BaseDelegate<T, H>
         ): Builder {
             return apply { items.forEach { add(it, controller) } }
+        }
+
+        /**
+         * Adds section without data to bind
+         */
+        fun add(delegate: NoDataDelegate): Builder {
+            return apply { add(Unit, delegate) }
         }
 
         /**
@@ -105,6 +113,17 @@ class Collection private constructor(
             return apply {
                 if (predicate.invoke()) {
                     add(items, controller)
+                }
+            }
+        }
+
+        /**
+         * Adds section without data to bind only if predicate is true
+         */
+        fun addIf(delegate: NoDataDelegate, predicate: () -> Boolean): Builder {
+            return apply {
+                if (predicate.invoke()) {
+                    add(Unit, delegate)
                 }
             }
         }
