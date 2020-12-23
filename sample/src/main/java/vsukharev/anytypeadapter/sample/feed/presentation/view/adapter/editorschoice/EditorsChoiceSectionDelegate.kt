@@ -1,9 +1,9 @@
 package vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice
 
 import android.view.View
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.Collection
 import vsukharev.anytypeadapter.delegate.BaseDelegate
@@ -18,9 +18,7 @@ import java.util.UUID
  */
 class EditorsChoiceSectionDelegate : BaseDelegate<List<EditorsChoice>, Holder>() {
     private val delegate = EditorsChoiceDelegate()
-    private val adapter = object : AnyTypeAdapter() {
-        var collectionSize = 0
-
+    private val anyTypeAdapter = object : AnyTypeAdapter() {
         override fun getItemCount(): Int {
             return when {
                 super.getItemCount() == 0 -> 0
@@ -29,7 +27,7 @@ class EditorsChoiceSectionDelegate : BaseDelegate<List<EditorsChoice>, Holder>()
         }
 
         override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
-            val realPosition = position % collectionSize
+            val realPosition = position % collection.size
             super.onBindViewHolder(holder, realPosition)
         }
     }
@@ -45,17 +43,28 @@ class EditorsChoiceSectionDelegate : BaseDelegate<List<EditorsChoice>, Holder>()
             itemView.findViewById<RecyclerView>(R.id.editors_choice_section_rv)
 
         init {
-            recyclerView.adapter = adapter
-            (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
-            PagerSnapHelper().attachToRecyclerView(recyclerView)
+            recyclerView.apply {
+                adapter = anyTypeAdapter
+                layoutManager = object : LinearLayoutManager(
+                    itemView.context,
+                    RecyclerView.HORIZONTAL,
+                    false
+                ) {
+                    override fun supportsPredictiveItemAnimations(): Boolean = false
+                }
+                PagerSnapHelper().attachToRecyclerView(this)
+            }
         }
 
         override fun bind(item: List<EditorsChoice>) {
-            adapter.collectionSize = item.size
             Collection.Builder()
                 .add(item, delegate)
                 .build()
-                .let { adapter.setCollection(it) { recyclerView.scrollToPosition(adapter.itemCount / 2) } }
+                .let {
+                    anyTypeAdapter.setCollection(it) {
+                        recyclerView.scrollToPosition(anyTypeAdapter.itemCount / 2)
+                    }
+                }
         }
     }
 

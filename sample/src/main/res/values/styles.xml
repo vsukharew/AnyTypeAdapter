@@ -4,6 +4,7 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnSurface">@android:color/white</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorSecondary">@color/colorSecondary</item>
     </style>
@@ -12,5 +13,9 @@
         <item name="itemIconTint">@drawable/background_item_bottom_navigation_view</item>
         <item name="itemTextColor">?attr/colorSecondary</item>
         <item name="itemRippleColor">@drawable/background_ripple_bottom_navigation_view</item>
+    </style>
+
+    <style name="Widget.Toolbar" parent="@style/Widget.Design.AppBarLayout">
+        <item name="android:elevation">8dp</item>
     </style>
 </resources>

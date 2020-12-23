@@ -8,7 +8,7 @@ import java.util.*
  * Data describing a view with image and text
  */
 class IconWithTextAdapterItem(
-    @DrawableRes val imageResId: Int,
-    @StringRes val textResId: Int,
-    val id: String = UUID.randomUUID().toString()
+    val id: String,
+    val text: String,
+    @DrawableRes val imageResId: Int
 )
