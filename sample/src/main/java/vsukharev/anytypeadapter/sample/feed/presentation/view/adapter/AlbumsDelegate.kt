@@ -17,7 +17,7 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsDele
  * The single "based on preferences" album delegate
  */
 class AlbumsDelegate(
-    private val onHoldItemListener: (Boolean) -> Unit
+    private val onItemClickListener: (Album) -> Unit
 ) : BaseDelegate<Album, Holder>() {
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
@@ -41,12 +41,15 @@ class AlbumsDelegate(
             coverIv.setOnTouchListener { _, event ->
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        onHoldItemListener.invoke(true)
                         container.isPressed = true
                         true
                     }
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        onHoldItemListener.invoke(false)
+                    MotionEvent.ACTION_UP -> {
+                        onItemClickListener.invoke(item)
+                        container.isPressed = false
+                        true
+                    }
+                    MotionEvent.ACTION_CANCEL -> {
                         container.isPressed = false
                         true
                     }

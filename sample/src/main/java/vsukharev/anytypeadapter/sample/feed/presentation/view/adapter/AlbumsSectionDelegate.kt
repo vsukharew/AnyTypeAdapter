@@ -19,9 +19,9 @@ import java.util.*
  * The "based on preferences" section delegate
  */
 class AlbumsSectionDelegate(
-    onHoldItemListener: (Boolean) -> Unit
+    onItemClickListener: (Album) -> Unit
 ) : BaseDelegate<List<Album>, Holder>() {
-    private val delegate = AlbumsDelegate(onHoldItemListener)
+    private val delegate = AlbumsDelegate(onItemClickListener)
     private val anyTypeAdapter = AnyTypeAdapter()
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)

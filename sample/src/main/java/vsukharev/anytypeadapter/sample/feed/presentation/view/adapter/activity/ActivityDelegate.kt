@@ -8,7 +8,9 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivityDelegate.Holder
 
-class ActivityDelegate : BaseDelegate<Activity, Holder>() {
+class ActivityDelegate(
+    private val onItemClickListener: (Activity) -> Unit
+) : BaseDelegate<Activity, Holder>() {
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 
@@ -22,6 +24,7 @@ class ActivityDelegate : BaseDelegate<Activity, Holder>() {
 
         override fun bind(item: Activity) {
             with(item) {
+                iv.setOnClickListener { onItemClickListener.invoke(this) }
                 iv.setImageResource(iconRes)
                 tv.text = name
             }

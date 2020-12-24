@@ -9,6 +9,6 @@ import java.util.*
 class HeaderWithButtonAdapterItem(
     @StringRes val headerTextResId: Int,
     @StringRes val btnTextResId: Int,
-    val onClickListener: (() -> Unit)? = null,
+    val onClickListener: ((String) -> Unit)? = null,
     val id: String = UUID.randomUUID().toString()
 )

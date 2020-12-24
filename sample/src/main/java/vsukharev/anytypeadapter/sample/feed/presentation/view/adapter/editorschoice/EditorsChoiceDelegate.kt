@@ -13,7 +13,9 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorscho
 /**
  * Delegate responsible for the "editor's choice" cell creation
  */
-class EditorsChoiceDelegate : BaseDelegate<EditorsChoice, Holder>() {
+class EditorsChoiceDelegate(
+    private val onItemClickListener: (EditorsChoice) -> Unit
+) : BaseDelegate<EditorsChoice, Holder>() {
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 
@@ -21,7 +23,7 @@ class EditorsChoiceDelegate : BaseDelegate<EditorsChoice, Holder>() {
 
     override fun getItemId(item: EditorsChoice): String = item.id.toString()
 
-    class Holder(itemView: View) : BaseViewHolder<EditorsChoice>(itemView) {
+    inner class Holder(itemView: View) : BaseViewHolder<EditorsChoice>(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.editors_choice_cover_iv)
         private val performerTv: TextView = itemView.findViewById(R.id.editors_choice_performer_tv)
         private val descriptionTv: TextView = itemView.findViewById(R.id.editors_choice_description_tv)
@@ -31,6 +33,7 @@ class EditorsChoiceDelegate : BaseDelegate<EditorsChoice, Holder>() {
                 Glide.with(context)
                     .load(imageUrl)
                     .into(imageView)
+                imageView.setOnClickListener { onItemClickListener.invoke(this) }
                 performerTv.text = starName
                 descriptionTv.text = description
             }

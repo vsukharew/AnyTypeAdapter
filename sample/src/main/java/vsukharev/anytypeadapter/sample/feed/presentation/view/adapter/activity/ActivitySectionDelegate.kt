@@ -10,8 +10,10 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionDelegate.Holder
 
-class ActivitySectionDelegate : BaseDelegate<List<Activity>, Holder>() {
-    private val delegate = ActivityDelegate()
+class ActivitySectionDelegate(
+    onItemClickListener: (Activity) -> Unit
+) : BaseDelegate<List<Activity>, Holder>() {
+    private val delegate = ActivityDelegate(onItemClickListener)
     private val anyTypeAdapter = AnyTypeAdapter()
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)

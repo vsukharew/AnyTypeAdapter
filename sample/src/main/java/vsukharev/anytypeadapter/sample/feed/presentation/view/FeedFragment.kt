@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_feed.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
@@ -30,19 +31,25 @@ import javax.inject.Inject
  */
 class FeedFragment : BaseFragment(), FeedView {
     private val adapter = AnyTypeAdapter()
+    private val noInternetDelegate = NoInternetDelegate { showSnackBar(it) }
+    private val activitiesDelegate = ActivitySectionDelegate { showSnackBar(it.name) }
+    private val iconWithTextDelegate = IconWithTextDelegate { showSnackBar(it.text) }
+    private val albumsSectionDelegate = AlbumsSectionDelegate {
+        showSnackBar("${it.name} - ${it.performer}")
+    }
+    private val editorsChoiceDelegate = EditorsChoiceSectionDelegate {
+        showSnackBar("${it.starName} - ${it.description}")
+    }
     private val headerDelegate = PartiallyColoredHeaderDelegate(
         android.R.color.white,
         R.color.colorSecondary
     )
-    private val albumsSectionDelegate = AlbumsSectionDelegate {}
     private val dividerDelegate = DividerDelegate()
-    private val iconWithTextDelegate = IconWithTextDelegate()
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
-    private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
-    private val activitiesDelegate = ActivitySectionDelegate()
-    private val noInternetDelegate = NoInternetDelegate()
-    private val editorsChoice = HeaderWithButtonAdapterItem(
-        R.string.albums_fragment_editors_choice, R.string.albums_fragment_view_all_btn
+    private val editorsChoiceItem = HeaderWithButtonAdapterItem(
+        R.string.albums_fragment_editors_choice,
+        R.string.albums_fragment_view_all_btn,
+        { showSnackBar(it) }
     )
 
     @Inject
@@ -123,6 +130,12 @@ class FeedFragment : BaseFragment(), FeedView {
         Collection.Builder().build().let { adapter.setCollection(it) }
     }
 
+    private fun showSnackBar(message: String) {
+        Snackbar
+            .make(feed_root_layout, message, Snackbar.LENGTH_SHORT)
+            .show()
+    }
+
     private fun Collection.Builder.addAlbumsSection(
         items: List<Album>
     ): Collection.Builder {
@@ -156,7 +169,7 @@ class FeedFragment : BaseFragment(), FeedView {
     ): Collection.Builder {
         return apply {
             addDividerIfItemsNotEmpty(editorsChoices)
-            addIf(editorsChoice, headerWithButtonDelegate) { editorsChoices.isNotEmpty() }
+            addIf(editorsChoiceItem, headerWithButtonDelegate) { editorsChoices.isNotEmpty() }
             add(editorsChoices, editorsChoiceDelegate)
         }
     }
