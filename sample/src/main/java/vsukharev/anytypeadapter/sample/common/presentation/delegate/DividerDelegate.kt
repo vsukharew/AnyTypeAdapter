@@ -2,15 +2,15 @@ package vsukharev.anytypeadapter.sample.common.presentation.delegate
 
 import android.view.View
 import androidx.core.view.updateLayoutParams
-import vsukharev.anytypeadapter.delegate.BaseDelegate
-import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.DividerDelegate.Holder
 
 /**
  * The delegate responsible for the divider section creation
  */
-class DividerDelegate : BaseDelegate<Int, Holder>() {
+class DividerDelegate : AnyTypeDelegate<Int, Holder>() {
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 
@@ -18,7 +18,7 @@ class DividerDelegate : BaseDelegate<Int, Holder>() {
 
     override fun getItemId(item: Int): String = item.toString()
 
-    class Holder(itemView: View) : BaseViewHolder<Int>(itemView) {
+    class Holder(itemView: View) : AnyTypeViewHolder<Int>(itemView) {
 
         private val view: View = itemView.findViewById(R.id.delegate_divider_view)
 

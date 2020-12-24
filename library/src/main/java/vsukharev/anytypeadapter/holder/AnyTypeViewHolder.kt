@@ -8,7 +8,7 @@ import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 /**
  * The base class for [AnyTypeAdapter] view holders
  */
-abstract class BaseViewHolder<T>(itemView: View) : RecyclerView.ViewHolder(itemView) {
+abstract class AnyTypeViewHolder<T>(itemView: View) : RecyclerView.ViewHolder(itemView) {
     protected val context: Context = itemView.context
 
     /**

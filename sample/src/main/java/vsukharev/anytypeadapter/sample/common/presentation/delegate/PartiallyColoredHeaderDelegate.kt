@@ -6,8 +6,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
-import vsukharev.anytypeadapter.delegate.BaseDelegate
-import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate.Holder
 
@@ -21,7 +21,7 @@ private const val SPACE = " "
 class PartiallyColoredHeaderDelegate(
     @ColorRes private val defaultColor: Int,
     @ColorRes private val highlightColor: Int
-) : BaseDelegate<String, Holder>() {
+) : AnyTypeDelegate<String, Holder>() {
 
     override fun createViewHolder(itemView: View): Holder = Holder(itemView)
 
@@ -29,7 +29,7 @@ class PartiallyColoredHeaderDelegate(
 
     override fun getItemId(item: String): String = item
 
-    inner class Holder(itemView: View) : BaseViewHolder<String>(itemView) {
+    inner class Holder(itemView: View) : AnyTypeViewHolder<String>(itemView) {
         private val headerView: TextView = itemView.findViewById(R.id.header_delegate_header_tv)
 
         override fun bind(item: String) {

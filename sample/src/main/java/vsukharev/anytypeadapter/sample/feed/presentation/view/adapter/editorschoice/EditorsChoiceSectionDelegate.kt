@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.Collection
-import vsukharev.anytypeadapter.delegate.BaseDelegate
-import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate.Holder
@@ -18,7 +18,7 @@ import java.util.UUID
  */
 class EditorsChoiceSectionDelegate(
     onItemClickListener: (EditorsChoice) -> Unit
-) : BaseDelegate<List<EditorsChoice>, Holder>() {
+) : AnyTypeDelegate<List<EditorsChoice>, Holder>() {
     private val delegate = EditorsChoiceDelegate(onItemClickListener)
     private val anyTypeAdapter = object : AnyTypeAdapter() {
         override fun getItemCount(): Int {
@@ -28,7 +28,7 @@ class EditorsChoiceSectionDelegate(
             }
         }
 
-        override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
+        override fun onBindViewHolder(holder: AnyTypeViewHolder<Any>, position: Int) {
             val realPosition = position % collection.size
             super.onBindViewHolder(holder, realPosition)
         }
@@ -40,7 +40,7 @@ class EditorsChoiceSectionDelegate(
 
     override fun getItemId(item: List<EditorsChoice>): String = ITEM_ID
 
-    inner class Holder(itemView: View) : BaseViewHolder<List<EditorsChoice>>(itemView) {
+    inner class Holder(itemView: View) : AnyTypeViewHolder<List<EditorsChoice>>(itemView) {
         private val recyclerView =
             itemView.findViewById<RecyclerView>(R.id.editors_choice_section_rv)
 

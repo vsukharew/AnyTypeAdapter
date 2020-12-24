@@ -6,10 +6,10 @@ import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import java.util.*
 
 /**
- * [BaseDelegate] that creates [NoDataViewHolder]
+ * [AnyTypeDelegate] that creates [NoDataViewHolder]
  * This delegate can be used when creating list for [AnyTypeAdapter] without specifying data to bind
  */
-abstract class NoDataDelegate : BaseDelegate<Unit, NoDataViewHolder>() {
+abstract class NoDataDelegate : AnyTypeDelegate<Unit, NoDataViewHolder>() {
 
     override fun getItemId(item: Unit): String = ITEM_ID
 
