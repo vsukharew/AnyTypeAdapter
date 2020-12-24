@@ -52,8 +52,9 @@ class AlbumsSectionDelegate(
             rv.layoutManager = SpannedGridLayoutManager(
                 { position ->
                     when {
-                        shouldRender2x2Table(items) -> SpanInfo(3,3)
-                        shouldRender3x3Table(items) -> SpanInfo(2,2)
+                        shouldRender2x2Table(items) -> SpanInfo(3, 3)
+                        shouldRender3x3Table(items) -> SpanInfo(2, 2)
+                        shouldRenderLastPairAs3x3(position, items) -> SpanInfo(3, 3)
                         position in 0..1 -> SpanInfo(3, 3)
                         else -> SpanInfo(2, 2)
                     }
@@ -62,8 +63,10 @@ class AlbumsSectionDelegate(
             )
         }
 
-        private fun shouldRender2x2Table(items: List<Album>) : Boolean = items.size == 4
-        private fun shouldRender3x3Table(items: List<Album>) : Boolean = items.size == 6
+        private fun shouldRender2x2Table(items: List<Album>): Boolean = items.size == 4
+        private fun shouldRender3x3Table(items: List<Album>): Boolean = items.size == 6
+        private fun shouldRenderLastPairAs3x3(position: Int, items: List<Album>): Boolean =
+            items.size > 6 && position in items.lastIndex - 1..items.lastIndex
     }
 
     private companion object {

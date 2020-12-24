@@ -13,19 +13,19 @@ object EditorsChoiceSource {
             UUID.randomUUID(),
             starName = "Ariana Grande",
             description = "Has what she wants",
-            imageUrl = "https://thearrowhead.net/wp-content/uploads/2019/06/Thank-U-Next-900x900.jpg"
+            imageUrl = "https://i.imgur.com/fI9qNhe.jpg"
         ),
         EditorsChoice(
             UUID.randomUUID(),
             starName = "Wiz Khalifa and Snoop Dogg",
             description = "Advise to live young, wild and free",
-            imageUrl = "https://m.media-amazon.com/images/I/81ZghP368YL._SS500_.jpg"
+            imageUrl = "https://i.imgur.com/pVjoHNM.jpg"
         ),
         EditorsChoice(
             UUID.randomUUID(),
             starName = "A day to Remember",
             description = "Call on to be sincere",
-            imageUrl = "https://upload.wikimedia.org/wikipedia/en/b/b0/Bad_Vibrations.jpg"
+            imageUrl = "https://i.imgur.com/8YQibd4.jpg"
         )
     )
 }
