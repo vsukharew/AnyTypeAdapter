@@ -16,8 +16,10 @@ import java.util.UUID
 /**
  * Delegate responsible for the whole "editor's choice" section
  */
-class EditorsChoiceSectionDelegate : BaseDelegate<List<EditorsChoice>, Holder>() {
-    private val delegate = EditorsChoiceDelegate()
+class EditorsChoiceSectionDelegate(
+    onItemClickListener: (EditorsChoice) -> Unit
+) : BaseDelegate<List<EditorsChoice>, Holder>() {
+    private val delegate = EditorsChoiceDelegate(onItemClickListener)
     private val anyTypeAdapter = object : AnyTypeAdapter() {
         override fun getItemCount(): Int {
             return when {

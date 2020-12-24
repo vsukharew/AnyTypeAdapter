@@ -9,7 +9,6 @@ import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
  * The model describing content at the feed tab
  */
 data class FeedUi(
-    val isStaticInterface: Boolean,
     val albums: List<Album>,
     val menuItems: List<IconWithTextAdapterItem>,
     val editorsChoice: List<EditorsChoice>,

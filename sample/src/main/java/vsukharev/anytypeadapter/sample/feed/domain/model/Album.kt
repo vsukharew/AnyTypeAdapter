@@ -7,6 +7,5 @@ data class Album(
     val id: String,
     val name: String,
     val performer: String,
-    val issueYear: Int,
     val coverUrl: String
 )
