@@ -33,15 +33,15 @@ class Collection private constructor(
         private val itemsMetaData = mutableListOf<AdapterItemMetaData<Any>>()
 
         /**
-         * Adds the single item and the corresponding controller
+         * Adds the single [item] and the corresponding [delegate]
          */
         fun <T : Any, H : BaseViewHolder<T>> add(
             item: T,
-            controller: BaseDelegate<T, H>
+            delegate: BaseDelegate<T, H>
         ): Builder {
             return apply {
                 val isCurrentViewTypeEqualToLastAdded = with(itemsMetaData) {
-                    isNotEmpty() && get(lastIndex).delegate.getItemViewType() == controller.getItemViewType()
+                    isNotEmpty() && get(lastIndex).delegate.getItemViewType() == delegate.getItemViewType()
                 }
 
                 // Put new view type only if it isn't equal to the previous one
@@ -56,7 +56,7 @@ class Collection private constructor(
                         itemsMetaData.add(
                             AdapterItemMetaData(
                                 items.size,
-                                controller as BaseDelegate<Any, BaseViewHolder<Any>>
+                                delegate as BaseDelegate<Any, BaseViewHolder<Any>>
                             )
                         )
                     }
@@ -64,18 +64,18 @@ class Collection private constructor(
                         /* do nothing */
                     }
                 }
-                items.add(AdapterItem(controller.getItemId(item), item))
+                items.add(AdapterItem(delegate.getItemId(item), item))
             }
         }
 
         /**
-         * Adds items list and the corresponding controller
+         * Adds [items] list and the corresponding [delegate]
          */
         fun <T : Any, H : BaseViewHolder<T>> add(
             items: List<T>,
-            controller: BaseDelegate<T, H>
+            delegate: BaseDelegate<T, H>
         ): Builder {
-            return apply { items.forEach { add(it, controller) } }
+            return apply { items.forEach { add(it, delegate) } }
         }
 
         /**
@@ -86,39 +86,40 @@ class Collection private constructor(
         }
 
         /**
-         * Adds item and the corresponding controller only if predicate is true
-         * @param predicate the condition determining whether the items and controller should be added
+         * Adds [item] and the corresponding [delegate] only if [predicate] is true
+         * @param predicate the condition determining whether the items and delegate should be added
          */
         fun <T: Any, H : BaseViewHolder<T>> addIf(
             item: T,
-            controller: BaseDelegate<T, H>,
+            delegate: BaseDelegate<T, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
                 if (predicate.invoke()) {
-                    add(item, controller)
+                    add(item, delegate)
                 }
             }
         }
 
         /**
-         * Adds items and the corresponding controller only if predicate is true
-         * @param predicate the condition determining whether the items and controller should be added
+         * Adds [items] and the corresponding [delegate] only if [predicate] is true
+         * @param predicate the condition determining whether the items and delegate should be added
          */
         fun <T : Any, H : BaseViewHolder<List<T>>> addIf(
             items: List<T>,
-            controller: BaseDelegate<List<T>, H>,
+            delegate: BaseDelegate<List<T>, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
                 if (predicate.invoke()) {
-                    add(items, controller)
+                    add(items, delegate)
                 }
             }
         }
 
         /**
-         * Adds section without data to bind only if predicate is true
+         * Adds section without data to bind only if [predicate] is true
+         * @param predicate the condition determining whether the section should be added
          */
         fun addIf(delegate: NoDataDelegate, predicate: () -> Boolean): Builder {
             return apply {
@@ -129,13 +130,13 @@ class Collection private constructor(
         }
 
         /**
-         * Adds items and the corresponding controller only if the list of items is not empty
+         * Adds [items] and the corresponding [delegate] only if the list of items is not empty
          */
         fun <T : Any, H : BaseViewHolder<List<T>>> addIfNotEmpty(
             items: List<T>,
-            controller: BaseDelegate<List<T>, H>
+            delegate: BaseDelegate<List<T>, H>
         ): Builder {
-            return apply { addIf(items, controller) { items.isNotEmpty() } }
+            return apply { addIf(items, delegate) { items.isNotEmpty() } }
         }
 
         fun build() = Collection(items, itemsMetaData)
