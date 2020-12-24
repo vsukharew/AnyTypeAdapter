@@ -41,8 +41,8 @@ class FeedFragment : BaseFragment(), FeedView {
     private val editorsChoiceDelegate = EditorsChoiceSectionDelegate()
     private val activitiesDelegate = ActivitySectionDelegate()
     private val noInternetDelegate = NoInternetDelegate()
-    private val oftenListenedToItem = HeaderWithButtonAdapterItem(
-        R.string.albums_fragment_often_listened_to, R.string.albums_fragment_view_all_btn
+    private val editorsChoice = HeaderWithButtonAdapterItem(
+        R.string.albums_fragment_editors_choice, R.string.albums_fragment_view_all_btn
     )
 
     @Inject
@@ -156,7 +156,7 @@ class FeedFragment : BaseFragment(), FeedView {
     ): Collection.Builder {
         return apply {
             addDividerIfItemsNotEmpty(editorsChoices)
-            addIf(oftenListenedToItem, headerWithButtonDelegate) { editorsChoices.isNotEmpty() }
+            addIf(editorsChoice, headerWithButtonDelegate) { editorsChoices.isNotEmpty() }
             add(editorsChoices, editorsChoiceDelegate)
         }
     }
