@@ -28,7 +28,7 @@ class EditorsChoiceDelegate : BaseDelegate<EditorsChoice, Holder>() {
 
         override fun bind(item: EditorsChoice) {
             with(item) {
-                Glide.with(itemView.context)
+                Glide.with(context)
                     .load(imageUrl)
                     .into(imageView)
                 performerTv.text = starName

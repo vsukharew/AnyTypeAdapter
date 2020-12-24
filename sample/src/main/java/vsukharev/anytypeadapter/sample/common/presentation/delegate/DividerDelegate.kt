@@ -24,7 +24,7 @@ class DividerDelegate : BaseDelegate<Int, Holder>() {
 
         override fun bind(item: Int) {
             view.updateLayoutParams {
-                height = itemView.context.resources.getDimension(item).toInt()
+                height = context.resources.getDimension(item).toInt()
             }
         }
     }
