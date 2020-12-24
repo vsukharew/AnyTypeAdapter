@@ -3,8 +3,13 @@ package vsukharev.anytypeadapter.sample.common.presentation.delegate
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.view.View
+import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import vsukharev.anytypeadapter.delegate.BaseDelegate
+import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate.Holder
 
 private const val SPACE = " "
 
@@ -14,13 +19,19 @@ private const val SPACE = " "
  * @param highlightColor the color applied to the last word of the text
  */
 class PartiallyColoredHeaderDelegate(
-    @ColorRes defaultColor: Int,
+    @ColorRes private val defaultColor: Int,
     @ColorRes private val highlightColor: Int
-) : HeaderDelegate(defaultColor) {
-    override fun createViewHolder(itemView: View): HeaderViewHolder =
-        PartiallyColoredHeaderViewHolder(itemView)
+) : BaseDelegate<String, Holder>() {
 
-    inner class PartiallyColoredHeaderViewHolder(itemView: View) : HeaderViewHolder(itemView) {
+    override fun createViewHolder(itemView: View): Holder = Holder(itemView)
+
+    override fun getItemViewType(): Int = R.layout.header_view
+
+    override fun getItemId(item: String): String = item
+
+    inner class Holder(itemView: View) : BaseViewHolder<String>(itemView) {
+        private val headerView: TextView = itemView.findViewById(R.id.header_delegate_header_tv)
+
         override fun bind(item: String) {
             with(item) {
                 with(itemView) {
