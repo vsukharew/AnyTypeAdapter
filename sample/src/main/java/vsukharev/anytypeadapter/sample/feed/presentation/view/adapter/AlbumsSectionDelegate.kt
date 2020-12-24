@@ -5,8 +5,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.Collection
-import vsukharev.anytypeadapter.delegate.BaseDelegate
-import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsSectionDelegate.Holder
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.SpannedGridLayoutManager
@@ -20,7 +20,7 @@ import java.util.*
  */
 class AlbumsSectionDelegate(
     onItemClickListener: (Album) -> Unit
-) : BaseDelegate<List<Album>, Holder>() {
+) : AnyTypeDelegate<List<Album>, Holder>() {
     private val delegate = AlbumsDelegate(onItemClickListener)
     private val anyTypeAdapter = AnyTypeAdapter()
 
@@ -30,7 +30,7 @@ class AlbumsSectionDelegate(
 
     override fun getItemId(item: List<Album>): String = ITEM_ID
 
-    inner class Holder(itemView: View) : BaseViewHolder<List<Album>>(itemView) {
+    inner class Holder(itemView: View) : AnyTypeViewHolder<List<Album>>(itemView) {
         private val recyclerView = itemView.findViewById<RecyclerView>(R.id.albums_section_rv)
 
         init {

@@ -1,7 +1,7 @@
 package vsukharev.anytypeadapter.adapter
 
-import vsukharev.anytypeadapter.delegate.BaseDelegate
-import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
 import vsukharev.anytypeadapter.item.AdapterItemMetaData
 import androidx.recyclerview.widget.RecyclerView
@@ -25,7 +25,7 @@ class Collection private constructor(
     /**
      * Returns delegate at the given position in the [itemsMetaData] collection
      */
-    fun delegateAt(position: Int): BaseDelegate<Any, BaseViewHolder<Any>> =
+    fun delegateAt(position: Int): AnyTypeDelegate<Any, AnyTypeViewHolder<Any>> =
         itemsMetaData[position].delegate
 
     class Builder {
@@ -35,9 +35,9 @@ class Collection private constructor(
         /**
          * Adds the single [item] and the corresponding [delegate]
          */
-        fun <T : Any, H : BaseViewHolder<T>> add(
+        fun <T : Any, H : AnyTypeViewHolder<T>> add(
             item: T,
-            delegate: BaseDelegate<T, H>
+            delegate: AnyTypeDelegate<T, H>
         ): Builder {
             return apply {
                 val isCurrentViewTypeEqualToLastAdded = with(itemsMetaData) {
@@ -56,7 +56,7 @@ class Collection private constructor(
                         itemsMetaData.add(
                             AdapterItemMetaData(
                                 items.size,
-                                delegate as BaseDelegate<Any, BaseViewHolder<Any>>
+                                delegate as AnyTypeDelegate<Any, AnyTypeViewHolder<Any>>
                             )
                         )
                     }
@@ -71,9 +71,9 @@ class Collection private constructor(
         /**
          * Adds [items] list and the corresponding [delegate]
          */
-        fun <T : Any, H : BaseViewHolder<T>> add(
+        fun <T : Any, H : AnyTypeViewHolder<T>> add(
             items: List<T>,
-            delegate: BaseDelegate<T, H>
+            delegate: AnyTypeDelegate<T, H>
         ): Builder {
             return apply { items.forEach { add(it, delegate) } }
         }
@@ -89,9 +89,9 @@ class Collection private constructor(
          * Adds [item] and the corresponding [delegate] only if [predicate] is true
          * @param predicate the condition determining whether the items and delegate should be added
          */
-        fun <T: Any, H : BaseViewHolder<T>> addIf(
+        fun <T: Any, H : AnyTypeViewHolder<T>> addIf(
             item: T,
-            delegate: BaseDelegate<T, H>,
+            delegate: AnyTypeDelegate<T, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
@@ -105,9 +105,9 @@ class Collection private constructor(
          * Adds [items] and the corresponding [delegate] only if [predicate] is true
          * @param predicate the condition determining whether the items and delegate should be added
          */
-        fun <T : Any, H : BaseViewHolder<List<T>>> addIf(
+        fun <T : Any, H : AnyTypeViewHolder<List<T>>> addIf(
             items: List<T>,
-            delegate: BaseDelegate<List<T>, H>,
+            delegate: AnyTypeDelegate<List<T>, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
@@ -132,9 +132,9 @@ class Collection private constructor(
         /**
          * Adds [items] and the corresponding [delegate] only if the list of items is not empty
          */
-        fun <T : Any, H : BaseViewHolder<List<T>>> addIfNotEmpty(
+        fun <T : Any, H : AnyTypeViewHolder<List<T>>> addIfNotEmpty(
             items: List<T>,
-            delegate: BaseDelegate<List<T>, H>
+            delegate: AnyTypeDelegate<List<T>, H>
         ): Builder {
             return apply { addIf(items, delegate) { items.isNotEmpty() } }
         }

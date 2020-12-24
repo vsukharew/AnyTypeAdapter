@@ -4,15 +4,15 @@ import android.view.View
 import kotlinx.android.synthetic.main.delegate_activity_section.view.*
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.Collection
-import vsukharev.anytypeadapter.delegate.BaseDelegate
-import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity.ActivitySectionDelegate.Holder
 
 class ActivitySectionDelegate(
     onItemClickListener: (Activity) -> Unit
-) : BaseDelegate<List<Activity>, Holder>() {
+) : AnyTypeDelegate<List<Activity>, Holder>() {
     private val delegate = ActivityDelegate(onItemClickListener)
     private val anyTypeAdapter = AnyTypeAdapter()
 
@@ -22,7 +22,7 @@ class ActivitySectionDelegate(
 
     override fun getItemId(item: List<Activity>): String = ITEM_ID
 
-    inner class Holder(itemView: View) : BaseViewHolder<List<Activity>>(itemView) {
+    inner class Holder(itemView: View) : AnyTypeViewHolder<List<Activity>>(itemView) {
         init {
             itemView.delegate_activity_section_rv.adapter = anyTypeAdapter
         }

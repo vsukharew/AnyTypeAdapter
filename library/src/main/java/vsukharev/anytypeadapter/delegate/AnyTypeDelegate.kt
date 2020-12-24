@@ -1,7 +1,7 @@
 package vsukharev.anytypeadapter.delegate
 
 import android.view.View
-import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import vsukharev.anytypeadapter.item.AdapterItem
@@ -18,7 +18,7 @@ import vsukharev.anytypeadapter.item.AdapterItem
  * @see [RecyclerView.Adapter.onCreateViewHolder]
  * @see [RecyclerView.Adapter.getItemViewType]
  */
-abstract class BaseDelegate<T: Any, H: BaseViewHolder<in T>> {
+abstract class AnyTypeDelegate<T: Any, H: AnyTypeViewHolder<in T>> {
 
     /**
      * Creates a view holder.

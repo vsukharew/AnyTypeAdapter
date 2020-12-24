@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import vsukharev.anytypeadapter.holder.BaseViewHolder
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
 import vsukharev.anytypeadapter.item.AdapterItemMetaData
 import java.util.concurrent.Executor
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Adapter that is able to display items of any view type at the same time
  */
-open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
+open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>() {
     protected var collection: Collection = Collection.EMPTY
 
     private val backgroundThreadExecutor = ThreadPoolExecutor(
@@ -35,14 +35,14 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Any> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnyTypeViewHolder<Any> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return with(collection) {
             delegateAt(currentItemViewTypePosition).createViewHolder(view)
         }
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
+    override fun onBindViewHolder(holder: AnyTypeViewHolder<Any>, position: Int) {
         with(collection) {
             val delegate = delegateAt(currentItemViewTypePosition)
             delegate.bind(items[position], holder)
