@@ -11,15 +11,21 @@ object AlbumsSource {
     val albums = listOf(
         Album(
             UUID.randomUUID().toString(),
-            name = "Still",
-            performer = "Russ",
-            coverUrl = "https://i.imgur.com/1bvG4Cj.jpg"
+            name = "Coffee Bags, Abstraction & Empathy",
+            performer = "Lee Knuttila",
+            coverUrl = "https://i.imgur.com/smdV8sL.png"
         ),
         Album(
             UUID.randomUUID().toString(),
             name = "Some mountains",
             performer = "Unknown",
             coverUrl = "https://i.imgur.com/88yZF0y.jpg"
+        ),
+        Album(
+            UUID.randomUUID().toString(),
+            name = "Still",
+            performer = "Russ",
+            coverUrl = "https://i.imgur.com/1bvG4Cj.jpg"
         ),
         Album(
             UUID.randomUUID().toString(),
@@ -38,12 +44,6 @@ object AlbumsSource {
             name = "On Art and Aesthetics",
             performer = "Nick Barclay",
             coverUrl = "https://i.imgur.com/1zvagWq.jpg"
-        ),
-        Album(
-            UUID.randomUUID().toString(),
-            name = "Coffee Bags, Abstraction & Empathy",
-            performer = "Lee Knuttila",
-            coverUrl = "https://i.imgur.com/smdV8sL.png"
         ),
         Album(
             UUID.randomUUID().toString(),
