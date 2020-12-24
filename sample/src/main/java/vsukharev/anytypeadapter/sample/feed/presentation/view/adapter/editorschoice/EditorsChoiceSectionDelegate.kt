@@ -46,7 +46,7 @@ class EditorsChoiceSectionDelegate : BaseDelegate<List<EditorsChoice>, Holder>()
             recyclerView.apply {
                 adapter = anyTypeAdapter
                 layoutManager = object : LinearLayoutManager(
-                    itemView.context,
+                    context,
                     RecyclerView.HORIZONTAL,
                     false
                 ) {
