@@ -10,6 +10,7 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedView
 import vsukharev.anytypeadapter.sample.common.di.common.PerScreen
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result.Failure
+import vsukharev.anytypeadapter.sample.common.presentation.LoadState
 import vsukharev.anytypeadapter.sample.common.presentation.LoadState.*
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.IconWithTextAdapterItem
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
@@ -26,7 +27,7 @@ import javax.inject.Inject
 class FeedPresenter @Inject constructor(
     private val feedInteractor: FeedInteractor
 ) : BasePresenter<FeedView>() {
-    private var loadState = NONE
+    private var loadState: LoadState = NONE
     private var getFeedJob: Job? = null
 
     override fun onFirstViewAttach() {
@@ -39,9 +40,13 @@ class FeedPresenter @Inject constructor(
         getFeedJob?.cancel()
         getFeedJob = startJobOnMain {
             do {
-                val reloadingDelay = when (loadState) {
-                    NONE -> 1000L
-                    else -> 3000L
+                val reloadingDelay = if (isStaticInterface) {
+                    0L
+                } else {
+                    when (loadState) {
+                        NONE -> 1000L
+                        else -> 3000L
+                    }
                 }
                 viewState.apply {
                     when (loadState) {
@@ -73,14 +78,14 @@ class FeedPresenter @Inject constructor(
                 loadState = ERROR
             }
             is Result.Success -> {
-                val feedUi = feedResult.data.toFeedUi(isStaticInterface)
+                val feedUi = feedResult.data.toFeedUi()
                 loadState = NONE
                 viewState.showData(feedUi)
             }
         }
     }
 
-    private fun Feed.toFeedUi(isStaticInterface: Boolean): FeedUi {
+    private fun Feed.toFeedUi(): FeedUi {
         val iconWithTextItems = menuItems.map {
             IconWithTextAdapterItem(
                 id = it.id,
@@ -93,7 +98,6 @@ class FeedPresenter @Inject constructor(
             )
         }
         return FeedUi(
-            isStaticInterface = isStaticInterface,
             albums = albums,
             menuItems = iconWithTextItems,
             activities = activities,
