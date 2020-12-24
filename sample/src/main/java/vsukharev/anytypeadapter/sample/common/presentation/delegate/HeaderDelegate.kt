@@ -26,7 +26,7 @@ open class HeaderDelegate(
         protected val headerView: TextView = itemView.findViewById(R.id.header_delegate_header_tv)
 
         override fun bind(item: String) {
-            headerView.setTextColor(ContextCompat.getColor(itemView.context, defaultColor))
+            headerView.setTextColor(ContextCompat.getColor(context, defaultColor))
             headerView.text = item
         }
     }

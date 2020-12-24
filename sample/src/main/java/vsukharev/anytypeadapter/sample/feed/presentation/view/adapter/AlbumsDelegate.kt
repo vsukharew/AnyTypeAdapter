@@ -32,7 +32,7 @@ class AlbumsDelegate(
 
         @SuppressLint("ClickableViewAccessibility")
         override fun bind(item: Album) {
-            Glide.with(itemView.context)
+            Glide.with(context)
                 .load(item.coverUrl)
                 .placeholder(R.drawable.ic_album_placeholder)
                 .error(R.drawable.ic_album_placeholder)
