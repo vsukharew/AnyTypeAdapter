@@ -44,8 +44,8 @@ open class AnyTypeAdapter : RecyclerView.Adapter<BaseViewHolder<Any>>() {
 
     override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
         with(collection) {
-            val controller = delegateAt(currentItemViewTypePosition)
-            controller.bind(items[position], holder)
+            val delegate = delegateAt(currentItemViewTypePosition)
+            delegate.bind(items[position], holder)
         }
     }
 
