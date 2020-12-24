@@ -47,13 +47,13 @@ class FeedFragment : BaseFragment(), FeedView {
     private val dividerDelegate = DividerDelegate()
     private val headerWithButtonDelegate = HeaderWithButtonDelegate()
     private val editorsChoiceHeaderItem = HeaderWithButtonAdapterItem(
-        R.string.albums_fragment_editors_choice,
-        R.string.albums_fragment_view_all_btn,
+        R.string.feed_fragment_editors_choice,
+        R.string.feed_fragment_view_all_btn,
         { showSnackBar(it) }
     )
     private val activitiesHeaderItem = HeaderWithButtonAdapterItem(
-        R.string.albums_fragment_activities,
-        R.string.albums_fragment_view_all_btn,
+        R.string.feed_fragment_activities,
+        R.string.feed_fragment_view_all_btn,
         { showSnackBar(it) }
     )
 
@@ -146,7 +146,7 @@ class FeedFragment : BaseFragment(), FeedView {
     ): Collection.Builder {
         return apply {
             addIf(
-                getString(R.string.albums_fragment_based_on_your_preferences),
+                getString(R.string.feed_fragment_based_on_your_preferences),
                 headerDelegate
             ) { items.isNotEmpty() }
             add(items, albumsSectionDelegate)
