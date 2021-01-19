@@ -40,7 +40,7 @@ class PartiallyColoredHeaderDelegate(
                         ForegroundColorSpan(
                             ContextCompat.getColor(context, highlightColor)
                         ),
-                        lastIndexOf(SPACE),
+                        lastIndexOf(SPACE).takeIf { it != -1 } ?: 0,
                         length,
                         SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
                     )
