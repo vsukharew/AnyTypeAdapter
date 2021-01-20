@@ -6,6 +6,7 @@ import javax.inject.Singleton
 
 @Component
 @Singleton
+//todo fix DI
 interface TracksComponent {
     fun inject(fragment: TracksFragment)
 }

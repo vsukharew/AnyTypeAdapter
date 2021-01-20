@@ -8,7 +8,11 @@ import javax.inject.Singleton
 class TracksSource @Inject constructor() {
     private val tracks = mutableListOf<Track>()
 
-    fun getTracks(): List<Track> = tracks
+    fun getTracks(offset: Int, count: Int) = when {
+            offset + count > tracks.size -> emptyList()
+            else -> tracks.subList(offset, offset + count).toList()
+        }
+
     fun putTracks(tracks: List<Track>) {
         this.tracks.clear()
         this.tracks.addAll(tracks)

@@ -13,9 +13,16 @@ import vsukharev.anytypeadapter.adapter.Collection
 import vsukharev.anytypeadapter.sample.Injector
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
-import vsukharev.anytypeadapter.sample.tracks.domain.model.Track
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.PaginationAdapterItem
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.PaginationDelegate
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate
+import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator.*
+import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.RecyclerViewScrollListener
 import vsukharev.anytypeadapter.sample.tracks.presentation.TracksPresenter
+import vsukharev.anytypeadapter.sample.tracks.presentation.model.TracksListItem
+import vsukharev.anytypeadapter.sample.tracks.presentation.view.adapter.EmptyTracksListDelegate
 import vsukharev.anytypeadapter.sample.tracks.presentation.view.adapter.TracksDelegate
+import vsukharev.anytypeadapter.sample.tracks.presentation.view.adapter.TracksErrorDelegate
 import javax.inject.Inject
 
 /**
@@ -25,6 +32,18 @@ class TracksFragment : BaseFragment(), TracksView {
 
     private val anyTypeAdapter = AnyTypeAdapter()
     private val tracksDelegate = TracksDelegate()
+    private val errorDelegate = TracksErrorDelegate()
+    private val emptyListDelegate = EmptyTracksListDelegate()
+    private val headerDelegate = PartiallyColoredHeaderDelegate(
+        android.R.color.white,
+        android.R.color.white
+    )
+    private val paginationDelegate = PaginationDelegate { presenter.loadMore() }
+    private val paginationItem = PaginationAdapterItem(false)
+
+    private val scrollListener: RecyclerViewScrollListener by lazy {
+        RecyclerViewScrollListener { presenter.loadMore() }
+    }
 
     @Inject
     @InjectPresenter
@@ -50,7 +69,16 @@ class TracksFragment : BaseFragment(), TracksView {
         super.onViewCreated(view, savedInstanceState)
         tracks_rv.apply {
             adapter = anyTypeAdapter
+            addOnScrollListener(scrollListener)
         }
+        tracks_swr.setOnRefreshListener { presenter.refresh() }
+    }
+
+    override fun onDestroy() {
+        if (requireActivity().isFinishing) {
+            Injector.destroyTracksComponent()
+        }
+        super.onDestroy()
     }
 
     override fun showProgress() {
@@ -61,20 +89,64 @@ class TracksFragment : BaseFragment(), TracksView {
         tracks_pb.isVisible = false
     }
 
-    override fun showTracks(tracks: List<Track>) {
+    override fun hideRefreshProgress() {
+        tracks_swr.isRefreshing = false
+    }
+
+    override fun showEmptyError(error: Throwable) {
         Collection.Builder()
-            .add(tracks, tracksDelegate)
+            .add(errorDelegate)
             .build()
             .let { anyTypeAdapter.setCollection(it) }
     }
 
-    override fun showEmptyState() {
+    override fun hideEmptyError() {
         anyTypeAdapter.setCollection(Collection.EMPTY)
     }
 
-    override fun onDestroy() {
-        Injector.destroyTracksComponent()
-        super.onDestroy()
+    override fun showEmptyView() {
+        Collection.Builder()
+            .add(emptyListDelegate)
+            .build()
+            .let { anyTypeAdapter.setCollection(it) }
+    }
+
+    override fun hideEmptyView() {
+        anyTypeAdapter.setCollection(Collection.EMPTY)
+    }
+
+    override fun showData(
+        data: List<TracksListItem>,
+        allDataLoaded: Boolean,
+        paginationState: PaginationState?
+    ) {
+        scrollListener.apply {
+            isLoading = false
+            hasMore = !allDataLoaded
+        }
+        Collection.Builder()
+            .apply {
+                data.forEach {
+                    when (it) {
+                        is TracksListItem.Header -> add(it.value, headerDelegate)
+                        is TracksListItem.TrackUi -> add(it.track, tracksDelegate)
+                    }
+                }
+                addIf(
+                    paginationItem.copy(isError = paginationState == PaginationState.ERROR),
+                    paginationDelegate
+                ) { paginationState != null }
+            }
+            .build()
+            .let { anyTypeAdapter.setCollection(it) }
+    }
+
+    override fun hideData() {
+        anyTypeAdapter.setCollection(Collection.EMPTY)
+    }
+
+    override fun showPaginationError(error: Throwable) {
+        // no implementation
     }
 
     companion object {

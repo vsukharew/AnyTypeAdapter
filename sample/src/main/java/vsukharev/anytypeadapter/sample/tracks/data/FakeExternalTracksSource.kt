@@ -176,7 +176,7 @@ object FakeExternalTracksSource {
         leeKnuttilaTracks,
         architectureInHelsinkiTracks,
         sharonVanEttenTracks
-    ).flatten().shuffled()
+    ).flatten().sortedBy { it.name }
 
     private fun createTrack(
         name: String,

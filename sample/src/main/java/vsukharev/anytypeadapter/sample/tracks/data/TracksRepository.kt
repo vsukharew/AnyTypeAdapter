@@ -8,10 +8,10 @@ import javax.inject.Singleton
 class TracksRepository @Inject constructor(
     private val tracksSource: TracksSource
 ) {
-    fun getTracks(): List<Track> {
+    fun getTracks(offset: Int, count: Int): List<Track> {
         return with(tracksSource) {
             putTracks(FakeExternalTracksSource.tracks)
-            getTracks()
+            getTracks(offset, count)
         }
     }
 }
