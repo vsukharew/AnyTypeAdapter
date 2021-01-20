@@ -32,7 +32,7 @@ class TracksFragment : BaseFragment(), TracksView {
 
     private val anyTypeAdapter = AnyTypeAdapter()
     private val tracksDelegate = TracksDelegate()
-    private val errorDelegate = TracksErrorDelegate()
+    private val errorDelegate = TracksErrorDelegate { presenter.refresh() }
     private val emptyListDelegate = EmptyTracksListDelegate()
     private val headerDelegate = PartiallyColoredHeaderDelegate(
         android.R.color.white,
@@ -93,6 +93,14 @@ class TracksFragment : BaseFragment(), TracksView {
         tracks_swr.isRefreshing = false
     }
 
+    override fun disableRefreshProgress() {
+        tracks_swr.isEnabled = false
+    }
+
+    override fun enableRefreshProgress() {
+        tracks_swr.isEnabled = true
+    }
+
     override fun showEmptyError(error: Throwable) {
         Collection.Builder()
             .add(errorDelegate)
@@ -122,7 +130,7 @@ class TracksFragment : BaseFragment(), TracksView {
     ) {
         scrollListener.apply {
             isLoading = false
-            hasMore = !allDataLoaded
+            hasMore = !allDataLoaded && paginationState != PaginationState.ERROR
         }
         Collection.Builder()
             .apply {

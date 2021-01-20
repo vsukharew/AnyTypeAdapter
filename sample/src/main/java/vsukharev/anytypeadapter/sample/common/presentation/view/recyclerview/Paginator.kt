@@ -25,6 +25,8 @@ class Paginator<T>(
         fun showProgress()
         fun hideProgress()
         fun hideRefreshProgress()
+        fun disableRefreshProgress()
+        fun enableRefreshProgress()
         fun showEmptyError(error: Throwable)
         fun hideEmptyError()
         fun showEmptyView()
@@ -71,7 +73,7 @@ class Paginator<T>(
     inner class Empty : CancellableState<T>(mutableListOf()) {
         override fun onRefresh() {
             state = EmptyProgress()
-            loadPage(nextPage)
+            loadPage(START_PAGE)
         }
     }
 
@@ -82,6 +84,7 @@ class Paginator<T>(
                 with(view) {
                     hideProgress()
                     hideRefreshProgress()
+                    enableRefreshProgress()
                     showData(dataPage)
                 }
                 nextPage++
@@ -90,6 +93,7 @@ class Paginator<T>(
                 with(view) {
                     hideProgress()
                     hideRefreshProgress()
+                    enableRefreshProgress()
                     showEmptyView()
                 }
             }
@@ -99,6 +103,7 @@ class Paginator<T>(
             state = EmptyError()
             with(view) {
                 hideProgress()
+                disableRefreshProgress()
                 showEmptyError(error)
             }
         }
@@ -143,14 +148,12 @@ class Paginator<T>(
         }
 
         override fun onError(error: Throwable) {
-            super.onError(error)
-            state = when {
-                data.isNotEmpty() -> Data(data)
-                else -> EmptyError()
-            }
+            state = EmptyError()
+            nextPage = 0
             with(view) {
                 hideRefreshProgress()
-                showPaginationError(error)
+                disableRefreshProgress()
+                showEmptyError(error)
             }
         }
     }
