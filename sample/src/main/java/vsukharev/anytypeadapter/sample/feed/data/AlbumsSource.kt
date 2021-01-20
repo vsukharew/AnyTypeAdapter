@@ -10,7 +10,7 @@ object AlbumsSource {
 
     val albums = listOf(
         Album(
-            UUID.randomUUID().toString(),
+            UUID.randomUUID().toString(), // TODO make default value for id
             name = "Coffee Bags, Abstraction & Empathy",
             performer = "Lee Knuttila",
             coverUrl = "https://i.imgur.com/smdV8sL.png"

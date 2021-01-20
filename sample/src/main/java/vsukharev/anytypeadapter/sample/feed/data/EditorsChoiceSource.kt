@@ -10,7 +10,7 @@ object EditorsChoiceSource {
 
     val editorsChoiceMusic = listOf(
         EditorsChoice(
-            UUID.randomUUID(),
+            UUID.randomUUID(), // TODO make default value for id
             starName = "Ariana Grande",
             description = "Has what she wants",
             imageUrl = "https://i.imgur.com/fI9qNhe.jpg"
