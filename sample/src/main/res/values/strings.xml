@@ -13,4 +13,6 @@
     <string name="no_internet_error_title_text">Connection error</string>
     <string name="no_internet_error_description_text">Check your internet connection and try again</string>
     <string name="retry_btn">Retry</string>
+    <string name="nothing_found">Nothing found</string>
+    <string name="error_occurred">An error occurred</string>
 </resources>
