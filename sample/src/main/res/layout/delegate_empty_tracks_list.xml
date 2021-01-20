@@ -9,5 +9,6 @@
         android:layout_gravity="center"
         android:drawableTop="@drawable/ic_empty_tracks_list"
         android:gravity="center"
-        android:text="Nothing found" />
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:text="@string/nothing_found" />
 </FrameLayout>
