@@ -6,11 +6,6 @@
         android:title="@string/bottom_navigation_feed" />
 
     <item
-        android:id="@+id/playlists"
-        android:icon="@drawable/ic_playlist"
-        android:title="@string/bottom_navigation_playlists" />
-
-    <item
         android:id="@+id/tracks"
         android:icon="@drawable/ic_track"
         android:title="@string/bottom_navigation_tracks" />
