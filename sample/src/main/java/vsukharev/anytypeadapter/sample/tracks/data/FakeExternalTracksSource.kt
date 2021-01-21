@@ -104,13 +104,13 @@ object FakeExternalTracksSource {
         "High And Dry",
         "Everything In Its Right Place",
         "How To Disappear Completely",
-        "All I Need",
+        "In My Room",
         "Man of War",
         "Knives Out",
         "Reckoner",
         "Daydreaming",
         "Pyramid Song",
-        "Back To You",
+        "One For The Money",
         "Nude",
         "Burn the Witch",
         "Idioteque",
@@ -120,7 +120,7 @@ object FakeExternalTracksSource {
         albumCoverUrl = "https://i.imgur.com/smdV8sL.png"
     )
 
-    private val architectureInHelsinkiTracks = listOf(
+    private val nickBarclayTracks = listOf(
         "In the Future",
         "That Beep",
         "Feather In A Baseball Cap",
@@ -128,17 +128,17 @@ object FakeExternalTracksSource {
         "The Owls Go",
         "Do The Whirlwind",
         "Nothing's Wrong",
-        "Lazy (Lazy)",
-        "Daydreaming",
+        "Lazy",
+        "Do My Dance",
         "Scissor Paper Rock",
         "Kindling",
-        "Nude",
+        "Naivety",
         "Underwater",
         "It's Almost a Trap",
         "Vanishing"
     ).mapToTracks(
-        performer = "Architecture In Helsinki",
-        albumCoverUrl = "https://i.imgur.com/88yZF0y.jpg"
+        performer = "Nick Barclay",
+        albumCoverUrl = "https://i.imgur.com/1zvagWq.jpg"
     )
 
     private val sharonVanEttenTracks = listOf(
@@ -153,7 +153,7 @@ object FakeExternalTracksSource {
         "Comeback Kid",
         "Lemon",
         "Jupiter 4",
-        "Nude",
+        "Needs No Sleep",
         "Impossible Weight",
         "Give Out",
         "Silent Night",
@@ -174,7 +174,7 @@ object FakeExternalTracksSource {
         arcticMonkeysTracks,
         russTracks,
         leeKnuttilaTracks,
-        architectureInHelsinkiTracks,
+        nickBarclayTracks,
         sharonVanEttenTracks
     ).flatten().sortedBy { it.name }
 
