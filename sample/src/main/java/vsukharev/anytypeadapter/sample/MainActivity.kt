@@ -10,7 +10,6 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.flow.FeedFlowScree
 import vsukharev.anytypeadapter.sample.common.extension.commitShowAndHide
 import vsukharev.anytypeadapter.sample.common.extension.doIfEmpty
 import vsukharev.anytypeadapter.sample.common.extension.getFirstVisibleFragment
-import vsukharev.anytypeadapter.sample.playlists.presentation.view.flow.PlaylistsFlowScreen
 import vsukharev.anytypeadapter.sample.tracks.presentation.view.flow.TracksFlowScreen
 
 private const val NAVIGATION_PATH_KEY = "navigation_path"
@@ -115,7 +114,6 @@ class MainActivity : BaseActivity() {
     private fun getFragmentByMenuItemId(itemId: Int): Fragment? {
         return when (itemId) {
             R.id.albums -> FeedFlowScreen().fragment
-            R.id.playlists -> PlaylistsFlowScreen().fragment
             R.id.tracks -> TracksFlowScreen().fragment
             else -> null
         }
