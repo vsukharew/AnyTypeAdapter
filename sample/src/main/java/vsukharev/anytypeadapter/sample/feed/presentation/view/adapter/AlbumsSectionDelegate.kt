@@ -15,8 +15,7 @@ import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import java.util.*
 
 /**
- * TODO rename after deleting "based on preferences" label
- * The "based on preferences" section delegate
+ * The whole albums section delegate
  */
 class AlbumsSectionDelegate(
     onItemClickListener: (Album) -> Unit
