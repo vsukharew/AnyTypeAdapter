@@ -23,7 +23,6 @@ import javax.inject.Inject
  * [FeedFragment]'s presenter
  */
 @InjectViewState
-@PerScreen
 class FeedPresenter @Inject constructor(
     private val feedInteractor: FeedInteractor
 ) : BasePresenter<FeedView>() {

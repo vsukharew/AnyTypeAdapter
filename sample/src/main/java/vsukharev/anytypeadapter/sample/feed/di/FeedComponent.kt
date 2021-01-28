@@ -1,10 +1,11 @@
 package vsukharev.anytypeadapter.sample.feed.di
 
 import dagger.Component
-import vsukharev.anytypeadapter.sample.feed.domain.interactor.FeedInteractor
+import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedFragment
+import javax.inject.Singleton
 
 @Component
-@FeedScope
+@Singleton
 interface FeedComponent {
-    fun albumsInteractor(): FeedInteractor
+    fun inject(fragment: FeedFragment)
 }

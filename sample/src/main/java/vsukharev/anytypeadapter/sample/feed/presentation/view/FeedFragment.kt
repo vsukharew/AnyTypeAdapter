@@ -65,7 +65,7 @@ class FeedFragment : BaseFragment(), FeedView {
     fun providePresenter() = presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Injector.buildAlbumsScreenComponent().inject(this)
+        Injector.buildFeedComponent().inject(this)
         super.onCreate(savedInstanceState)
     }
 
@@ -97,7 +97,7 @@ class FeedFragment : BaseFragment(), FeedView {
         super.onDestroy()
         activity?.apply {
             if (isFinishing) {
-                Injector.destroyAlbumsScreenComponent()
+                Injector.destroyFeedComponent()
             }
         }
     }
