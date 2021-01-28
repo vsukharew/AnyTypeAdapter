@@ -6,8 +6,8 @@ import java.util.*
  * The model describing what the editor chooses
  */
 data class EditorsChoice(
-    val id: UUID,
     val starName: String,
     val description: String,
-    val imageUrl: String
+    val imageUrl: String,
+    val id: UUID = UUID.randomUUID()
 )

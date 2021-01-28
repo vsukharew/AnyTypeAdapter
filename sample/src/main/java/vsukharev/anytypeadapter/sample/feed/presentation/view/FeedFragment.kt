@@ -79,10 +79,10 @@ class FeedFragment : BaseFragment(), FeedView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        feed_toolbar.inflateMenu(R.menu.interface_settings_menu)
+        feed_toolbar.inflateMenu(R.menu.menu_feed)
         feed_toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.is_static_interface -> {
+                R.id.menu_feed_is_static_interface -> {
                     it.isChecked = !it.isChecked
                     presenter.reloadData(it.isChecked)
                     true

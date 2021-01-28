@@ -13,8 +13,7 @@ import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsDelegate.Holder
 
 /**
- * TODO rename after deleting "based on preferences" label
- * The single "based on preferences" album delegate
+ * Single album delegate
  */
 class AlbumsDelegate(
     private val onItemClickListener: (Album) -> Unit

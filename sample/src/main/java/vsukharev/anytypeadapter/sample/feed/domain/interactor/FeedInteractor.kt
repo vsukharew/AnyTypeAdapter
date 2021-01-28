@@ -6,10 +6,6 @@ import vsukharev.anytypeadapter.sample.feed.domain.model.Feed
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * TODO edit comment
- * Interactor of the albums feature
- */
 @Singleton
 class FeedInteractor @Inject constructor(private val repo: FeedRepository) {
 
