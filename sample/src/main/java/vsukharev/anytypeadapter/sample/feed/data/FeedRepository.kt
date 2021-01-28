@@ -1,12 +1,12 @@
 package vsukharev.anytypeadapter.sample.feed.data
 
-import vsukharev.anytypeadapter.sample.feed.di.FeedScope
 import vsukharev.anytypeadapter.sample.feed.domain.model.Feed
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.random.Random
 
-@FeedScope
+@Singleton
 class FeedRepository @Inject constructor() {
 
     private val originalFeed = Feed(
