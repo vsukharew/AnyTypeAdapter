@@ -10,10 +10,10 @@ import javax.inject.Singleton
 @Singleton
 class TracksInteractor @Inject constructor(private val repo: TracksRepository) {
 
-    suspend fun getTracks(offset: Int, count: Int): Result<List<Track>> {
-        delay(5000L)
+    suspend fun getTracks(offset: Int, count: Int, searchString: String? = null): Result<List<Track>> {
+        delay(3000L)
         return try {
-            Result.Success(repo.getTracks(offset, count))
+            Result.Success(repo.getTracks(offset, count, searchString))
         } catch (e: Exception) {
             Result.Failure(e)
         }

@@ -19,8 +19,8 @@ class TracksPresenter @Inject constructor(
     private var lastHeader = ""
 
     private val paginator = Paginator(
-        { page ->
-            tracksInteractor.getTracks(page * PAGE_SIZE, PAGE_SIZE)
+        { page, searchString ->
+            tracksInteractor.getTracks(page * PAGE_SIZE, PAGE_SIZE, searchString)
                 .map { tracks ->
                     val groupedTracks = tracks.groupBy { it.name.first().toString() }
                     mutableListOf<TracksListItem>().apply {
@@ -52,5 +52,9 @@ class TracksPresenter @Inject constructor(
 
     fun refresh() {
         paginator.refresh()
+    }
+
+    fun search(searchString: String) {
+        paginator.search(searchString)
     }
 }
