@@ -8,17 +8,29 @@ import vsukharev.anytypeadapter.sample.common.errorhandling.Result
  * Class responsible for loading and showing data by pages
  */
 class Paginator<T>(
-    private val requestFactory: suspend (Int) -> Result<List<T>>,
+    private val requestFactory: suspend (Int, String?) -> Result<List<T>>,
     private val view: PaginatorView<T>
 ) : CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
     private var getPageJob: Job? = null
-    private var state: State<T> = Empty()
+    private var state: State<T> = Empty(emptyList(), emptyList())
     private var nextPage: Int = START_PAGE
+    private var nextSearchPage: Int = START_PAGE
 
     fun refresh() = state.onRefresh()
     fun cancelLoad() = state.onCancel()
     fun loadMore() = state.loadMore()
+    fun search(searchString: String) = state.onTextChanged(searchString)
+
+    private fun loadPage(page: Int, searchString: String? = null) {
+        getPageJob?.cancel()
+        getPageJob = launch {
+            when (val result = requestFactory.invoke(page, searchString)) {
+                is Result.Success -> state.onPageLoad(result.data, searchString)
+                is Result.Failure -> state.onError(result.e)
+            }
+        }
+    }
 
     @AddToEndSingle
     interface PaginatorView<T> {
@@ -27,6 +39,8 @@ class Paginator<T>(
         fun hideRefreshProgress()
         fun disableRefreshProgress()
         fun enableRefreshProgress()
+        fun showSearchButton()
+        fun hideSearchButton()
         fun showEmptyError(error: Throwable)
         fun hideEmptyError()
         fun showEmptyView()
@@ -44,7 +58,8 @@ class Paginator<T>(
         fun onRefresh() {}
         fun loadMore() {}
         fun onCancel() {}
-        fun onPageLoad(dataPage: List<T>) {}
+        fun onTextChanged(text: String) {}
+        fun onPageLoad(dataPage: List<T>, searchString: String? = null) {}
         fun onError(error: Throwable) {}
     }
 
@@ -53,43 +68,68 @@ class Paginator<T>(
         ERROR
     }
 
-    open inner class CancellableState<T>(protected val data: List<T>) : State<T> {
+    open inner class CancellableState<T>(
+        protected val data: List<T>
+    ) : State<T> {
         override fun onCancel() {
             state = Released()
             cancel()
         }
     }
 
-    private fun loadPage(page: Int) {
-        getPageJob?.cancel()
-        getPageJob = launch {
-            when (val result = requestFactory.invoke(page)) {
-                is Result.Success -> state.onPageLoad(result.data)
-                is Result.Failure -> state.onError(result.e)
+    open inner class SearchableState(
+        data: List<T>,
+        protected val searchResults: List<T>,
+        protected val searchString: String? = null
+    ) : CancellableState<T>(data) {
+        override fun onTextChanged(text: String) {
+            if (text.isNotEmpty()) {
+                state = EmptyProgress(data, searchResults)
+                with(view) {
+                    hideData()
+                    showProgress()
+                }
+                loadPage(START_PAGE, text)
+            } else {
+                state = Data(data, emptyList())
+                with(view) {
+                    showData(data)
+                    hideProgress()
+                }
             }
         }
     }
 
-    inner class Empty : CancellableState<T>(mutableListOf()) {
+    inner class Empty(
+        data: List<T>,
+        searchResults: List<T>
+    ) : SearchableState(data, searchResults) {
         override fun onRefresh() {
-            state = EmptyProgress()
-            loadPage(START_PAGE)
+            state = EmptyProgress(data, searchResults)
+            view.hideSearchButton()
+            loadPage(START_PAGE, searchString)
         }
     }
 
-    inner class EmptyProgress : CancellableState<T>(mutableListOf()) {
-        override fun onPageLoad(dataPage: List<T>) {
+    inner class EmptyProgress(
+        data: List<T>,
+        searchResults: List<T>
+    ) : SearchableState(data, searchResults) {
+        override fun onPageLoad(dataPage: List<T>, searchString: String?) {
             if (dataPage.isNotEmpty()) {
-                state = Data(dataPage)
+                state = when (searchString) {
+                    null -> Data(dataPage, searchResults).also { nextPage++ }
+                    else -> Data(data, dataPage, searchString).also { nextSearchPage++ }
+                }
                 with(view) {
                     hideProgress()
                     hideRefreshProgress()
                     enableRefreshProgress()
+                    showSearchButton()
                     showData(dataPage)
                 }
-                nextPage++
             } else {
-                state = Empty()
+                state = Empty(data, searchResults)
                 with(view) {
                     hideProgress()
                     hideRefreshProgress()
@@ -100,18 +140,23 @@ class Paginator<T>(
         }
 
         override fun onError(error: Throwable) {
-            state = EmptyError()
+            state = EmptyError(data, searchResults, searchString)
             with(view) {
                 hideProgress()
                 disableRefreshProgress()
+                hideSearchButton()
                 showEmptyError(error)
             }
         }
     }
 
-    inner class EmptyError : CancellableState<T>(emptyList()) {
+    inner class EmptyError(
+        data: List<T>,
+        searchResults: List<T>,
+        searchString: String? = null
+    ) : SearchableState(data, searchResults, searchString) {
         override fun onRefresh() {
-            state = EmptyProgress()
+            state = EmptyProgress(data, searchResults)
             with(view) {
                 hideEmptyError()
                 showProgress()
@@ -120,25 +165,35 @@ class Paginator<T>(
         }
     }
 
-    inner class PaginationError(data: List<T>) : CancellableState<T>(data) {
+    inner class PaginationError(
+        data: List<T>,
+        searchResults: List<T>,
+        searchString: String? = null
+    ) : SearchableState(data, searchResults, searchString) {
         override fun loadMore() {
-            state = NewPageLoading(data)
+            state = NewPageLoading(data, searchResults, searchString)
             view.showData(data, paginationState = PaginationState.LOADING)
             loadPage(nextPage)
         }
     }
 
-    inner class Refreshing : CancellableState<T>(emptyList()) {
-        override fun onPageLoad(dataPage: List<T>) {
+    inner class Refreshing(
+        data: List<T>,
+        searchResults: List<T>,
+        searchString: String? = null
+    ) : SearchableState(data, searchResults, searchString) {
+        override fun onPageLoad(dataPage: List<T>, searchString: String?) {
             if (dataPage.isNotEmpty()) {
-                state = Data(dataPage)
-                nextPage = 1
+                state = when (searchString) {
+                    null -> Data(dataPage, searchResults).also { nextPage = 1 }
+                    else -> Data(data, dataPage, searchString).also { nextSearchPage = 1 }
+                }
                 with(view) {
                     hideRefreshProgress()
                     view.showData(dataPage)
                 }
             } else {
-                state = Empty()
+                state = Empty(data, searchResults)
                 with(view) {
                     hideData()
                     hideRefreshProgress()
@@ -148,7 +203,7 @@ class Paginator<T>(
         }
 
         override fun onError(error: Throwable) {
-            state = EmptyError()
+            state = EmptyError(data, searchResults, searchString)
             nextPage = 0
             with(view) {
                 hideRefreshProgress()
@@ -158,54 +213,82 @@ class Paginator<T>(
         }
     }
 
-    inner class NewPageLoading(data: List<T>) : CancellableState<T>(data) {
-        override fun onPageLoad(dataPage: List<T>) {
+    inner class NewPageLoading(
+        data: List<T>,
+        searchResults: List<T>,
+        searchString: String? = null
+    ) : SearchableState(data, searchResults, searchString) {
+
+        override fun onPageLoad(dataPage: List<T>, searchString: String?) {
+            val aggregatedData = when (searchString) {
+                null -> data + dataPage
+                else -> searchResults + dataPage
+            }
             if (dataPage.isNotEmpty()) {
-                val aggregatedData = data + dataPage
-                state = Data(aggregatedData)
-                nextPage++
+                state = when (searchString) {
+                    null -> Data(aggregatedData, searchResults).also { nextPage++ }
+                    else -> Data(data, aggregatedData).also { nextSearchPage++ }
+                }
                 with(view) {
                     showData(aggregatedData)
                 }
             } else {
-                state = AllData(data)
-                view.showData(data, allDataLoaded = true)
+                state = AllData(data, searchResults, searchString)
+                view.showData(aggregatedData, allDataLoaded = true)
             }
         }
 
         override fun onRefresh() {
-            state = Refreshing()
+            state = Refreshing(data, searchResults, searchString)
             loadPage(START_PAGE)
         }
 
         override fun onError(error: Throwable) {
-            state = PaginationError(data)
+            state = PaginationError(data, searchResults, searchString)
             view.showData(data, paginationState = PaginationState.ERROR)
         }
     }
 
-    inner class Data(data: List<T>) : CancellableState<T>(data) {
+    inner class Data(
+        data: List<T>,
+        searchResults: List<T>,
+        searchString: String? = null
+    ) : SearchableState(data, searchResults, searchString) {
         override fun onRefresh() {
-            state = Refreshing()
-            loadPage(START_PAGE)
+            state = Refreshing(data, searchResults, searchString)
+            loadPage(START_PAGE, searchString)
         }
 
         override fun loadMore() {
-            state = NewPageLoading(data)
-            view.showData(data, paginationState = PaginationState.LOADING)
-            loadPage(nextPage)
+            state = NewPageLoading(data, searchResults, searchString)
+            view.showData(
+                when(searchString) {
+                    null -> data
+                    else -> searchResults
+                },
+                paginationState = PaginationState.LOADING
+            )
+            val page = when {
+                searchString != null -> nextSearchPage
+                else -> nextPage
+            }
+            loadPage(page, searchString)
         }
     }
 
-    inner class AllData(data: List<T>) : CancellableState<T>(data) {
+    inner class AllData(
+        data: List<T>,
+        searchResults: List<T>,
+        searchString: String? = null
+    ) : SearchableState(data, searchResults, searchString) {
         override fun onRefresh() {
             super.onRefresh()
-            state = Refreshing()
-            loadPage(START_PAGE)
+            state = Refreshing(data, searchResults, searchString)
+            loadPage(START_PAGE, searchString)
         }
     }
 
-    inner class Released : CancellableState<T>(mutableListOf())
+    inner class Released : CancellableState<T>(emptyList())
 
     private companion object {
         private const val START_PAGE = 0

@@ -1,22 +1,32 @@
 package vsukharev.anytypeadapter.sample.tracks.presentation.view
 
+import android.app.SearchManager
+import android.content.ComponentName
+import android.content.Context.SEARCH_SERVICE
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.fragment_tracks.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.Collection
 import vsukharev.anytypeadapter.sample.Injector
+import vsukharev.anytypeadapter.sample.MainActivity
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.common.extension.EMPTY
+import vsukharev.anytypeadapter.sample.common.extension.dropFirst
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PaginationAdapterItem
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PaginationDelegate
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate
-import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator.*
+import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator.PaginationState
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.RecyclerViewScrollListener
 import vsukharev.anytypeadapter.sample.tracks.presentation.TracksPresenter
 import vsukharev.anytypeadapter.sample.tracks.presentation.model.TracksListItem
@@ -28,6 +38,7 @@ import javax.inject.Inject
 /**
  * Fragment showing the list of tracks
  */
+@ExperimentalCoroutinesApi
 class TracksFragment : BaseFragment(), TracksView {
 
     private val anyTypeAdapter = AnyTypeAdapter()
@@ -44,6 +55,8 @@ class TracksFragment : BaseFragment(), TracksView {
     private val scrollListener: RecyclerViewScrollListener by lazy {
         RecyclerViewScrollListener { presenter.loadMore() }
     }
+
+    private val searchQueryFlow = MutableStateFlow(String.EMPTY)
 
     @Inject
     @InjectPresenter
@@ -65,13 +78,40 @@ class TracksFragment : BaseFragment(), TracksView {
         return inflater.inflate(R.layout.fragment_tracks, container, false)
     }
 
+    @FlowPreview
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tracks_rv.apply {
             adapter = anyTypeAdapter
             addOnScrollListener(scrollListener)
         }
+        tracks_toolbar.apply {
+            inflateMenu(R.menu.menu_tracks)
+            val componentName = ComponentName(context, MainActivity::class.java)
+            val searchView = menu.findItem(R.id.tracks_search).actionView as SearchView
+            val searchableInfo = (context.getSystemService(SEARCH_SERVICE) as SearchManager)
+                .getSearchableInfo(componentName)
+            searchView.setSearchableInfo(searchableInfo)
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextChange(newText: String): Boolean {
+                    searchQueryFlow.value = newText
+                    return true
+                }
+
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    searchQueryFlow.value = query
+                    return true
+                }
+            })
+        }
         tracks_swr.setOnRefreshListener { presenter.refresh() }
+
+        lifecycleScope.launch {
+            searchQueryFlow
+                .dropFirst()
+                .debounce(500L)
+                .collect { presenter.search(it) }
+        }
     }
 
     override fun onDestroy() {
@@ -79,6 +119,12 @@ class TracksFragment : BaseFragment(), TracksView {
             Injector.destroyTracksComponent()
         }
         super.onDestroy()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        requireContext().apply {
+
+        }
     }
 
     override fun showProgress() {
@@ -99,6 +145,14 @@ class TracksFragment : BaseFragment(), TracksView {
 
     override fun enableRefreshProgress() {
         tracks_swr.isEnabled = true
+    }
+
+    override fun hideSearchButton() {
+        tracks_toolbar.menu.findItem(R.id.tracks_search).isVisible = false
+    }
+
+    override fun showSearchButton() {
+        tracks_toolbar.menu.findItem(R.id.tracks_search).isVisible = true
     }
 
     override fun showEmptyError(error: Throwable) {

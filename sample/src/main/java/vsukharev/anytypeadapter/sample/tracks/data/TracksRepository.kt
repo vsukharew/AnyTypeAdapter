@@ -9,11 +9,14 @@ import kotlin.random.Random
 class TracksRepository @Inject constructor(
     private val tracksSource: TracksSource
 ) {
-    fun getTracks(offset: Int, count: Int): List<Track> {
+    fun getTracks(offset: Int, count: Int, searchString: String? = null): List<Track> {
         return with(tracksSource) {
-            putTracks(FakeExternalTracksSource.tracks)
-            when(offset) {
-                0 -> tryImitateItemsLack(offset, count)
+            if (isEmpty) {
+                putTracks(FakeExternalTracksSource.tracks)
+            }
+            when {
+                searchString != null -> tracksSource.getTracks(offset, count, searchString)
+                offset == 0 -> tryImitateItemsLack(offset, count)
                 else -> tryImitateError(offset, count)
             }
         }
@@ -31,7 +34,7 @@ class TracksRepository @Inject constructor(
 
     private fun tryImitateError(offset: Int, count: Int): List<Track> {
         return when (Random(System.currentTimeMillis()).nextInt(9)) {
-            //Two of 10 cases result in an error
+            //One of 5 cases result in an error
             in 0..2 -> throw Exception()
             else -> tracksSource.getTracks(offset, count)
         }
