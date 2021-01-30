@@ -34,7 +34,7 @@ class TracksRepository @Inject constructor(
 
     private fun tryImitateError(offset: Int, count: Int): List<Track> {
         return when (Random(System.currentTimeMillis()).nextInt(9)) {
-            //One of 5 cases result in an error
+            //One of 5 cases results in an error
             in 0..2 -> throw Exception()
             else -> tracksSource.getTracks(offset, count)
         }
