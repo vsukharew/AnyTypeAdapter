@@ -3,11 +3,6 @@ package vsukharev.anytypeadapter.sample.feed.presentation
 import kotlinx.coroutines.*
 import moxy.InjectViewState
 import vsukharev.anytypeadapter.sample.R
-import vsukharev.anytypeadapter.sample.feed.domain.interactor.FeedInteractor
-import vsukharev.anytypeadapter.sample.feed.presentation.model.FeedUi
-import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedFragment
-import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedView
-import vsukharev.anytypeadapter.sample.common.di.common.PerScreen
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result.Failure
 import vsukharev.anytypeadapter.sample.common.presentation.LoadState
@@ -16,7 +11,11 @@ import vsukharev.anytypeadapter.sample.common.presentation.delegate.IconWithText
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
 import vsukharev.anytypeadapter.sample.feed.data.CHART_MENU_ITEM_ID
 import vsukharev.anytypeadapter.sample.feed.data.RELEASES_MENU_ITEM_ID
+import vsukharev.anytypeadapter.sample.feed.domain.interactor.FeedInteractor
 import vsukharev.anytypeadapter.sample.feed.domain.model.Feed
+import vsukharev.anytypeadapter.sample.feed.presentation.model.FeedUi
+import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedFragment
+import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedView
 import javax.inject.Inject
 
 /**
@@ -37,7 +36,7 @@ class FeedPresenter @Inject constructor(
 
     fun reloadData(isStaticInterface: Boolean = false) {
         getFeedJob?.cancel()
-        getFeedJob = startJobOnMain {
+        getFeedJob = launch {
             do {
                 val reloadingDelay = if (isStaticInterface) {
                     0L

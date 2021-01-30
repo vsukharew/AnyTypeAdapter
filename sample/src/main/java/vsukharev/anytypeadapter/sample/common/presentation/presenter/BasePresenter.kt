@@ -1,40 +1,17 @@
 package vsukharev.anytypeadapter.sample.common.presentation.presenter
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import moxy.MvpPresenter
 import vsukharev.anytypeadapter.sample.common.presentation.view.BaseView
 import vsukharev.anytypeadapter.sample.common.presentation.view.ErrorHandlerView
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
-open class BasePresenter<V : BaseView> : MvpPresenter<V>() {
-    private val jobs = mutableListOf<Job>()
+open class BasePresenter<V : BaseView> : MvpPresenter<V>(), CoroutineScope by MainScope() {
 
     override fun onDestroy() {
         super.onDestroy()
-        jobs.cancel()
-    }
-
-    protected fun Job.cancelIfActive() {
-        if (isActive) {
-            cancel()
-        }
-    }
-
-    protected fun startJobOnMain(block: suspend CoroutineScope.() -> Unit): Job {
-        return startJob(Dispatchers.Main, block = block)
-    }
-
-    private fun startJob(
-        context: CoroutineContext = EmptyCoroutineContext,
-        start: CoroutineStart = CoroutineStart.DEFAULT,
-        block: suspend CoroutineScope.() -> Unit
-    ): Job {
-        return GlobalScope.launch(context, start, block).also { jobs.add(it) }
-    }
-
-    private fun List<Job>.cancel() {
-        forEach { it.cancelIfActive() }
+        cancel()
     }
 
     protected fun showError(e: Throwable) {
