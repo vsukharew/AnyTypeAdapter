@@ -10,7 +10,7 @@ import vsukharev.anytypeadapter.sample.common.errorhandling.Result
 class Paginator<T>(
     private val requestFactory: suspend (Int, String?) -> Result<List<T>>,
     private val view: PaginatorView<T>
-) : CoroutineScope by CoroutineScope(Dispatchers.Main) {
+) : CoroutineScope by MainScope() {
 
     private var getPageJob: Job? = null
     private var state: State<T> = Empty(emptyList(), emptyList())
