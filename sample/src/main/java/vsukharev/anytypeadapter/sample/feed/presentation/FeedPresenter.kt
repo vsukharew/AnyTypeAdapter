@@ -2,15 +2,11 @@ package vsukharev.anytypeadapter.sample.feed.presentation
 
 import kotlinx.coroutines.*
 import moxy.InjectViewState
-import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result.Failure
 import vsukharev.anytypeadapter.sample.common.presentation.LoadState
 import vsukharev.anytypeadapter.sample.common.presentation.LoadState.*
-import vsukharev.anytypeadapter.sample.common.presentation.delegate.IconWithTextAdapterItem
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
-import vsukharev.anytypeadapter.sample.feed.data.CHART_MENU_ITEM_ID
-import vsukharev.anytypeadapter.sample.feed.data.RELEASES_MENU_ITEM_ID
 import vsukharev.anytypeadapter.sample.feed.domain.interactor.FeedInteractor
 import vsukharev.anytypeadapter.sample.feed.domain.model.Feed
 import vsukharev.anytypeadapter.sample.feed.presentation.model.FeedUi
@@ -76,30 +72,13 @@ class FeedPresenter @Inject constructor(
                 loadState = ERROR
             }
             is Result.Success -> {
-                val feedUi = feedResult.data.toFeedUi()
                 loadState = NONE
-                viewState.showData(feedUi)
+                viewState.showData(feedResult.data.toFeedUi())
             }
         }
     }
 
     private fun Feed.toFeedUi(): FeedUi {
-        val iconWithTextItems = menuItems.map {
-            IconWithTextAdapterItem(
-                id = it.id,
-                text = it.name,
-                imageResId = when (it.id) {
-                    RELEASES_MENU_ITEM_ID -> R.drawable.ic_fresh_release
-                    CHART_MENU_ITEM_ID -> R.drawable.ic_chart
-                    else -> R.drawable.ic_mic
-                }
-            )
-        }
-        return FeedUi(
-            albums = albums,
-            menuItems = iconWithTextItems,
-            activities = activities,
-            editorsChoice = editorsChoice
-        )
+        return FeedUi(menuItems, albums, activities, editorsChoice)
     }
 }

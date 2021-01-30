@@ -107,7 +107,7 @@ class FeedFragment : BaseFragment(), FeedView {
             .apply {
                 with(data) {
                     addAlbumsSection(albums)
-                    addMenuItems(menuItems)
+                    addMenuItems(menuItemsUi)
                     addActivitiesSection(activities)
                     addEditorsChoiceSection(editorsChoice)
                 }
