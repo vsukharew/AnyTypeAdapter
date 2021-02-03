@@ -190,6 +190,7 @@ class Paginator<T>(
                 }
                 with(view) {
                     hideRefreshProgress()
+                    showSearchButton()
                     view.showData(dataPage)
                 }
             } else {
@@ -205,8 +206,10 @@ class Paginator<T>(
         override fun onError(error: Throwable) {
             state = EmptyError(data, searchResults, searchString)
             nextPage = 0
+            nextSearchPage = 0
             with(view) {
                 hideRefreshProgress()
+                hideSearchButton()
                 disableRefreshProgress()
                 showEmptyError(error)
             }

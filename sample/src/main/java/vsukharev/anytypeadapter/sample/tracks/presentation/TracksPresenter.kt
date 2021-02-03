@@ -2,6 +2,7 @@ package vsukharev.anytypeadapter.sample.tracks.presentation
 
 import moxy.InjectViewState
 import vsukharev.anytypeadapter.sample.common.errorhandling.map
+import vsukharev.anytypeadapter.sample.common.extension.EMPTY
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator
 import vsukharev.anytypeadapter.sample.tracks.domain.interactor.TracksInteractor
@@ -51,6 +52,7 @@ class TracksPresenter @Inject constructor(
     }
 
     fun refresh() {
+        lastHeader = String.EMPTY
         paginator.refresh()
     }
 
