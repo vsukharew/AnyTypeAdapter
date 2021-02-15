@@ -6,7 +6,7 @@ import dagger.Component
 import vsukharev.anytypeadapter.sample.SampleApp
 import javax.inject.Singleton
 
-@Component(modules = [NavigationModule::class])
+@Component
 @Singleton
 interface AppComponent {
     fun inject(app: SampleApp)
