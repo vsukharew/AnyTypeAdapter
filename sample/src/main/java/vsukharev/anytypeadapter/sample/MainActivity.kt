@@ -2,11 +2,13 @@ package vsukharev.anytypeadapter.sample
 
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import vsukharev.anytypeadapter.sample.common.presentation.view.BottomViewTabManager
 import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedFragment
 
 private const val NAVIGATION_PATH_KEY = "navigation_path"
 
+@ExperimentalCoroutinesApi
 class MainActivity : BaseActivity() {
 
     private val tabManager by lazy {

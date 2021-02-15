@@ -5,19 +5,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.extension.commitShowAndHide
 import vsukharev.anytypeadapter.sample.common.extension.doIfEmpty
 import vsukharev.anytypeadapter.sample.common.extension.getFirstVisibleFragment
-import vsukharev.anytypeadapter.sample.feed.presentation.view.flow.FeedFlowScreen
-import vsukharev.anytypeadapter.sample.tracks.presentation.view.flow.TracksFlowScreen
+import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedFragment
+import vsukharev.anytypeadapter.sample.tracks.presentation.view.TracksFragment
 
+@ExperimentalCoroutinesApi
 internal class BottomViewTabManager(
     private val activity: AppCompatActivity,
     private val bottomView: BottomNavigationView
 ) {
 
-    val initialSelectedTabId = R.id.albums
+    val initialSelectedTabId = R.id.feed
     var navigationPath = mutableListOf<Int>()
 
     internal inline fun addInitialFragment(fragmentCreationBlock: () -> Fragment) {
@@ -117,8 +119,8 @@ internal class BottomViewTabManager(
 
     private fun getFragmentByMenuItemId(itemId: Int): Fragment? {
         return when (itemId) {
-            R.id.albums -> FeedFlowScreen().fragment
-            R.id.tracks -> TracksFlowScreen().fragment
+            R.id.feed -> FeedFragment.newInstance()
+            R.id.tracks -> TracksFragment.newInstance()
             else -> null
         }
     }
