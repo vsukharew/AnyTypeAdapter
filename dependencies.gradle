@@ -1,0 +1,60 @@
+ext {
+    versions = [
+            kotlin    : [
+                    'language'  : '1.4.30',
+                    'coroutines': '1.3.9'
+            ],
+            androidx  : [
+                    'cardview'          : '1.0.0',
+                    'recyclerView'      : '1.1.0',
+                    'material'          : '1.1.0',
+                    'constraintLayout'  : '1.1.3',
+                    'appCompat'         : '1.1.0',
+                    'ktx'               : '1.2.0',
+                    'testRunner'        : '1.2.0',
+                    'espresso'          : '3.2.0',
+                    'swiperefreshlayout': '1.1.0',
+                    'lifecycle'         : '2.2.0'
+            ],
+            gradle    : '4.1.2',
+            dagger    : '2.27',
+            glide     : '4.11.0',
+            okhttp    : '4.5.0',
+            gson      : '2.8.6',
+            moxy      : '2.1.2',
+            retrofit  : '2.8.1',
+            leakcanary: '2.2',
+            junit     : '4.12'
+    ]
+
+    android = [
+            appCompat         : "androidx.appcompat:appcompat:${versions.androidx.appCompat}",
+            ktx               : "androidx.core:core-ktx:${versions.androidx.ktx}",
+            constraintLayout  : "androidx.constraintlayout:constraintlayout:${versions.androidx.constraintLayout}",
+            recyclerView      : "androidx.recyclerview:recyclerview:${versions.androidx.recyclerView}",
+            testRunner        : "androidx.test:runner:${versions.androidx.testRunner}",
+            espresso          : "androidx.test.espresso:espresso-core:${versions.androidx.espresso}",
+            material          : "com.google.android.material:material:${versions.androidx.material}",
+            swiperefreshlayout: "androidx.swiperefreshlayout:swiperefreshlayout:${versions.androidx.swiperefreshlayout}",
+            lifecycle         : "androidx.lifecycle:lifecycle-runtime-ktx:${versions.androidx.lifecycle}"
+    ]
+    kotlin = [
+            language         : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin.language}",
+            coroutines       : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}",
+            coroutinesAndroid: "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}",
+    ]
+    moxy = [
+            moxy    : "com.github.moxy-community:moxy:${versions.moxy}",
+            compiler: "com.github.moxy-community:moxy-compiler:${versions.moxy}",
+            androidx: "com.github.moxy-community:moxy-androidx:${versions.moxy}"
+    ]
+    glide = [
+            glide   : "com.github.bumptech.glide:glide:${versions.glide}",
+            compiler: "com.github.bumptech.glide:compiler:${versions.glide}"
+    ]
+    dagger = [
+            compiler: "com.google.dagger:dagger-compiler:${versions.dagger}",
+            dagger  : "com.google.dagger:dagger:${versions.dagger}",
+    ]
+    junit = "junit:junit:${versions.junit}"
+}
