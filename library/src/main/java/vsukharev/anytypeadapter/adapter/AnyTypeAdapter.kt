@@ -1,39 +1,21 @@
 package vsukharev.anytypeadapter.adapter
 
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.*
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
 import vsukharev.anytypeadapter.item.AdapterItemMetaData
-import java.util.concurrent.Executor
-import java.util.concurrent.SynchronousQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
 
 /**
  * Adapter that is able to display items of any view type at the same time
  */
-open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>() {
+open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>(),
+    CoroutineScope by MainScope() {
     protected var anyTypeCollection: AnyTypeCollection = AnyTypeCollection.EMPTY
-
-    private val backgroundThreadExecutor = ThreadPoolExecutor(
-        1,
-        1,
-        0L,
-        TimeUnit.SECONDS,
-        SynchronousQueue<Runnable>(),
-        ThreadPoolExecutor.DiscardOldestPolicy()
-    )
-    private val mainThreadExecutor = object : Executor {
-        private val handler = Handler(Looper.getMainLooper())
-        override fun execute(command: Runnable) {
-            handler.post(command)
-        }
-    }
+    private var diffJob: Job? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnyTypeViewHolder<Any> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
@@ -59,19 +41,33 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>() {
         }
     }
 
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        cancel()
+    }
+
     /**
      * Sets new [AnyTypeCollection] to adapter and fires [onUpdatesDispatch]
      * callback as soon as [AnyTypeCollection] is set
      */
-    fun setCollection(collection: AnyTypeCollection, onUpdatesDispatch: ((AnyTypeCollection) -> Unit)? = null) {
-        backgroundThreadExecutor.execute {
-            val diffResult =
-                DiffUtil.calculateDiff(DiffUtilCallback(this.anyTypeCollection.items, collection.items))
-            mainThreadExecutor.execute {
-                this.anyTypeCollection = collection
-                diffResult.dispatchUpdatesTo(this)
-                onUpdatesDispatch?.invoke(collection)
+    fun setCollection(
+        collection: AnyTypeCollection,
+        onUpdatesDispatch: ((AnyTypeCollection) -> Unit)? = null
+    ) {
+        val adapter = this
+        diffJob?.cancel()
+        diffJob = launch {
+            val diffResult = withContext(Dispatchers.Default) {
+                DiffUtil.calculateDiff(
+                    DiffUtilCallback(
+                        anyTypeCollection.items,
+                        collection.items
+                    )
+                )
             }
+            anyTypeCollection = collection
+            diffResult.dispatchUpdatesTo(adapter)
+            onUpdatesDispatch?.invoke(collection)
         }
     }
 
