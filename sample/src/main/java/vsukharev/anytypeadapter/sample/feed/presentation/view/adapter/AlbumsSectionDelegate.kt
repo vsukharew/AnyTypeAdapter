@@ -4,7 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
-import vsukharev.anytypeadapter.adapter.Collection
+import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
@@ -41,7 +41,7 @@ class AlbumsSectionDelegate(
 
         override fun bind(item: List<Album>) {
             initLayoutManager(recyclerView, item)
-            Collection.Builder()
+            AnyTypeCollection.Builder()
                 .add(item, delegate)
                 .build()
                 .let { anyTypeAdapter.setCollection(it) }

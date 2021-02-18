@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.fragment_feed.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
-import vsukharev.anytypeadapter.adapter.Collection
+import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.sample.Injector
 import vsukharev.anytypeadapter.sample.NoInternetDelegate
 import vsukharev.anytypeadapter.sample.R
@@ -103,7 +103,7 @@ class FeedFragment : BaseFragment(), FeedView {
     }
 
     override fun showData(data: FeedUi) {
-        Collection.Builder()
+        AnyTypeCollection.Builder()
             .apply {
                 with(data) {
                     addAlbumsSection(albums)
@@ -125,14 +125,14 @@ class FeedFragment : BaseFragment(), FeedView {
     }
 
     override fun showNoInternetError(e: Throwable) {
-        Collection.Builder()
+        AnyTypeCollection.Builder()
             .add(noInternetDelegate)
             .build()
             .let { adapter.setCollection(it) }
     }
 
     override fun hideError() {
-        Collection.Builder().build().let { adapter.setCollection(it) }
+        AnyTypeCollection.Builder().build().let { adapter.setCollection(it) }
     }
 
     private fun showSnackBar(message: String) {
@@ -141,9 +141,9 @@ class FeedFragment : BaseFragment(), FeedView {
             .show()
     }
 
-    private fun Collection.Builder.addAlbumsSection(
+    private fun AnyTypeCollection.Builder.addAlbumsSection(
         items: List<Album>
-    ): Collection.Builder {
+    ): AnyTypeCollection.Builder {
         return apply {
             addIf(
                 getString(R.string.feed_fragment_based_on_your_preferences),
@@ -153,16 +153,16 @@ class FeedFragment : BaseFragment(), FeedView {
         }
     }
 
-    private fun Collection.Builder.addMenuItems(items: List<IconWithTextAdapterItem>): Collection.Builder {
+    private fun AnyTypeCollection.Builder.addMenuItems(items: List<IconWithTextAdapterItem>): AnyTypeCollection.Builder {
         return apply {
             addDividerIfItemsNotEmpty(items)
             add(items, iconWithTextDelegate)
         }
     }
 
-    private fun Collection.Builder.addActivitiesSection(
+    private fun AnyTypeCollection.Builder.addActivitiesSection(
         activities: List<Activity>
-    ): Collection.Builder {
+    ): AnyTypeCollection.Builder {
         return apply {
             addDividerIfItemsNotEmpty(activities)
             addIf(activitiesHeaderItem, headerWithButtonDelegate) { activities.isNotEmpty() }
@@ -170,9 +170,9 @@ class FeedFragment : BaseFragment(), FeedView {
         }
     }
 
-    private fun Collection.Builder.addEditorsChoiceSection(
+    private fun AnyTypeCollection.Builder.addEditorsChoiceSection(
         editorsChoices: List<EditorsChoice>
-    ): Collection.Builder {
+    ): AnyTypeCollection.Builder {
         return apply {
             addDividerIfItemsNotEmpty(editorsChoices)
             addIf(editorsChoiceHeaderItem, headerWithButtonDelegate) { editorsChoices.isNotEmpty() }
@@ -180,9 +180,9 @@ class FeedFragment : BaseFragment(), FeedView {
         }
     }
 
-    private fun <T> Collection.Builder.addDividerIfItemsNotEmpty(
+    private fun <T> AnyTypeCollection.Builder.addDividerIfItemsNotEmpty(
         items: List<T>
-    ): Collection.Builder {
+    ): AnyTypeCollection.Builder {
         return apply {
             addIf(R.dimen.dp16, dividerDelegate) { items.isNotEmpty() }
         }

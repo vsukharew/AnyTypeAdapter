@@ -3,7 +3,7 @@ package vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity
 import android.view.View
 import kotlinx.android.synthetic.main.delegate_activity_section.view.*
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
-import vsukharev.anytypeadapter.adapter.Collection
+import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
@@ -28,7 +28,7 @@ class ActivitySectionDelegate(
         }
 
         override fun bind(item: List<Activity>) {
-            Collection.Builder()
+            AnyTypeCollection.Builder()
                 .add(item, delegate)
                 .build()
                 .let { anyTypeAdapter.setCollection(it) }

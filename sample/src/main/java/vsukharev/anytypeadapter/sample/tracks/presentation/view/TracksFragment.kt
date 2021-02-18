@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
-import vsukharev.anytypeadapter.adapter.Collection
+import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.sample.Injector
 import vsukharev.anytypeadapter.sample.MainActivity
 import vsukharev.anytypeadapter.sample.R
@@ -156,25 +156,25 @@ class TracksFragment : BaseFragment(), TracksView {
     }
 
     override fun showEmptyError(error: Throwable) {
-        Collection.Builder()
+        AnyTypeCollection.Builder()
             .add(errorDelegate)
             .build()
             .let { anyTypeAdapter.setCollection(it) }
     }
 
     override fun hideEmptyError() {
-        anyTypeAdapter.setCollection(Collection.EMPTY)
+        anyTypeAdapter.setCollection(AnyTypeCollection.EMPTY)
     }
 
     override fun showEmptyView() {
-        Collection.Builder()
+        AnyTypeCollection.Builder()
             .add(emptyListDelegate)
             .build()
             .let { anyTypeAdapter.setCollection(it) }
     }
 
     override fun hideEmptyView() {
-        anyTypeAdapter.setCollection(Collection.EMPTY)
+        anyTypeAdapter.setCollection(AnyTypeCollection.EMPTY)
     }
 
     override fun showData(
@@ -186,7 +186,7 @@ class TracksFragment : BaseFragment(), TracksView {
             isLoading = false
             hasMore = !allDataLoaded && paginationState != PaginationState.ERROR
         }
-        Collection.Builder()
+        AnyTypeCollection.Builder()
             .apply {
                 data.forEach {
                     when (it) {
@@ -204,7 +204,7 @@ class TracksFragment : BaseFragment(), TracksView {
     }
 
     override fun hideData() {
-        anyTypeAdapter.setCollection(Collection.EMPTY)
+        anyTypeAdapter.setCollection(AnyTypeCollection.EMPTY)
     }
 
     override fun showPaginationError(error: Throwable) {
