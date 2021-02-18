@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
  * Adapter that is able to display items of any view type at the same time
  */
 open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>() {
-    protected var collection: Collection = Collection.EMPTY
+    protected var anyTypeCollection: AnyTypeCollection = AnyTypeCollection.EMPTY
 
     private val backgroundThreadExecutor = ThreadPoolExecutor(
         1,
@@ -37,22 +37,22 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnyTypeViewHolder<Any> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return with(collection) {
+        return with(anyTypeCollection) {
             delegateAt(currentItemViewTypePosition).createViewHolder(view)
         }
     }
 
     override fun onBindViewHolder(holder: AnyTypeViewHolder<Any>, position: Int) {
-        with(collection) {
+        with(anyTypeCollection) {
             val delegate = delegateAt(currentItemViewTypePosition)
             delegate.bind(items[position], holder)
         }
     }
 
-    override fun getItemCount(): Int = collection.size
+    override fun getItemCount(): Int = anyTypeCollection.size
 
     override fun getItemViewType(position: Int): Int {
-        return with(collection) {
+        return with(anyTypeCollection) {
             findCurrentItemViewTypePosition(itemsMetaData, position)
                 .also { currentItemViewTypePosition = it }
                 .let { delegateAt(it).getItemViewType() }
@@ -60,15 +60,15 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>() {
     }
 
     /**
-     * Sets new [Collection] to adapter and fires [onUpdatesDispatch]
-     * callback as soon as [Collection] is set
+     * Sets new [AnyTypeCollection] to adapter and fires [onUpdatesDispatch]
+     * callback as soon as [AnyTypeCollection] is set
      */
-    fun setCollection(collection: Collection, onUpdatesDispatch: ((Collection) -> Unit)? = null) {
+    fun setCollection(collection: AnyTypeCollection, onUpdatesDispatch: ((AnyTypeCollection) -> Unit)? = null) {
         backgroundThreadExecutor.execute {
             val diffResult =
-                DiffUtil.calculateDiff(DiffUtilCallback(this.collection.items, collection.items))
+                DiffUtil.calculateDiff(DiffUtilCallback(this.anyTypeCollection.items, collection.items))
             mainThreadExecutor.execute {
-                this.collection = collection
+                this.anyTypeCollection = collection
                 diffResult.dispatchUpdatesTo(this)
                 onUpdatesDispatch?.invoke(collection)
             }
@@ -78,7 +78,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>() {
     /**
      * Finds position inside [itemsMetaData] for the current item view type
      * given current [adapterPosition]
-     * @see [Collection.itemsMetaData]
+     * @see [AnyTypeCollection.itemsMetaData]
      */
     private fun findCurrentItemViewTypePosition(
         itemsMetaData: List<AdapterItemMetaData<Any>>,

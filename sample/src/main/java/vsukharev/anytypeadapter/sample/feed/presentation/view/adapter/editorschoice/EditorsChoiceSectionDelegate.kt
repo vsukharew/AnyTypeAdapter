@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
-import vsukharev.anytypeadapter.adapter.Collection
+import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
@@ -29,7 +29,7 @@ class EditorsChoiceSectionDelegate(
         }
 
         override fun onBindViewHolder(holder: AnyTypeViewHolder<Any>, position: Int) {
-            val realPosition = position % collection.size
+            val realPosition = position % anyTypeCollection.size
             super.onBindViewHolder(holder, realPosition)
         }
     }
@@ -59,7 +59,7 @@ class EditorsChoiceSectionDelegate(
         }
 
         override fun bind(item: List<EditorsChoice>) {
-            Collection.Builder()
+            AnyTypeCollection.Builder()
                 .add(item, delegate)
                 .build()
                 .let {

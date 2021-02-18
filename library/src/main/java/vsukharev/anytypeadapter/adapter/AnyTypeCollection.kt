@@ -12,7 +12,7 @@ import vsukharev.anytypeadapter.delegate.NoDataDelegate
  * @property items items to display in [AnyTypeAdapter]
  * @property itemsMetaData metadata for items to display. Helps to determine which data at which position should be bound
  */
-class Collection private constructor(
+class AnyTypeCollection private constructor(
     val items: List<AdapterItem<Any>>,
     val itemsMetaData: List<AdapterItemMetaData<Any>>
 ) {
@@ -49,8 +49,8 @@ class Collection private constructor(
                     !isCurrentViewTypeEqualToLastAdded -> {
                         /**
                          * Cast is safe because you don't need to know the exact type later
-                         * and [Collection.itemsMetaData] as well as [Collection.items] are immutable
-                         * so you won't be able to write the wrong value without recreating [Collection]
+                         * and [AnyTypeCollection.itemsMetaData] as well as [AnyTypeCollection.items] are immutable
+                         * so you won't be able to write the wrong value without recreating [AnyTypeCollection]
                          */
                         @Suppress("UNCHECKED_CAST")
                         itemsMetaData.add(
@@ -139,7 +139,7 @@ class Collection private constructor(
             return apply { addIf(items, delegate) { items.isNotEmpty() } }
         }
 
-        fun build() = Collection(items, itemsMetaData)
+        fun build() = AnyTypeCollection(items, itemsMetaData)
     }
 
     companion object {
