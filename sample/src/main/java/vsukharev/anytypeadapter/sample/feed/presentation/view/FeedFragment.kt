@@ -1,12 +1,9 @@
 package vsukharev.anytypeadapter.sample.feed.presentation.view
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_feed.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
@@ -14,8 +11,10 @@ import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.sample.Injector
 import vsukharev.anytypeadapter.sample.NoInternetDelegate
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.common.lifecycle.fragmentViewBinding
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.*
+import vsukharev.anytypeadapter.sample.databinding.FragmentFeedBinding
 import vsukharev.anytypeadapter.sample.feed.domain.model.Activity
 import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
@@ -57,6 +56,9 @@ class FeedFragment : BaseFragment(), FeedView {
         { showSnackBar(it) }
     )
 
+    override val binding:
+            FragmentFeedBinding by fragmentViewBinding(FragmentFeedBinding::inflate)
+
     @Inject
     @InjectPresenter
     lateinit var presenter: FeedPresenter
@@ -69,28 +71,24 @@ class FeedFragment : BaseFragment(), FeedView {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.fragment_feed, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        feed_toolbar.inflateMenu(R.menu.menu_feed)
-        feed_toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.menu_feed_is_static_interface -> {
-                    it.isChecked = !it.isChecked
-                    presenter.reloadData(it.isChecked)
-                    true
+        binding.apply {
+            feedToolbar.apply {
+                inflateMenu(R.menu.menu_feed)
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.menu_feed_is_static_interface -> {
+                            it.isChecked = !it.isChecked
+                            presenter.reloadData(it.isChecked)
+                            true
+                        }
+                        else -> false
+                    }
                 }
-                else -> false
             }
+            albumsRv.adapter = adapter
         }
-        albums_rv.adapter = adapter
     }
 
     override fun onDestroy() {
@@ -117,11 +115,11 @@ class FeedFragment : BaseFragment(), FeedView {
     }
 
     override fun showProgress() {
-        albums_pb.isVisible = true
+        binding.albumsPb.isVisible = true
     }
 
     override fun hideProgress() {
-        albums_pb.isVisible = false
+        binding.albumsPb.isVisible = false
     }
 
     override fun showNoInternetError(e: Throwable) {
@@ -137,7 +135,7 @@ class FeedFragment : BaseFragment(), FeedView {
 
     private fun showSnackBar(message: String) {
         Snackbar
-            .make(feed_root_layout, message, Snackbar.LENGTH_SHORT)
+            .make(binding.root, message, Snackbar.LENGTH_SHORT)
             .show()
     }
 

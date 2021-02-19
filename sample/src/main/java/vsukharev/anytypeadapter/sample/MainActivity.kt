@@ -1,9 +1,10 @@
 package vsukharev.anytypeadapter.sample
 
 import android.os.Bundle
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import vsukharev.anytypeadapter.sample.common.lifecycle.activityViewBinding
 import vsukharev.anytypeadapter.sample.common.presentation.view.BottomViewTabManager
+import vsukharev.anytypeadapter.sample.databinding.ActivityMainBinding
 import vsukharev.anytypeadapter.sample.feed.presentation.view.FeedFragment
 
 private const val NAVIGATION_PATH_KEY = "navigation_path"
@@ -11,19 +12,24 @@ private const val NAVIGATION_PATH_KEY = "navigation_path"
 @ExperimentalCoroutinesApi
 class MainActivity : BaseActivity() {
 
+    private val binding:
+            ActivityMainBinding by activityViewBinding(ActivityMainBinding::inflate)
+
     private val tabManager by lazy {
-        BottomViewTabManager(this, main_bottom_navigation_view)
+        BottomViewTabManager(this, binding.mainBottomNavigationView)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        main_bottom_navigation_view.apply {
-            setOnNavigationItemSelectedListener {
-                if (selectedItemId != it.itemId) {
-                    tabManager.onMenuItemSelected(it.itemId)
-                } else {
-                    false
+        setContentView(binding.root)
+        binding.apply {
+            mainBottomNavigationView.apply {
+                setOnNavigationItemSelectedListener {
+                    if (selectedItemId != it.itemId) {
+                        tabManager.onMenuItemSelected(it.itemId)
+                    } else {
+                        false
+                    }
                 }
             }
         }

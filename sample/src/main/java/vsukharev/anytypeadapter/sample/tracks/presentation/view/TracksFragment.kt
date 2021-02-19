@@ -8,7 +8,6 @@ import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import kotlinx.android.synthetic.main.fragment_tracks.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -22,12 +21,14 @@ import vsukharev.anytypeadapter.sample.MainActivity
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.extension.EMPTY
 import vsukharev.anytypeadapter.sample.common.extension.dropFirst
+import vsukharev.anytypeadapter.sample.common.lifecycle.fragmentViewBinding
 import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PaginationAdapterItem
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PaginationDelegate
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator.PaginationState
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.RecyclerViewScrollListener
+import vsukharev.anytypeadapter.sample.databinding.FragmentTracksBinding
 import vsukharev.anytypeadapter.sample.tracks.presentation.TracksPresenter
 import vsukharev.anytypeadapter.sample.tracks.presentation.model.TracksListItem
 import vsukharev.anytypeadapter.sample.tracks.presentation.view.adapter.EmptyTracksListDelegate
@@ -58,6 +59,9 @@ class TracksFragment : BaseFragment(), TracksView {
 
     private val searchQueryFlow = MutableStateFlow(String.EMPTY)
 
+    override val binding:
+            FragmentTracksBinding by fragmentViewBinding(FragmentTracksBinding::inflate)
+
     @Inject
     @InjectPresenter
     lateinit var presenter: TracksPresenter
@@ -70,42 +74,35 @@ class TracksFragment : BaseFragment(), TracksView {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.fragment_tracks, container, false)
-    }
-
     @FlowPreview
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tracks_rv.apply {
-            adapter = anyTypeAdapter
-            addOnScrollListener(scrollListener)
-        }
-        tracks_toolbar.apply {
-            inflateMenu(R.menu.menu_tracks)
-            val componentName = ComponentName(context, MainActivity::class.java)
-            val searchView = menu.findItem(R.id.tracks_search).actionView as SearchView
-            val searchableInfo = (context.getSystemService(SEARCH_SERVICE) as SearchManager)
-                .getSearchableInfo(componentName)
-            searchView.setSearchableInfo(searchableInfo)
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextChange(newText: String): Boolean {
-                    searchQueryFlow.value = newText
-                    return true
-                }
+        binding.apply {
+            tracksRv.apply {
+                adapter = anyTypeAdapter
+                addOnScrollListener(scrollListener)
+            }
+            tracksToolbar.apply {
+                inflateMenu(R.menu.menu_tracks)
+                val componentName = ComponentName(context, MainActivity::class.java)
+                val searchView = menu.findItem(R.id.tracks_search).actionView as SearchView
+                val searchableInfo = (context.getSystemService(SEARCH_SERVICE) as SearchManager)
+                    .getSearchableInfo(componentName)
+                searchView.setSearchableInfo(searchableInfo)
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextChange(newText: String): Boolean {
+                        searchQueryFlow.value = newText
+                        return true
+                    }
 
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    searchQueryFlow.value = query
-                    return true
-                }
-            })
+                    override fun onQueryTextSubmit(query: String): Boolean {
+                        searchQueryFlow.value = query
+                        return true
+                    }
+                })
+            }
+            tracksSwr.setOnRefreshListener { presenter.refresh() }
         }
-        tracks_swr.setOnRefreshListener { presenter.refresh() }
-
         lifecycleScope.launch {
             searchQueryFlow
                 .dropFirst()
@@ -121,38 +118,32 @@ class TracksFragment : BaseFragment(), TracksView {
         super.onDestroy()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        requireContext().apply {
-
-        }
-    }
-
     override fun showProgress() {
-        tracks_pb.isVisible = true
+        binding.tracksPb.isVisible = true
     }
 
     override fun hideProgress() {
-        tracks_pb.isVisible = false
+        binding.tracksPb.isVisible = false
     }
 
     override fun hideRefreshProgress() {
-        tracks_swr.isRefreshing = false
+        binding.tracksSwr.isRefreshing = false
     }
 
     override fun disableRefreshProgress() {
-        tracks_swr.isEnabled = false
+        binding.tracksSwr.isEnabled = false
     }
 
     override fun enableRefreshProgress() {
-        tracks_swr.isEnabled = true
+        binding.tracksSwr.isEnabled = true
     }
 
     override fun hideSearchButton() {
-        tracks_toolbar.menu.findItem(R.id.tracks_search).isVisible = false
+        binding.tracksToolbar.menu.findItem(R.id.tracks_search).isVisible = false
     }
 
     override fun showSearchButton() {
-        tracks_toolbar.menu.findItem(R.id.tracks_search).isVisible = true
+        binding.tracksToolbar.menu.findItem(R.id.tracks_search).isVisible = true
     }
 
     override fun showEmptyError(error: Throwable) {

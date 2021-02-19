@@ -8,6 +8,9 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    buildFeatures {
+        viewBinding true
+    }
 
     defaultConfig {
         minSdkVersion 21
@@ -66,4 +69,6 @@ dependencies {
 
     implementation dagger.dagger
     kapt dagger.compiler
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
 }
