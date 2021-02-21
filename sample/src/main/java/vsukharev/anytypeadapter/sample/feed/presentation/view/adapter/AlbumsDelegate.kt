@@ -3,12 +3,11 @@ package vsukharev.anytypeadapter.sample.feed.presentation.view.adapter
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.ImageView
 import com.bumptech.glide.Glide
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.databinding.ItemListAlbumsBinding
 import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsDelegate.Holder
 
@@ -17,17 +16,19 @@ import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsDele
  */
 class AlbumsDelegate(
     private val onItemClickListener: (Album) -> Unit
-) : AnyTypeDelegate<Album, Holder>() {
+) : AnyTypeDelegate<Album, ItemListAlbumsBinding, Holder>() {
 
-    override fun createViewHolder(itemView: View): Holder = Holder(itemView)
+    override fun createViewHolder(itemView: View) = Holder(ItemListAlbumsBinding.bind(itemView))
 
     override fun getItemViewType(): Int = R.layout.item_list_albums
 
     override fun getItemId(item: Album): String = item.id
 
-    inner class Holder(itemView: View) : AnyTypeViewHolder<Album>(itemView) {
-        private val coverIv = itemView.findViewById<ImageView>(R.id.albums_list_cover_iv)
-        private val container = itemView.findViewById<FrameLayout>(R.id.albums_list_container)
+    inner class Holder(
+        binding: ItemListAlbumsBinding
+    ) : AnyTypeViewHolder<Album, ItemListAlbumsBinding>(binding) {
+        private val coverIv = binding.albumsListCoverIv
+        private val container = binding.albumsListContainer
 
         @SuppressLint("ClickableViewAccessibility")
         override fun bind(item: Album) {

@@ -1,27 +1,34 @@
 package vsukharev.anytypeadapter.sample.common.presentation.delegate
 
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import kotlinx.android.synthetic.main.delegate_header_with_button.view.*
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.common.presentation.delegate.HeaderWithButtonDelegate.ButtonViewHolder
+import vsukharev.anytypeadapter.sample.databinding.DelegateHeaderWithButtonBinding
 
 /**
  * The delegate responsible for a text with button creation
  */
 class HeaderWithButtonDelegate :
-    AnyTypeDelegate<HeaderWithButtonAdapterItem, AnyTypeViewHolder<HeaderWithButtonAdapterItem>>() {
+    AnyTypeDelegate<
+            HeaderWithButtonAdapterItem,
+            DelegateHeaderWithButtonBinding,
+            ButtonViewHolder>() {
 
-    override fun createViewHolder(itemView: View): ButtonViewHolder = ButtonViewHolder(itemView)
+    override fun createViewHolder(itemView: View) = ButtonViewHolder(
+        DelegateHeaderWithButtonBinding.bind(itemView)
+    )
 
     override fun getItemViewType(): Int = R.layout.delegate_header_with_button
 
     override fun getItemId(item: HeaderWithButtonAdapterItem): String = item.id
 
-    class ButtonViewHolder(itemView: View) : AnyTypeViewHolder<HeaderWithButtonAdapterItem>(itemView) {
+    class ButtonViewHolder(binding: DelegateHeaderWithButtonBinding) :
+        AnyTypeViewHolder<HeaderWithButtonAdapterItem, DelegateHeaderWithButtonBinding>(binding) {
         private val textView: TextView = itemView.delegate_header_with_button_tv
         private val button: AppCompatButton = itemView.delegate_header_with_button_btn
 

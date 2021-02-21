@@ -10,6 +10,7 @@ import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate.Holder
+import vsukharev.anytypeadapter.sample.databinding.HeaderViewBinding
 
 private const val SPACE = " "
 
@@ -21,16 +22,18 @@ private const val SPACE = " "
 class PartiallyColoredHeaderDelegate(
     @ColorRes private val defaultColor: Int,
     @ColorRes private val highlightColor: Int
-) : AnyTypeDelegate<String, Holder>() {
+) : AnyTypeDelegate<String, HeaderViewBinding, Holder>() {
 
-    override fun createViewHolder(itemView: View): Holder = Holder(itemView)
+    override fun createViewHolder(itemView: View) = Holder(HeaderViewBinding.bind(itemView))
 
     override fun getItemViewType(): Int = R.layout.header_view
 
     override fun getItemId(item: String): String = item
 
-    inner class Holder(itemView: View) : AnyTypeViewHolder<String>(itemView) {
-        private val headerView: TextView = itemView.findViewById(R.id.header_delegate_header_tv)
+    inner class Holder(
+        binding: HeaderViewBinding
+    ) : AnyTypeViewHolder<String, HeaderViewBinding>(binding) {
+        private val headerView: TextView = binding.headerDelegateHeaderTv
 
         override fun bind(item: String) {
             with(item) {

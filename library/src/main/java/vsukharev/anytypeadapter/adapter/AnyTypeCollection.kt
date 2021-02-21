@@ -5,6 +5,7 @@ import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
 import vsukharev.anytypeadapter.item.AdapterItemMetaData
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import vsukharev.anytypeadapter.delegate.NoDataDelegate
 
 /**
@@ -14,7 +15,7 @@ import vsukharev.anytypeadapter.delegate.NoDataDelegate
  */
 class AnyTypeCollection private constructor(
     val items: List<AdapterItem<Any>>,
-    val itemsMetaData: List<AdapterItemMetaData<Any>>
+    val itemsMetaData: List<AdapterItemMetaData<Any, ViewBinding>>
 ) {
     /**
      * Saved position value provided in [RecyclerView.Adapter.getItemViewType]
@@ -25,19 +26,19 @@ class AnyTypeCollection private constructor(
     /**
      * Returns delegate at the given position in the [itemsMetaData] collection
      */
-    fun delegateAt(position: Int): AnyTypeDelegate<Any, AnyTypeViewHolder<Any>> =
+    fun delegateAt(position: Int): AnyTypeDelegate<Any, ViewBinding, AnyTypeViewHolder<Any, ViewBinding>> =
         itemsMetaData[position].delegate
 
     class Builder {
         private val items = mutableListOf<AdapterItem<Any>>()
-        private val itemsMetaData = mutableListOf<AdapterItemMetaData<Any>>()
+        private val itemsMetaData = mutableListOf<AdapterItemMetaData<Any, ViewBinding>>()
 
         /**
          * Adds the single [item] and the corresponding [delegate]
          */
-        fun <T : Any, H : AnyTypeViewHolder<T>> add(
+        fun <T : Any, V: ViewBinding, H : AnyTypeViewHolder<T, V>> add(
             item: T,
-            delegate: AnyTypeDelegate<T, H>
+            delegate: AnyTypeDelegate<T, V, H>
         ): Builder {
             return apply {
                 val isCurrentViewTypeEqualToLastAdded = with(itemsMetaData) {
@@ -56,7 +57,7 @@ class AnyTypeCollection private constructor(
                         itemsMetaData.add(
                             AdapterItemMetaData(
                                 items.size,
-                                delegate as AnyTypeDelegate<Any, AnyTypeViewHolder<Any>>
+                                delegate as AnyTypeDelegate<Any, ViewBinding, AnyTypeViewHolder<Any, ViewBinding>>
                             )
                         )
                     }
@@ -71,9 +72,9 @@ class AnyTypeCollection private constructor(
         /**
          * Adds [items] list and the corresponding [delegate]
          */
-        fun <T : Any, H : AnyTypeViewHolder<T>> add(
+        fun <T : Any, V: ViewBinding, H : AnyTypeViewHolder<T, V>> add(
             items: List<T>,
-            delegate: AnyTypeDelegate<T, H>
+            delegate: AnyTypeDelegate<T, V, H>
         ): Builder {
             return apply { items.forEach { add(it, delegate) } }
         }
@@ -81,7 +82,7 @@ class AnyTypeCollection private constructor(
         /**
          * Adds section without data to bind
          */
-        fun add(delegate: NoDataDelegate): Builder {
+        fun <V: ViewBinding> add(delegate: NoDataDelegate<V>): Builder {
             return apply { add(Unit, delegate) }
         }
 
@@ -89,9 +90,9 @@ class AnyTypeCollection private constructor(
          * Adds [item] and the corresponding [delegate] only if [predicate] is true
          * @param predicate the condition determining whether the items and delegate should be added
          */
-        fun <T: Any, H : AnyTypeViewHolder<T>> addIf(
+        fun <T: Any, V: ViewBinding, H : AnyTypeViewHolder<T, V>> addIf(
             item: T,
-            delegate: AnyTypeDelegate<T, H>,
+            delegate: AnyTypeDelegate<T, V, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
@@ -105,9 +106,9 @@ class AnyTypeCollection private constructor(
          * Adds [items] and the corresponding [delegate] only if [predicate] is true
          * @param predicate the condition determining whether the items and delegate should be added
          */
-        fun <T : Any, H : AnyTypeViewHolder<List<T>>> addIf(
+        fun <T : Any, V: ViewBinding, H : AnyTypeViewHolder<List<T>, V>> addIf(
             items: List<T>,
-            delegate: AnyTypeDelegate<List<T>, H>,
+            delegate: AnyTypeDelegate<List<T>, V, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
@@ -121,7 +122,7 @@ class AnyTypeCollection private constructor(
          * Adds section without data to bind only if [predicate] is true
          * @param predicate the condition determining whether the section should be added
          */
-        fun addIf(delegate: NoDataDelegate, predicate: () -> Boolean): Builder {
+        fun <V: ViewBinding> addIf(delegate: NoDataDelegate<V>, predicate: () -> Boolean): Builder {
             return apply {
                 if (predicate.invoke()) {
                     add(Unit, delegate)
@@ -132,9 +133,9 @@ class AnyTypeCollection private constructor(
         /**
          * Adds [items] and the corresponding [delegate] only if the list of items is not empty
          */
-        fun <T : Any, H : AnyTypeViewHolder<List<T>>> addIfNotEmpty(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<List<T>, V>> addIfNotEmpty(
             items: List<T>,
-            delegate: AnyTypeDelegate<List<T>, H>
+            delegate: AnyTypeDelegate<List<T>, V, H>
         ): Builder {
             return apply { addIf(items, delegate) { items.isNotEmpty() } }
         }

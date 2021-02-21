@@ -6,18 +6,23 @@ import kotlinx.android.synthetic.main.delegate_track.view.*
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.databinding.DelegateTrackBinding
 import vsukharev.anytypeadapter.sample.tracks.domain.model.Track
 import vsukharev.anytypeadapter.sample.tracks.presentation.view.adapter.TracksDelegate.Holder
 
-class TracksDelegate : AnyTypeDelegate<Track, Holder>() {
+class TracksDelegate : AnyTypeDelegate<Track, DelegateTrackBinding, Holder>() {
 
-    override fun createViewHolder(itemView: View): Holder = Holder(itemView)
+    override fun createViewHolder(itemView: View): Holder = Holder(
+        DelegateTrackBinding.bind(itemView)
+    )
 
     override fun getItemViewType(): Int = R.layout.delegate_track
 
     override fun getItemId(item: Track): String = item.id
 
-    class Holder(itemView: View) : AnyTypeViewHolder<Track>(itemView) {
+    class Holder(
+        binding: DelegateTrackBinding
+    ) : AnyTypeViewHolder<Track, DelegateTrackBinding>(binding) {
         private val coverIv = itemView.delegate_tracks_cover_iv
         private val trackTv = itemView.delegate_tracks_track_tv
         private val performerTv = itemView.delegate_tracks_performer_tv
