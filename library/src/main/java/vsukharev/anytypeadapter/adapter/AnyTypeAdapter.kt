@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.*
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
