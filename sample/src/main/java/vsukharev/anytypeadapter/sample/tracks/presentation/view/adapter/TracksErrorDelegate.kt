@@ -1,7 +1,6 @@
 package vsukharev.anytypeadapter.sample.tracks.presentation.view.adapter
 
 import android.view.View
-import kotlinx.android.synthetic.main.delegate_tracks_error.view.*
 import vsukharev.anytypeadapter.delegate.NoDataDelegate
 import vsukharev.anytypeadapter.holder.NoDataViewHolder
 import vsukharev.anytypeadapter.sample.R
@@ -19,7 +18,7 @@ class TracksErrorDelegate(
     inner class Holder(binding: DelegateTracksErrorBinding) :
         NoDataViewHolder<DelegateTracksErrorBinding>(binding) {
         init {
-            itemView.delegate_tracks_error_retry_btn.setOnClickListener {
+            binding.delegateTracksErrorRetryBtn.setOnClickListener {
                 retryClickListener.invoke()
             }
         }

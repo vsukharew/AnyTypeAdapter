@@ -1,9 +1,6 @@
 package vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.activity
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import kotlinx.android.synthetic.main.delegate_activity_section.view.*
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
@@ -28,10 +25,10 @@ class ActivitySectionDelegate(
     override fun getItemId(item: List<Activity>): String = ITEM_ID
 
     inner class Holder(
-        viewBinding: DelegateActivitySectionBinding
-    ) : AnyTypeViewHolder<List<Activity>, DelegateActivitySectionBinding>(viewBinding) {
+        binding: DelegateActivitySectionBinding
+    ) : AnyTypeViewHolder<List<Activity>, DelegateActivitySectionBinding>(binding) {
         init {
-            itemView.delegate_activity_section_rv.adapter = anyTypeAdapter
+            binding.delegateActivitySectionRv.adapter = anyTypeAdapter
         }
 
         override fun bind(item: List<Activity>) {

@@ -2,7 +2,6 @@ package vsukharev.anytypeadapter.sample.tracks.presentation.view.adapter
 
 import android.view.View
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.delegate_track.view.*
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
@@ -23,9 +22,9 @@ class TracksDelegate : AnyTypeDelegate<Track, DelegateTrackBinding, Holder>() {
     class Holder(
         binding: DelegateTrackBinding
     ) : AnyTypeViewHolder<Track, DelegateTrackBinding>(binding) {
-        private val coverIv = itemView.delegate_tracks_cover_iv
-        private val trackTv = itemView.delegate_tracks_track_tv
-        private val performerTv = itemView.delegate_tracks_performer_tv
+        private val coverIv = binding.delegateTracksCoverIv
+        private val trackTv = binding.delegateTracksTrackTv
+        private val performerTv = binding.delegateTracksPerformerTv
 
         override fun bind(item: Track) {
             with(item) {
