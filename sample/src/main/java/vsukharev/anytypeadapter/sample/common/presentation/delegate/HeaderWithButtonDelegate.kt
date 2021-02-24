@@ -3,7 +3,6 @@ package vsukharev.anytypeadapter.sample.common.presentation.delegate
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
-import kotlinx.android.synthetic.main.delegate_header_with_button.view.*
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
@@ -29,8 +28,8 @@ class HeaderWithButtonDelegate :
 
     class ButtonViewHolder(binding: DelegateHeaderWithButtonBinding) :
         AnyTypeViewHolder<HeaderWithButtonAdapterItem, DelegateHeaderWithButtonBinding>(binding) {
-        private val textView: TextView = itemView.delegate_header_with_button_tv
-        private val button: AppCompatButton = itemView.delegate_header_with_button_btn
+        private val textView: TextView = binding.delegateHeaderWithButtonTv
+        private val button: AppCompatButton = binding.delegateHeaderWithButtonBtn
 
         override fun bind(item: HeaderWithButtonAdapterItem) {
             with(item) {

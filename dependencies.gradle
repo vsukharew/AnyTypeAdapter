@@ -26,7 +26,19 @@ ext {
             leakcanary: '2.2',
             junit     : '4.12'
     ]
-
+    build = [
+            compileSdkVersion: 29,
+            buildToolsVersion: "29.0.3",
+            minSdkVersion    : 29,
+            library          : [
+                    versionName: "1.0",
+                    versionCode: 1,
+            ],
+            sample           : [
+                    versionName: "1.0",
+                    versionCode: 1,
+            ]
+    ]
     android = [
             appCompat         : "androidx.appcompat:appcompat:${versions.androidx.appCompat}",
             ktx               : "androidx.core:core-ktx:${versions.androidx.ktx}",

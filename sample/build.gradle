@@ -1,22 +1,21 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply from: '../dependencies.gradle'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion build.compileSdkVersion
+    buildToolsVersion build.buildToolsVersion
 
     buildFeatures {
         viewBinding true
     }
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion build.minSdkVersion
+        targetSdkVersion build.targetSdkVersion
+        versionCode build.sample.versionCode
+        versionName build.sample.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
