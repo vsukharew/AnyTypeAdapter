@@ -11,6 +11,7 @@ import vsukharev.anytypeadapter.sample.R
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.AlbumsSectionDelegate.Holder
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.SpannedGridLayoutManager
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.SpannedGridLayoutManager.SpanInfo
+import vsukharev.anytypeadapter.sample.databinding.SectionAlbumsBinding
 import vsukharev.anytypeadapter.sample.feed.domain.model.Album
 import java.util.*
 
@@ -19,18 +20,20 @@ import java.util.*
  */
 class AlbumsSectionDelegate(
     onItemClickListener: (Album) -> Unit
-) : AnyTypeDelegate<List<Album>, Holder>() {
+) : AnyTypeDelegate<List<Album>, SectionAlbumsBinding, Holder>() {
     private val delegate = AlbumsDelegate(onItemClickListener)
     private val anyTypeAdapter = AnyTypeAdapter()
 
-    override fun createViewHolder(itemView: View): Holder = Holder(itemView)
+    override fun createViewHolder(itemView: View) = Holder(SectionAlbumsBinding.bind(itemView))
 
     override fun getItemViewType(): Int = R.layout.section_albums
 
     override fun getItemId(item: List<Album>): String = ITEM_ID
 
-    inner class Holder(itemView: View) : AnyTypeViewHolder<List<Album>>(itemView) {
-        private val recyclerView = itemView.findViewById<RecyclerView>(R.id.albums_section_rv)
+    inner class Holder(
+        binding: SectionAlbumsBinding
+    ) : AnyTypeViewHolder<List<Album>, SectionAlbumsBinding>(binding) {
+        private val recyclerView = binding.albumsSectionRv
 
         init {
             recyclerView.apply {

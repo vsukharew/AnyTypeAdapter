@@ -4,7 +4,6 @@ import android.app.Application
 import android.view.View
 import androidx.annotation.StringRes
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 import vsukharev.anytypeadapter.sample.common.presentation.view.ErrorHandlerView
 
@@ -20,7 +19,7 @@ abstract class BaseActivity : MvpAppCompatActivity(), ErrorHandlerView {
     private fun showErrorMessage(@StringRes message: Int) {
         val view = findViewById<View>(android.R.id.content)
         Snackbar.make(view, message, Snackbar.LENGTH_SHORT)
-            .setAnchorView(main_bottom_navigation_view)
+            .setAnchorView(android.R.id.content)
             .show()
     }
 }

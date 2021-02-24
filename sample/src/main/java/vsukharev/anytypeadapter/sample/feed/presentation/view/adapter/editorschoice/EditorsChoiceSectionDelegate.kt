@@ -4,21 +4,23 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.sample.R
+import vsukharev.anytypeadapter.sample.databinding.DelegateEditorsChoiceSectionBinding
 import vsukharev.anytypeadapter.sample.feed.domain.model.EditorsChoice
 import vsukharev.anytypeadapter.sample.feed.presentation.view.adapter.editorschoice.EditorsChoiceSectionDelegate.Holder
-import java.util.UUID
+import java.util.*
 
 /**
  * Delegate responsible for the whole "editor's choice" section
  */
 class EditorsChoiceSectionDelegate(
     onItemClickListener: (EditorsChoice) -> Unit
-) : AnyTypeDelegate<List<EditorsChoice>, Holder>() {
+) : AnyTypeDelegate<List<EditorsChoice>, DelegateEditorsChoiceSectionBinding, Holder>() {
     private val delegate = EditorsChoiceDelegate(onItemClickListener)
     private val anyTypeAdapter = object : AnyTypeAdapter() {
         override fun getItemCount(): Int {
@@ -28,21 +30,27 @@ class EditorsChoiceSectionDelegate(
             }
         }
 
-        override fun onBindViewHolder(holder: AnyTypeViewHolder<Any>, position: Int) {
+        override fun onBindViewHolder(
+            holder: AnyTypeViewHolder<Any, ViewBinding>,
+            position: Int
+        ) {
             val realPosition = position % anyTypeCollection.size
             super.onBindViewHolder(holder, realPosition)
         }
     }
 
-    override fun createViewHolder(itemView: View): Holder = Holder(itemView)
+    override fun createViewHolder(itemView: View): Holder = Holder(
+        DelegateEditorsChoiceSectionBinding.bind(itemView)
+    )
 
     override fun getItemViewType(): Int = R.layout.delegate_editors_choice_section
 
     override fun getItemId(item: List<EditorsChoice>): String = ITEM_ID
 
-    inner class Holder(itemView: View) : AnyTypeViewHolder<List<EditorsChoice>>(itemView) {
-        private val recyclerView =
-            itemView.findViewById<RecyclerView>(R.id.editors_choice_section_rv)
+    inner class Holder(
+        binding: DelegateEditorsChoiceSectionBinding
+    ) : AnyTypeViewHolder<List<EditorsChoice>, DelegateEditorsChoiceSectionBinding>(binding) {
+        private val recyclerView = binding.editorsChoiceSectionRv
 
         init {
             recyclerView.apply {

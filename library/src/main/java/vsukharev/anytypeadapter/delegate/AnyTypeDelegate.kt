@@ -1,9 +1,10 @@
 package vsukharev.anytypeadapter.delegate
 
 import android.view.View
-import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
-import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
+import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
+import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
 
 /**
@@ -18,7 +19,7 @@ import vsukharev.anytypeadapter.item.AdapterItem
  * @see [RecyclerView.Adapter.onCreateViewHolder]
  * @see [RecyclerView.Adapter.getItemViewType]
  */
-abstract class AnyTypeDelegate<T: Any, H: AnyTypeViewHolder<in T>> {
+abstract class AnyTypeDelegate<T: Any, V: ViewBinding, H: AnyTypeViewHolder<in T, V>> {
 
     /**
      * Creates a view holder.

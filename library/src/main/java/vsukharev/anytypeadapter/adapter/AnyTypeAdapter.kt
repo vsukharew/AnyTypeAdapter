@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.*
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
@@ -12,19 +13,19 @@ import vsukharev.anytypeadapter.item.AdapterItemMetaData
 /**
  * Adapter that is able to display items of any view type at the same time
  */
-open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>(),
+open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBinding>>(),
     CoroutineScope by MainScope() {
     protected var anyTypeCollection: AnyTypeCollection = AnyTypeCollection.EMPTY
     private var diffJob: Job? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnyTypeViewHolder<Any> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnyTypeViewHolder<Any, ViewBinding> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return with(anyTypeCollection) {
             delegateAt(currentItemViewTypePosition).createViewHolder(view)
         }
     }
 
-    override fun onBindViewHolder(holder: AnyTypeViewHolder<Any>, position: Int) {
+    override fun onBindViewHolder(holder: AnyTypeViewHolder<Any, ViewBinding>, position: Int) {
         with(anyTypeCollection) {
             val delegate = delegateAt(currentItemViewTypePosition)
             delegate.bind(items[position], holder)
@@ -77,7 +78,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any>>(),
      * @see [AnyTypeCollection.itemsMetaData]
      */
     private fun findCurrentItemViewTypePosition(
-        itemsMetaData: List<AdapterItemMetaData<Any>>,
+        itemsMetaData: List<AdapterItemMetaData<Any, ViewBinding>>,
         adapterPosition: Int
     ): Int {
         return with(itemsMetaData) {

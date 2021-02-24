@@ -1,6 +1,7 @@
 package vsukharev.anytypeadapter.item
 
 import androidx.recyclerview.widget.DiffUtil
+import androidx.viewbinding.ViewBinding
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
@@ -42,7 +43,7 @@ data class AdapterItem<T: Any>(
  * @property position position the first [AdapterItem] of the given type is placed at
  * @property delegate delegate creating appropriate [AnyTypeViewHolder] and binding data to
  */
-data class AdapterItemMetaData<T: Any>(
+data class AdapterItemMetaData<T: Any, V: ViewBinding>(
     val position: Int,
-    val delegate: AnyTypeDelegate<T, AnyTypeViewHolder<T>>
+    val delegate: AnyTypeDelegate<T, V, AnyTypeViewHolder<T, V>>
 )
