@@ -1,4 +1,17 @@
 ext {
+    build = [
+            compileSdkVersion: 29,
+            buildToolsVersion: "29.0.3",
+            minSdkVersion    : 29,
+            library          : [
+                    versionName: "1.0",
+                    versionCode: 1,
+            ],
+            sample           : [
+                    versionName: "1.0",
+                    versionCode: 1,
+            ]
+    ]
     versions = [
             kotlin    : [
                     'language'  : '1.4.30',
@@ -25,19 +38,6 @@ ext {
             retrofit  : '2.8.1',
             leakcanary: '2.2',
             junit     : '4.12'
-    ]
-    build = [
-            compileSdkVersion: 29,
-            buildToolsVersion: "29.0.3",
-            minSdkVersion    : 29,
-            library          : [
-                    versionName: "1.0",
-                    versionCode: 1,
-            ],
-            sample           : [
-                    versionName: "1.0",
-                    versionCode: 1,
-            ]
     ]
     android = [
             appCompat         : "androidx.appcompat:appcompat:${versions.androidx.appCompat}",
