@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">sample</string>
+    <string name="bottom_navigation_feed">Feed</string>
+    <string name="bottom_navigation_tracks">Tracks</string>
+    <string name="feed_fragment_based_on_your_preferences">Based on your preferences</string>
+    <string name="feed_fragment_view_all_btn">All</string>
+    <string name="feed_fragment_fresh_releases">Fresh releases</string>
+    <string name="feed_fragment_chart">Chart</string>
+    <string name="feed_fragment_podcasts">Podcasts</string>
+    <string name="feed_fragment_editors_choice">Editors\' choice</string>
+    <string name="feed_fragment_activities">Activities</string>
+    <string name="no_internet_error_title_text">Connection error</string>
+    <string name="no_internet_error_description_text">Check your internet connection and try again</string>
+    <string name="retry_btn">Retry</string>
+    <string name="nothing_found">Nothing found</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="menu_tracks_search_by_track_name">Search by track name</string>
+    <string name="menu_feed_is_static_interface">Static interface</string>
+</resources>

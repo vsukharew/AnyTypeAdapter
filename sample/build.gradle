@@ -1,0 +1,73 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply from: '../dependencies.gradle'
+
+android {
+    compileSdkVersion build.compileSdkVersion
+    buildToolsVersion build.buildToolsVersion
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    defaultConfig {
+        minSdkVersion build.minSdkVersion
+        targetSdkVersion build.targetSdkVersion
+        versionCode build.sample.versionCode
+        versionName build.sample.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':library')
+
+    implementation kotlin.language
+    implementation kotlin.coroutines
+    implementation kotlin.coroutinesAndroid
+
+    implementation android.appCompat
+    implementation android.ktx
+    implementation android.constraintLayout
+    implementation android.material
+    implementation android.swiperefreshlayout
+    implementation android.lifecycle
+    androidTestImplementation android.testRunner
+    androidTestImplementation android.espresso
+    testImplementation junit
+
+    implementation moxy.moxy
+    implementation moxy.androidx
+    kapt moxy.compiler
+
+    implementation 'ru.terrakok.cicerone:cicerone:5.1.1'
+
+    implementation glide.glide
+    annotationProcessor glide.compiler
+
+    implementation dagger.dagger
+    kapt dagger.compiler
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
+}

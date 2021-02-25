@@ -1,0 +1,43 @@
+apply plugin: 'com.android.library'
+
+apply plugin: 'kotlin-android'
+
+apply from: '../dependencies.gradle'
+
+android {
+    compileSdkVersion build.compileSdkVersion
+    buildToolsVersion build.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion build.minSdkVersion
+        targetSdkVersion build.targetSdkVersion
+        versionCode build.library.versionCode
+        versionName build.library.versionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation kotlin.language
+    implementation kotlin.coroutines
+    implementation android.appCompat
+    implementation android.ktx
+    implementation android.constraintLayout
+    implementation android.recyclerView
+    testImplementation junit
+    androidTestImplementation android.testRunner
+    androidTestImplementation android.espresso
+}
