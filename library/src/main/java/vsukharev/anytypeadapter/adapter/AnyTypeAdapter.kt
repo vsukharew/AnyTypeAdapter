@@ -8,7 +8,6 @@ import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.*
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
-import vsukharev.anytypeadapter.item.AdapterItemMetaData
 
 /**
  * Adapter that is able to display items of any view type at the same time
@@ -36,7 +35,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
 
     override fun getItemViewType(position: Int): Int {
         return with(anyTypeCollection) {
-            findCurrentItemViewTypePosition(itemsMetaData, position)
+            findCurrentItemViewTypePosition(this, position)
                 .also { currentItemViewTypePosition = it }
                 .let { delegateAt(it).getItemViewType() }
         }
@@ -73,25 +72,19 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
     }
 
     /**
-     * Finds position inside [itemsMetaData] for the current item view type
+     * Finds position inside [anyTypeCollection] for the current item view type
      * given current [adapterPosition]
      * @see [AnyTypeCollection.itemsMetaData]
      */
     private fun findCurrentItemViewTypePosition(
-        itemsMetaData: List<AdapterItemMetaData<Any, ViewBinding>>,
+        anyTypeCollection: AnyTypeCollection,
         adapterPosition: Int
     ): Int {
-        return with(itemsMetaData) {
-            if (size == 1) {
+        return with(anyTypeCollection) {
+            if (itemsMetaData.size == 1) {
                 0
             } else {
                 var result = 0
-                // Each two adjacent values in the list represent the positions range
-                // in which the items with the same viewType are placed
-                val positionsRanges = zipWithNext { first, second ->
-                    first.position until second.position
-                }
-
                 /**
                  * The following code is looking for the range the [adapterPosition] fits in
                  * or determines that [adapterPosition] is larger than right border of the last range
