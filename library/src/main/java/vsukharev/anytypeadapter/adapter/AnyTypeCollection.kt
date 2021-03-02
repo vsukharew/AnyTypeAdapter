@@ -12,6 +12,8 @@ import vsukharev.anytypeadapter.delegate.NoDataDelegate
  * Class that wraps items for [AnyTypeAdapter]
  * @property items items to display in [AnyTypeAdapter]
  * @property itemsMetaData metadata for items to display. Helps to determine which data at which position should be bound
+ * @property positionsRanges Each two adjacent values in the list represent the positions range
+ * in which the items with the same viewType are placed
  */
 class AnyTypeCollection private constructor(
     val items: List<AdapterItem<Any>>,
@@ -142,8 +144,6 @@ class AnyTypeCollection private constructor(
         }
 
         fun build(): AnyTypeCollection {
-            // Each two adjacent values in the list represent the positions range
-            // in which the items with the same viewType are placed
             val positionsRanges = itemsMetaData.zipWithNext { first, second ->
                 first.position until second.position
             }
