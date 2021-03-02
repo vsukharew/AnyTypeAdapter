@@ -14,7 +14,7 @@ import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
  *
  * The methods replicate [DiffUtil.ItemCallback] ones
  */
-data class AdapterItem<T: Any>(
+data class AdapterItem<T>(
     val id: String,
     val data: T
 ) {
@@ -22,13 +22,13 @@ data class AdapterItem<T: Any>(
      * Checks if the items have equal identifiers
      * should be called inside [DiffUtil.ItemCallback.areItemsTheSame]
      */
-    fun <T> areItemsTheSame(other: AdapterItem<T>): Boolean where T: Any = id == other.id
+    fun areItemsTheSame(other: AdapterItem<T>): Boolean = id == other.id
 
     /**
      * Checks if the items have all the fields values equal
      * should be called inside [DiffUtil.ItemCallback.areContentsTheSame]
      */
-    fun <T> areContentsTheSame(other: AdapterItem<T>): Boolean where T: Any = data == other.data
+    fun areContentsTheSame(other: AdapterItem<T>): Boolean = data == other.data
 }
 
 /**
