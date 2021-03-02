@@ -19,7 +19,7 @@ import vsukharev.anytypeadapter.item.AdapterItem
  * @see [RecyclerView.Adapter.onCreateViewHolder]
  * @see [RecyclerView.Adapter.getItemViewType]
  */
-abstract class AnyTypeDelegate<T: Any, V: ViewBinding, H: AnyTypeViewHolder<in T, V>> {
+abstract class AnyTypeDelegate<T, V: ViewBinding, H: AnyTypeViewHolder<T, V>> {
 
     /**
      * Creates a view holder.
