@@ -107,8 +107,8 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
     }
 
     private class DiffUtilCallback(
-        private val oldList: List<AdapterItem<*>>,
-        private val newList: List<AdapterItem<*>>
+        private val oldList: List<AdapterItem<Any>>,
+        private val newList: List<AdapterItem<Any>>
     ) : DiffUtil.Callback() {
 
         override fun getOldListSize(): Int = oldList.size
