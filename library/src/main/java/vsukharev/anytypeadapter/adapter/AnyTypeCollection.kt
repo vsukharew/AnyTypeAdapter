@@ -15,7 +15,8 @@ import vsukharev.anytypeadapter.delegate.NoDataDelegate
  */
 class AnyTypeCollection private constructor(
     val items: List<AdapterItem<Any>>,
-    val itemsMetaData: List<AdapterItemMetaData<Any, ViewBinding>>
+    val itemsMetaData: List<AdapterItemMetaData<Any, ViewBinding>>,
+    val positionsRanges: List<IntRange>
 ) {
     /**
      * Saved position value provided in [RecyclerView.Adapter.getItemViewType]
@@ -140,7 +141,14 @@ class AnyTypeCollection private constructor(
             return apply { addIf(items, delegate) { items.isNotEmpty() } }
         }
 
-        fun build() = AnyTypeCollection(items, itemsMetaData)
+        fun build(): AnyTypeCollection {
+            // Each two adjacent values in the list represent the positions range
+            // in which the items with the same viewType are placed
+            val positionsRanges = itemsMetaData.zipWithNext { first, second ->
+                first.position until second.position
+            }
+            return AnyTypeCollection(items, itemsMetaData, positionsRanges)
+        }
     }
 
     companion object {
