@@ -35,7 +35,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
 
     override fun getItemViewType(position: Int): Int {
         return with(anyTypeCollection) {
-            findCurrentItemViewTypePosition(this, position)
+            findCurrentItemViewTypePosition(positionsRanges, position)
                 .also { currentItemViewTypePosition = it }
                 .let { currentItemViewTypeDelegate.getItemViewType() }
         }
@@ -77,10 +77,10 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
      * @see [AnyTypeCollection.itemsMetaData]
      */
     private fun findCurrentItemViewTypePosition(
-        anyTypeCollection: AnyTypeCollection,
+        positionsRanges: List<IntRange>,
         adapterPosition: Int
     ): Int {
-        return with(anyTypeCollection.positionsRanges) {
+        return with(positionsRanges) {
             binarySearch {
                 when {
                     adapterPosition in it -> 0
