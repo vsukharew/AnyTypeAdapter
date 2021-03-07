@@ -24,13 +24,14 @@ class AnyTypeCollection private constructor(
      * Saved position value provided in [RecyclerView.Adapter.getItemViewType]
      */
     var currentItemViewTypePosition: Int = 0
-    val size: Int = items.size
 
     /**
      * Returns delegate at the given position in the [itemsMetaData] collection
      */
-    fun delegateAt(position: Int): AnyTypeDelegate<Any, ViewBinding, AnyTypeViewHolder<Any, ViewBinding>> =
-        itemsMetaData[position].delegate
+    val currentItemViewTypeDelegate: AnyTypeDelegate<Any, ViewBinding, AnyTypeViewHolder<Any, ViewBinding>>
+        get() = itemsMetaData[currentItemViewTypePosition].delegate
+
+    val size: Int = items.size
 
     class Builder {
         private val items = mutableListOf<AdapterItem<Any>>()
