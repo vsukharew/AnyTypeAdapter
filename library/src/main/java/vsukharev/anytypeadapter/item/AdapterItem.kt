@@ -43,7 +43,7 @@ data class AdapterItem<T>(
  * @property position position the first [AdapterItem] of the given type is placed at
  * @property delegate delegate creating appropriate [AnyTypeViewHolder] and binding data to
  */
-data class AdapterItemMetaData<T: Any, V: ViewBinding>(
+data class AdapterItemMetaData<T, V: ViewBinding>(
     val position: Int,
     val delegate: AnyTypeDelegate<T, V, AnyTypeViewHolder<T, V>>
 )

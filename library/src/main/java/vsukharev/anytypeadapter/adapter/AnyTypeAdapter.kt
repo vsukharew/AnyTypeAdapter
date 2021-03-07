@@ -17,17 +17,17 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
     protected var anyTypeCollection: AnyTypeCollection = AnyTypeCollection.EMPTY
     private var diffJob: Job? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnyTypeViewHolder<Any, ViewBinding> {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): AnyTypeViewHolder<Any, ViewBinding> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return with(anyTypeCollection) {
-            delegateAt(currentItemViewTypePosition).createViewHolder(view)
-        }
+        return anyTypeCollection.currentItemViewTypeDelegate.createViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: AnyTypeViewHolder<Any, ViewBinding>, position: Int) {
         with(anyTypeCollection) {
-            val delegate = delegateAt(currentItemViewTypePosition)
-            delegate.bind(items[position], holder)
+            currentItemViewTypeDelegate.bind(items[position], holder)
         }
     }
 
@@ -37,7 +37,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
         return with(anyTypeCollection) {
             findCurrentItemViewTypePosition(this, position)
                 .also { currentItemViewTypePosition = it }
-                .let { delegateAt(it).getItemViewType() }
+                .let { currentItemViewTypeDelegate.getItemViewType() }
         }
     }
 
@@ -80,29 +80,14 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
         anyTypeCollection: AnyTypeCollection,
         adapterPosition: Int
     ): Int {
-        return with(anyTypeCollection) {
-            if (itemsMetaData.size == 1) {
-                0
-            } else {
-                var result = 0
-                /**
-                 * The following code is looking for the range the [adapterPosition] fits in
-                 * or determines that [adapterPosition] is larger than right border of the last range
-                 */
-                loop@ for (i in positionsRanges.indices) {
-                    when {
-                        adapterPosition in positionsRanges[i] -> {
-                            result = i
-                            break@loop
-                        }
-                        adapterPosition > positionsRanges.last().last -> {
-                            result = positionsRanges.size
-                            break@loop
-                        }
-                    }
+        return with(anyTypeCollection.positionsRanges) {
+            binarySearch {
+                when {
+                    adapterPosition in it -> 0
+                    adapterPosition < it.first -> 1
+                    else -> -1
                 }
-                result
-            }
+            }.takeIf { it >= 0 } ?: size
         }
     }
 
