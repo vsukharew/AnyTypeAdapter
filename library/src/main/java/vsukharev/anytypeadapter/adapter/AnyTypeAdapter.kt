@@ -17,17 +17,17 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
     protected var anyTypeCollection: AnyTypeCollection = AnyTypeCollection.EMPTY
     private var diffJob: Job? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnyTypeViewHolder<Any, ViewBinding> {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): AnyTypeViewHolder<Any, ViewBinding> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return with(anyTypeCollection) {
-            delegateAt(currentItemViewTypePosition).createViewHolder(view)
-        }
+        return anyTypeCollection.currentItemViewTypeDelegate.createViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: AnyTypeViewHolder<Any, ViewBinding>, position: Int) {
         with(anyTypeCollection) {
-            val delegate = delegateAt(currentItemViewTypePosition)
-            delegate.bind(items[position], holder)
+            currentItemViewTypeDelegate.bind(items[position], holder)
         }
     }
 
@@ -37,7 +37,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
         return with(anyTypeCollection) {
             findCurrentItemViewTypePosition(this, position)
                 .also { currentItemViewTypePosition = it }
-                .let { delegateAt(it).getItemViewType() }
+                .let { currentItemViewTypeDelegate.getItemViewType() }
         }
     }
 
