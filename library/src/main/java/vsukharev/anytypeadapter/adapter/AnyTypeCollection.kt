@@ -40,7 +40,7 @@ class AnyTypeCollection private constructor(
         /**
          * Adds the single [item] and the corresponding [delegate]
          */
-        fun <T : Any, V: ViewBinding, H : AnyTypeViewHolder<T, V>> add(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<T, V>> add(
             item: T,
             delegate: AnyTypeDelegate<T, V, H>
         ): Builder {
@@ -76,7 +76,7 @@ class AnyTypeCollection private constructor(
         /**
          * Adds [items] list and the corresponding [delegate]
          */
-        fun <T : Any, V: ViewBinding, H : AnyTypeViewHolder<T, V>> add(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<T, V>> add(
             items: List<T>,
             delegate: AnyTypeDelegate<T, V, H>
         ): Builder {
@@ -86,7 +86,7 @@ class AnyTypeCollection private constructor(
         /**
          * Adds section without data to bind
          */
-        fun <V: ViewBinding> add(delegate: NoDataDelegate<V>): Builder {
+        fun <V : ViewBinding> add(delegate: NoDataDelegate<V>): Builder {
             return apply { add(Unit, delegate) }
         }
 
@@ -94,7 +94,7 @@ class AnyTypeCollection private constructor(
          * Adds [item] and the corresponding [delegate] only if [predicate] is true
          * @param predicate the condition determining whether the items and delegate should be added
          */
-        fun <T: Any, V: ViewBinding, H : AnyTypeViewHolder<T, V>> addIf(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<T, V>> addIf(
             item: T,
             delegate: AnyTypeDelegate<T, V, H>,
             predicate: () -> Boolean
@@ -110,7 +110,7 @@ class AnyTypeCollection private constructor(
          * Adds [items] and the corresponding [delegate] only if [predicate] is true
          * @param predicate the condition determining whether the items and delegate should be added
          */
-        fun <T : Any, V: ViewBinding, H : AnyTypeViewHolder<List<T>, V>> addIf(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<List<T>, V>> addIf(
             items: List<T>,
             delegate: AnyTypeDelegate<List<T>, V, H>,
             predicate: () -> Boolean
@@ -126,7 +126,10 @@ class AnyTypeCollection private constructor(
          * Adds section without data to bind only if [predicate] is true
          * @param predicate the condition determining whether the section should be added
          */
-        fun <V: ViewBinding> addIf(delegate: NoDataDelegate<V>, predicate: () -> Boolean): Builder {
+        fun <V : ViewBinding> addIf(
+            delegate: NoDataDelegate<V>,
+            predicate: () -> Boolean
+        ): Builder {
             return apply {
                 if (predicate.invoke()) {
                     add(Unit, delegate)
@@ -145,8 +148,13 @@ class AnyTypeCollection private constructor(
         }
 
         fun build(): AnyTypeCollection {
-            val positionsRanges = itemsMetaData.zipWithNext { first, second ->
-                first.position until second.position
+            val positionsRanges = with(itemsMetaData) {
+                zipWithNext { first, second ->
+                    first.position until second.position
+                } + when {
+                    size % 2 == 0 -> emptyList()
+                    else -> listOf(last().position until items.size)
+                }
             }
             return AnyTypeCollection(items, itemsMetaData, positionsRanges)
         }
