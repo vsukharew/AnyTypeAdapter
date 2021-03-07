@@ -37,6 +37,11 @@ class EditorsChoiceSectionDelegate(
             val realPosition = position % anyTypeCollection.size
             super.onBindViewHolder(holder, realPosition)
         }
+
+        override fun getItemViewType(position: Int): Int {
+            val realPosition = position % anyTypeCollection.size
+            return super.getItemViewType(realPosition)
+        }
     }
 
     override fun createViewHolder(itemView: View): Holder = Holder(
