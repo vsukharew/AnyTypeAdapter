@@ -152,7 +152,7 @@ class AnyTypeCollection private constructor(
                 zipWithNext { first, second ->
                     first.position until second.position
                 } + when {
-                    size % 2 == 0 -> emptyList()
+                    isEmpty() -> emptyList()
                     else -> listOf(last().position until items.size)
                 }
             }

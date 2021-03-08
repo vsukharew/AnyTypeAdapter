@@ -87,7 +87,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
                     adapterPosition < it.first -> 1
                     else -> -1
                 }
-            }.takeIf { it >= 0 } ?: size
+            }
         }
     }
 
