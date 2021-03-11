@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">sample</string>
+    <string name="app_name">AnyTypeAdapter - Sample</string>
     <string name="bottom_navigation_feed">Feed</string>
     <string name="bottom_navigation_tracks">Tracks</string>
     <string name="feed_fragment_based_on_your_preferences">Based on your preferences</string>
