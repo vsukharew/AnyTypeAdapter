@@ -47,14 +47,14 @@ dependencies {
     implementation kotlin.coroutines
     implementation kotlin.coroutinesAndroid
 
-    implementation android.appCompat
-    implementation android.ktx
-    implementation android.constraintLayout
-    implementation android.material
-    implementation android.swiperefreshlayout
-    implementation android.lifecycle
-    androidTestImplementation android.testRunner
-    androidTestImplementation android.espresso
+    implementation androidx.appCompat
+    implementation androidx.ktx
+    implementation androidx.constraintLayout
+    implementation androidx.material
+    implementation androidx.swiperefreshlayout
+    implementation androidx.lifecycle
+    androidTestImplementation androidx.testRunner
+    androidTestImplementation androidx.espresso
     testImplementation junit
 
     implementation moxy.moxy
@@ -64,7 +64,7 @@ dependencies {
     implementation 'ru.terrakok.cicerone:cicerone:5.1.1'
 
     implementation glide.glide
-    annotationProcessor glide.compiler
+    kapt glide.compiler
 
     implementation dagger.dagger
     kapt dagger.compiler
