@@ -1,8 +1,7 @@
 apply plugin: 'com.android.library'
-
 apply plugin: 'kotlin-android'
-
 apply from: '../dependencies.gradle'
+apply from: "../scripts/publish-maven-central.gradle"
 
 android {
     compileSdkVersion build.compileSdkVersion
@@ -33,11 +32,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation kotlin.language
     implementation kotlin.coroutines
-    implementation android.appCompat
-    implementation android.ktx
-    implementation android.constraintLayout
-    implementation android.recyclerView
+    implementation androidx.appCompat
+    implementation androidx.ktx
+    implementation androidx.constraintLayout
+    implementation androidx.recyclerView
     testImplementation junit
-    androidTestImplementation android.testRunner
-    androidTestImplementation android.espresso
+    androidTestImplementation androidx.testRunner
+    androidTestImplementation androidx.espresso
 }
