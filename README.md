@@ -2,7 +2,7 @@
 
 ### The RecyclerView Adapter that is able to compose different view types in one list
 
-<p>
+<p float="center">
 <img src="https://j.gifs.com/NLPR98.gif" alt="List with pagination" width="320"/>
 <img src="https://j.gifs.com/NLPRN6.gif" alt="Dynamic content" width="320"/>
 <img src="https://j.gifs.com/ANygYB.gif" alt="Static content" width="320"/>
