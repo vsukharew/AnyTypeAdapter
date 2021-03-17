@@ -35,7 +35,7 @@ if (secretPropsFile.exists()) {
     ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
 }
 
-//afterEvaluate {
+afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
@@ -111,7 +111,7 @@ if (secretPropsFile.exists()) {
             }
         }
     }
-//}
+}
 
 signing {
     sign publishing.publications
