@@ -2,7 +2,7 @@
 
 ### The RecyclerView Adapter that is able to compose different view types in one list
 
-<p float="center">
+<p>
 <img src="https://j.gifs.com/NLPR98.gif" alt="List with pagination" width="320"/>
 <img src="https://j.gifs.com/NLPRN6.gif" alt="Dynamic content" width="320"/>
 <img src="https://j.gifs.com/ANygYB.gif" alt="Static content" width="320"/>
@@ -17,6 +17,34 @@ This adapter is:
 ### Under the hood: 
 - Kotlin (with using coroutines)
 - Android View Binding
+
+## Dependencies:
+In your module level `build.gradle` add:
+``` 
+android {
+    ...
+    buildFeatures {
+        viewBinding true
+    }
+    ...
+}
+
+dependencies {
+    ...
+    implementation 'io.github.vsukharew:anytypeadapter:x.y.z@aar'
+    ...
+}
+```
+You might want to add the library's dependencies. In this case add: 
+```
+dependencies {
+    ...
+    implementation ('io.github.vsukharew:anytypeadapter:x.y.z@aar') {
+        transitive = true
+    }
+    ...
+}
+```
 
 ## Usage:
 1. Inherit```AnyTypeDelegate``` and ```AnyTypeViewHolder```
