@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.consumeEach
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
 import vsukharev.anytypeadapter.item.AdapterItem
 
@@ -14,8 +17,12 @@ import vsukharev.anytypeadapter.item.AdapterItem
  */
 open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBinding>>(),
     CoroutineScope by MainScope() {
-    protected var anyTypeCollection: AnyTypeCollection = AnyTypeCollection.EMPTY
+    var diffStrategy: DiffStrategy = DiffStrategy.DiscardLatest
+    private val diffActor =
+        actor<() -> Unit?>(capacity = Channel.BUFFERED) { consumeEach { it.invoke() } }
     private var diffJob: Job? = null
+
+    protected var anyTypeCollection: AnyTypeCollection = AnyTypeCollection.EMPTY
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -54,20 +61,30 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
         collection: AnyTypeCollection,
         onUpdatesDispatch: ((AnyTypeCollection) -> Unit)? = null
     ) {
-        val adapter = this
-        diffJob?.cancel()
-        diffJob = launch {
-            val diffResult = withContext(Dispatchers.Default) {
-                DiffUtil.calculateDiff(
-                    DiffUtilCallback(
-                        anyTypeCollection.items,
-                        collection.items
-                    )
+        val diffBlock = {
+            val adapter = this
+            val diffResult = DiffUtil.calculateDiff(
+                DiffUtilCallback(
+                    anyTypeCollection.items,
+                    collection.items
                 )
-            }
+            )
             anyTypeCollection = collection
             diffResult.dispatchUpdatesTo(adapter)
             onUpdatesDispatch?.invoke(collection)
+        }
+        diffJob = when (diffStrategy) {
+            DiffStrategy.Queue -> {
+                launch {
+                    diffActor.send(diffBlock)
+                }
+            }
+            DiffStrategy.DiscardLatest -> {
+                diffJob?.cancel()
+                launch {
+                    diffActor.send(diffBlock)
+                }
+            }
         }
     }
 
@@ -105,5 +122,10 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
             oldList[oldItemPosition].areContentsTheSame(newList[newItemPosition])
+    }
+
+    sealed class DiffStrategy {
+        object Queue : DiffStrategy()
+        object DiscardLatest : DiffStrategy()
     }
 }
