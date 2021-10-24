@@ -159,11 +159,13 @@ class AnyTypeCollection private constructor(
 
         fun build(): AnyTypeCollection {
             val positionsRanges = with(itemsMetaData) {
-                zipWithNext { first, second ->
-                    first.position until second.position
-                } + when {
+                when {
                     isEmpty() -> emptyList()
-                    else -> listOf(last().position until items.size)
+                    else -> {
+                        zipWithNext { first, second ->
+                            first.position until second.position
+                        } + listOf(last().position until items.size)
+                    }
                 }
             }
             return AnyTypeCollection(items, itemsMetaData, positionsRanges)
