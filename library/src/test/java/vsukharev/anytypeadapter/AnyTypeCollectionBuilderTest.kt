@@ -87,4 +87,12 @@ class AnyTypeCollectionBuilderTest {
             .build()
             .apply { assert(itemsMetaData.isNotEmpty() && items.isNotEmpty()) }
     }
+
+    @Test
+    fun build_emptyCollection_shouldGetEmptyCollectionOfRanges() {
+        val collection = AnyTypeCollection.EMPTY
+        val expected = emptyList<IntRange>()
+        val actual = collection.positionsRanges
+        assert(expected == actual)
+    }
 }
