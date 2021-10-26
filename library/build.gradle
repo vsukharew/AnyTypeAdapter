@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply from: '../dependencies.gradle'
-apply from: "../scripts/publish-maven-central.gradle"
+apply from: "../scripts/publishing.gradle"
 
 android {
     compileSdkVersion build.compileSdkVersion
