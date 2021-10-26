@@ -110,9 +110,9 @@ class AnyTypeCollection private constructor(
          * Adds [items] and the corresponding [delegate] only if [predicate] is true
          * @param predicate the condition determining whether the items and delegate should be added
          */
-        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<List<T>, V>> addIf(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<T, V>> addIf(
             items: List<T>,
-            delegate: AnyTypeDelegate<List<T>, V, H>,
+            delegate: AnyTypeDelegate<T, V, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
@@ -138,22 +138,34 @@ class AnyTypeCollection private constructor(
         }
 
         /**
+         * Adds [item] and the corresponding [delegate] only if the item (which must be a collection) is not empty
+         */
+        fun <T : Iterable<*>, V : ViewBinding, H : AnyTypeViewHolder<T, V>> addIfNotEmpty(
+            item: T,
+            delegate: AnyTypeDelegate<T, V, H>
+        ): Builder {
+            return apply { addIf(item, delegate) { item.count() > 0 } }
+        }
+
+        /**
          * Adds [items] and the corresponding [delegate] only if the list of items is not empty
          */
-        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<List<T>, V>> addIfNotEmpty(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<T, V>> addIfNotEmpty(
             items: List<T>,
-            delegate: AnyTypeDelegate<List<T>, V, H>
+            delegate: AnyTypeDelegate<T, V, H>
         ): Builder {
             return apply { addIf(items, delegate) { items.isNotEmpty() } }
         }
 
         fun build(): AnyTypeCollection {
             val positionsRanges = with(itemsMetaData) {
-                zipWithNext { first, second ->
-                    first.position until second.position
-                } + when {
+                when {
                     isEmpty() -> emptyList()
-                    else -> listOf(last().position until items.size)
+                    else -> {
+                        zipWithNext { first, second ->
+                            first.position until second.position
+                        } + listOf(last().position until items.size)
+                    }
                 }
             }
             return AnyTypeCollection(items, itemsMetaData, positionsRanges)

@@ -41,7 +41,7 @@ ext {
             moxy              : '2.1.2',
             retrofit          : '2.8.1',
             leakcanary        : '2.2',
-            junit             : '4.12'
+            junit             : '5.7.1'
     ]
     androidx = [
             appCompat         : "androidx.appcompat:appcompat:${versions.androidx.appCompat}",
@@ -72,5 +72,5 @@ ext {
             compiler: "com.google.dagger:dagger-compiler:${versions.dagger}",
             dagger  : "com.google.dagger:dagger:${versions.dagger}",
     ]
-    junit = "junit:junit:${versions.junit}"
+    junit = "org.junit.jupiter:junit-jupiter-engine:${versions.junit}"
 }
