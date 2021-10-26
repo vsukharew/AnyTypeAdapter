@@ -51,25 +51,3 @@ val trackListDelegate =
 
         override fun getItemId(item: List<Track>): String = item.toString()
     }
-
-val intMapDataDelegate =
-    object : AnyTypeDelegate<Map<Int, Int>, ViewBinding, AnyTypeViewHolder<Map<Int, Int>, ViewBinding>>() {
-        override fun createViewHolder(itemView: View): AnyTypeViewHolder<Map<Int, Int>, ViewBinding> {
-            TODO("Not yet implemented")
-        }
-
-        override fun getItemViewType(): Int = 5
-
-        override fun getItemId(item: Map<Int, Int>): String = item.toString()
-    }
-
-val longDataDelegate =
-    object : AnyTypeDelegate<Long, ViewBinding, AnyTypeViewHolder<Long, ViewBinding>>() {
-        override fun createViewHolder(itemView: View): AnyTypeViewHolder<Long, ViewBinding> {
-            TODO("Not yet implemented")
-        }
-
-        override fun getItemViewType(): Int = 6
-
-        override fun getItemId(item: Long): String = item.toString()
-    }
