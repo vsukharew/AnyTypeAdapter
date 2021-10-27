@@ -48,10 +48,10 @@ class AnyTypeCollectionBuilderTest {
         var itemsCount = 0
         var itemsMetadataCount = 0
         AnyTypeCollection.Builder()
-            .addIf(headerDelegate) { true }.also { itemsCount++ ; itemsMetadataCount++ }
-            .addIf(headerDelegate) { false }.also { itemsCount++}
+            .addIf(headerDelegate) { true }.also { itemsCount++; itemsMetadataCount++ }
+            .addIf(headerDelegate) { false }.also { itemsCount++ }
             .build()
-            .apply { itemsMetaData.size == 1 && size == 1 }
+            .apply { assert(itemsMetaData.size == itemsMetadataCount && size != itemsCount && size == 1) }
     }
 
     @Test
@@ -86,5 +86,13 @@ class AnyTypeCollectionBuilderTest {
             .addIfNotEmpty(listOf(Track()), trackListDelegate)
             .build()
             .apply { assert(itemsMetaData.isNotEmpty() && items.isNotEmpty()) }
+    }
+
+    @Test
+    fun build_emptyCollection_shouldGetEmptyCollectionOfRanges() {
+        val collection = AnyTypeCollection.EMPTY
+        val expected = emptyList<IntRange>()
+        val actual = collection.positionsRanges
+        assert(expected == actual)
     }
 }
