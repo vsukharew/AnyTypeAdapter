@@ -4,10 +4,10 @@ ext {
             buildToolsVersion: "29.0.3",
             minSdkVersion    : 14,
             library          : [
-                    publishGroupId: 'io.github.vsukharew',
+                    publishGroupId   : 'io.github.vsukharew',
                     publishArtifactId: 'anytypeadapter',
-                    versionName: "1.0.11",
-                    versionCode: 1,
+                    versionName      : "1.0.11",
+                    versionCode      : 1,
             ],
             sample           : [
                     versionName: "1.0",
@@ -41,7 +41,8 @@ ext {
             moxy              : '2.1.2',
             retrofit          : '2.8.1',
             leakcanary        : '2.2',
-            junit             : '5.7.1'
+            junit             : '5.7.1',
+            mockito           : '3.2.0',
     ]
     androidx = [
             appCompat         : "androidx.appcompat:appcompat:${versions.androidx.appCompat}",
@@ -73,4 +74,5 @@ ext {
             dagger  : "com.google.dagger:dagger:${versions.dagger}",
     ]
     junit = "org.junit.jupiter:junit-jupiter-engine:${versions.junit}"
+    mockito = "org.mockito.kotlin:mockito-kotlin:${versions.mockito}"
 }
