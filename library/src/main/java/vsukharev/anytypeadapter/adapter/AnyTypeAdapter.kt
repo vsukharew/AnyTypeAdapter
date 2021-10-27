@@ -41,10 +41,9 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
     override fun getItemCount(): Int = anyTypeCollection.size
 
     override fun getItemViewType(position: Int): Int {
-        return with(anyTypeCollection) {
-            findCurrentItemViewTypePosition(positionsRanges, position)
-                .also { currentItemViewTypePosition = it }
-                .let { currentItemViewTypeDelegate.getItemViewType() }
+        return anyTypeCollection.run {
+            findCurrentItemViewTypePosition(position).also { currentItemViewTypePosition = it }
+            currentItemViewTypeDelegate.getItemViewType()
         }
     }
 
@@ -83,26 +82,6 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
                 diffJob?.cancel()
                 launch {
                     diffActor.send(diffBlock)
-                }
-            }
-        }
-    }
-
-    /**
-     * Finds position inside [anyTypeCollection] for the current item view type
-     * given current [adapterPosition]
-     * @see [AnyTypeCollection.itemsMetaData]
-     */
-    private fun findCurrentItemViewTypePosition(
-        positionsRanges: List<IntRange>,
-        adapterPosition: Int
-    ): Int {
-        return with(positionsRanges) {
-            binarySearch {
-                when {
-                    adapterPosition in it -> 0
-                    adapterPosition < it.first -> 1
-                    else -> -1
                 }
             }
         }
