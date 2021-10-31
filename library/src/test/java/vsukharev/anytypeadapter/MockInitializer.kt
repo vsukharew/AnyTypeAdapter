@@ -20,6 +20,7 @@ open class MockInitializer {
         mock<AnyTypeDelegate<Activity, ViewBinding, AnyTypeViewHolder<Activity, ViewBinding>>>()
     protected val trackListDelegate =
         mock<AnyTypeDelegate<List<Track>, ViewBinding, AnyTypeViewHolder<List<Track>, ViewBinding>>>()
+    protected val trackHolder = mock<AnyTypeViewHolder<Track, ViewBinding>>()
 
     @BeforeEach
     protected fun initMocks() {
