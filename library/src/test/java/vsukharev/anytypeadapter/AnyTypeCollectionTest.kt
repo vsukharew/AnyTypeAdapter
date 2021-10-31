@@ -6,9 +6,8 @@ import org.junit.jupiter.api.assertThrows
 import vsukharev.anytypeadapter.adapter.AnyTypeCollection
 import vsukharev.anytypeadapter.domain.Activity
 import vsukharev.anytypeadapter.domain.Track
-import java.lang.IllegalStateException
 
-class AnyTypeCollectionTest {
+class AnyTypeCollectionTest : MockInitializer() {
 
     @Test
     fun currentItemViewTypeDelegate_collectionIsEmpty_exceptionShouldBeThrown() {
@@ -34,7 +33,7 @@ class AnyTypeCollectionTest {
     }
 
     @Test
-    fun findCurrentItemViewType() {
+    fun findCurrentItemViewType_iterateThroughCollection_whileItemsAreOfSameFindCurrentItemViewTypePositionReturnsSavedValue() {
         AnyTypeCollection.Builder()
             .add(listOf(Track(), Track(), Track()), trackDelegate)
             .add(headerDelegate)
@@ -47,7 +46,7 @@ class AnyTypeCollectionTest {
                         assert(position == currentItemViewTypePosition)
                     } else {
                         assert(position != currentItemViewTypePosition)
-                        currentItemViewTypePosition = position
+                        currentItemViewTypePosition = position // in real code, this saving takes place in adapter
                     }
                 }
                 assert(currentItemViewTypePosition == itemsMetaData.size - 1)

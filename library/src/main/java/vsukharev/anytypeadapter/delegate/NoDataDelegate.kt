@@ -1,10 +1,8 @@
 package vsukharev.anytypeadapter.delegate
 
-import android.view.LayoutInflater
-import android.view.View
 import androidx.viewbinding.ViewBinding
-import vsukharev.anytypeadapter.holder.NoDataViewHolder
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
+import vsukharev.anytypeadapter.holder.NoDataViewHolder
 import java.util.*
 
 /**
@@ -12,13 +10,8 @@ import java.util.*
  * This delegate can be used when creating list for [AnyTypeAdapter] without specifying data to bind
  */
 abstract class NoDataDelegate<V: ViewBinding> : AnyTypeDelegate<Unit, V, NoDataViewHolder<V>>() {
-
-    override fun getItemId(item: Unit): String = ITEM_ID
-
-    private companion object {
-        /**
-         * This delegate has an "artificial" identifier because there is no data
-         */
-        val ITEM_ID: String = UUID.randomUUID().toString()
-    }
+    /**
+     * This delegate has an artificial identifier because there is no data
+     */
+    override fun getItemId(item: Unit): String = UUID.randomUUID().toString()
 }
