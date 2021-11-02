@@ -1,10 +1,7 @@
 package vsukharev.anytypeadapter.adapter
 
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.*
 import vsukharev.anytypeadapter.common.MockInitializer
 import vsukharev.anytypeadapter.domain.Activity
 import vsukharev.anytypeadapter.domain.Track
@@ -53,24 +50,45 @@ class AnyTypeCollectionBuilderTest : MockInitializer() {
 
     @Test
     fun add_addItemsOfDifferentViewTypes_verifyGetItemViewTypeCalledTwiceEachTimeItemAddedExceptCornerAdditions() {
-        val tracksCount = 10
-        val tracksListsCount = 1
+        val tracksList = listOf(Track(), Track())
         val activitiesCount = 10
         AnyTypeCollection.Builder()
             .apply {
-                repeat((1..tracksCount).count()) {
-                    add(Track(), trackDelegate)
-                } //corner addition
+                add(tracksList, trackDelegate) //corner addition
                 add(headerDelegate)
-                add(listOf(Track(), Track()), trackListDelegate)
+                add(tracksList, trackListDelegate)
                 repeat((1..activitiesCount).count()) {
                     add(Activity(), activityDelegate)
                 } //corner addition
 
-                verify(trackDelegate, times((tracksCount * 2 - 1))).getItemViewType()
+                verify(trackDelegate, times((tracksList.size * 2 - 1))).getItemViewType()
                 verify(headerDelegate, times(2)).getItemViewType()
-                verify(trackListDelegate, times(tracksListsCount * 2)).getItemViewType()
+                verify(trackListDelegate, times(tracksList.size)).getItemViewType()
                 verify(activityDelegate, times((activitiesCount * 2 - 1))).getItemViewType()
+            }
+    }
+
+    @Test
+    fun add_addSingleItem_verifyGetItemIdCalledWithAddedItem() {
+        val track = Track()
+        val captor = argumentCaptor<Track>()
+        AnyTypeCollection.Builder()
+            .apply {
+                add(track, trackDelegate)
+                verify(trackDelegate).getItemId(captor.capture())
+                assert(track == captor.lastValue)
+            }
+    }
+
+    @Test
+    fun add_addList_verifyGetItemIdCalledWithEachListItem() {
+        val tracksList = listOf(Track(), Track())
+        val captor = argumentCaptor<Track>()
+        AnyTypeCollection.Builder()
+            .apply {
+                add(tracksList, trackDelegate)
+                verify(trackDelegate, times(tracksList.size)).getItemId(captor.capture())
+                assert(tracksList == captor.allValues)
             }
     }
 
@@ -134,8 +152,8 @@ class AnyTypeCollectionBuilderTest : MockInitializer() {
     @Test
     fun addIfNotEmpty_inputListIsEmpty_dataListShouldNotBeAdded() {
         AnyTypeCollection.Builder()
-            .addIfNotEmpty(listOf(), trackDelegate)
-            .addIfNotEmpty(listOf<Track>(), trackListDelegate)
+            .addIfNotEmpty(emptyList(), trackDelegate)
+            .addIfNotEmpty(emptyList<Track>(), trackListDelegate)
             .build()
             .apply { assert(itemsMetaData.isEmpty() && items.isEmpty()) }
     }
@@ -143,8 +161,8 @@ class AnyTypeCollectionBuilderTest : MockInitializer() {
     @Test
     fun addIfNotEmpty_inputListIsEmpty_noneDelegateMethodsGetCalled() {
         AnyTypeCollection.Builder()
-            .addIfNotEmpty(listOf(), trackDelegate)
-            .addIfNotEmpty(listOf<Track>(), trackListDelegate)
+            .addIfNotEmpty(emptyList(), trackDelegate)
+            .addIfNotEmpty(emptyList<Track>(), trackListDelegate)
             .apply {
                 verifyZeroInteractions(trackDelegate)
                 verifyZeroInteractions(trackListDelegate)
