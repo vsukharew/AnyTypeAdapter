@@ -7,6 +7,7 @@ import vsukharev.anytypeadapter.item.AdapterItemMetaData
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import vsukharev.anytypeadapter.delegate.NoDataDelegate
+import java.lang.IllegalStateException
 
 /**
  * Class that wraps items for [AnyTypeAdapter]
@@ -23,15 +24,42 @@ class AnyTypeCollection private constructor(
     /**
      * Saved position value provided in [RecyclerView.Adapter.getItemViewType]
      */
-    var currentItemViewTypePosition: Int = 0
+    internal var currentItemViewTypePosition: Int = NO_POSITION
 
     /**
      * Returns delegate at the given position in the [itemsMetaData] collection
      */
     val currentItemViewTypeDelegate: AnyTypeDelegate<Any, ViewBinding, AnyTypeViewHolder<Any, ViewBinding>>
-        get() = itemsMetaData[currentItemViewTypePosition].delegate
+        get() {
+            return if (itemsMetaData.isNotEmpty()) {
+                itemsMetaData[currentItemViewTypePosition].delegate
+            } else {
+                throw IllegalStateException("Unable to get a delegate in an empty collection")
+            }
+        }
 
     val size: Int = items.size
+
+    /**
+     * Finds position for the current item view type given current [adapterPosition]
+     * @see [AnyTypeCollection.itemsMetaData]
+     */
+    fun findCurrentItemViewTypePosition(adapterPosition: Int): Int {
+        val currentPositionsRange = positionsRanges.getOrNull(currentItemViewTypePosition)
+        return if (currentPositionsRange?.contains(adapterPosition) == true) {
+            currentItemViewTypePosition
+        } else {
+            with(positionsRanges) {
+                binarySearch {
+                    when {
+                        adapterPosition in it -> 0
+                        adapterPosition < it.first -> 1
+                        else -> -1
+                    }
+                }
+            }
+        }
+    }
 
     class Builder {
         private val items = mutableListOf<AdapterItem<Any>>()
@@ -110,9 +138,9 @@ class AnyTypeCollection private constructor(
          * Adds [items] and the corresponding [delegate] only if [predicate] is true
          * @param predicate the condition determining whether the items and delegate should be added
          */
-        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<List<T>, V>> addIf(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<T, V>> addIf(
             items: List<T>,
-            delegate: AnyTypeDelegate<List<T>, V, H>,
+            delegate: AnyTypeDelegate<T, V, H>,
             predicate: () -> Boolean
         ): Builder {
             return apply {
@@ -138,29 +166,46 @@ class AnyTypeCollection private constructor(
         }
 
         /**
+         * Adds [item] and the corresponding [delegate] only if the item (which must be a collection) is not empty
+         */
+        fun <T : Iterable<*>, V : ViewBinding, H : AnyTypeViewHolder<T, V>> addIfNotEmpty(
+            item: T,
+            delegate: AnyTypeDelegate<T, V, H>
+        ): Builder {
+            return apply { addIf(item, delegate) { item.count() > 0 } }
+        }
+
+        /**
          * Adds [items] and the corresponding [delegate] only if the list of items is not empty
          */
-        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<List<T>, V>> addIfNotEmpty(
+        fun <T : Any, V : ViewBinding, H : AnyTypeViewHolder<T, V>> addIfNotEmpty(
             items: List<T>,
-            delegate: AnyTypeDelegate<List<T>, V, H>
+            delegate: AnyTypeDelegate<T, V, H>
         ): Builder {
             return apply { addIf(items, delegate) { items.isNotEmpty() } }
         }
 
         fun build(): AnyTypeCollection {
             val positionsRanges = with(itemsMetaData) {
-                zipWithNext { first, second ->
-                    first.position until second.position
-                } + when {
+                when {
                     isEmpty() -> emptyList()
-                    else -> listOf(last().position until items.size)
+                    else -> {
+                        zipWithNext { first, second ->
+                            first.position until second.position
+                        } + listOf(last().position until items.size)
+                    }
                 }
             }
-            return AnyTypeCollection(items, itemsMetaData, positionsRanges)
+            return AnyTypeCollection(items, itemsMetaData, positionsRanges).apply {
+                if (items.isNotEmpty()) {
+                    currentItemViewTypePosition = 0
+                }
+            }
         }
     }
 
     companion object {
+        internal const val NO_POSITION = -1
         val EMPTY = Builder().build()
     }
 }

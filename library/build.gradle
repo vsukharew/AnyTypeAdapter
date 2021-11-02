@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply from: '../dependencies.gradle'
-apply from: "../scripts/publish-maven-central.gradle"
+apply from: "../scripts/publishing.gradle"
 
 android {
     compileSdkVersion build.compileSdkVersion
@@ -26,6 +26,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -37,6 +42,7 @@ dependencies {
     implementation androidx.constraintLayout
     implementation androidx.recyclerView
     testImplementation junit
+    testImplementation mockito
     androidTestImplementation androidx.testRunner
     androidTestImplementation androidx.espresso
 }
