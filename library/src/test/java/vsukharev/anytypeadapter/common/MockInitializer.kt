@@ -1,8 +1,8 @@
-package vsukharev.anytypeadapter
+package vsukharev.anytypeadapter.common
 
 import androidx.viewbinding.ViewBinding
 import org.junit.jupiter.api.BeforeEach
-import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import vsukharev.anytypeadapter.delegate.AnyTypeDelegate
@@ -24,17 +24,16 @@ open class MockInitializer {
 
     @BeforeEach
     protected fun initMocks() {
-        Mockito.`when`(headerDelegate.getItemViewType()).thenReturn(0)
-        Mockito.`when`(headerDelegate.getItemId(any())).thenReturn(UUID.randomUUID().toString())
+        `when`(headerDelegate.getItemViewType()).thenReturn(0)
+        `when`(headerDelegate.getItemId(any())).thenReturn(UUID.randomUUID().toString())
 
+        `when`(trackDelegate.getItemViewType()).thenReturn(1)
+        `when`(trackDelegate.getItemId(any())).thenReturn(UUID.randomUUID().toString())
 
-        Mockito.`when`(trackDelegate.getItemViewType()).thenReturn(1)
-        Mockito.`when`(trackDelegate.getItemId(any())).thenReturn(UUID.randomUUID().toString())
+        `when`(activityDelegate.getItemViewType()).thenReturn(2)
+        `when`(activityDelegate.getItemId(any())).thenReturn(UUID.randomUUID().toString())
 
-        Mockito.`when`(activityDelegate.getItemViewType()).thenReturn(2)
-        Mockito.`when`(activityDelegate.getItemId(any())).thenReturn(UUID.randomUUID().toString())
-
-        Mockito.`when`(trackListDelegate.getItemViewType()).thenReturn(3)
-        Mockito.`when`(trackListDelegate.getItemId(any())).thenReturn(UUID.randomUUID().toString())
+        `when`(trackListDelegate.getItemViewType()).thenReturn(3)
+        `when`(trackListDelegate.getItemId(any())).thenReturn(UUID.randomUUID().toString())
     }
 }
