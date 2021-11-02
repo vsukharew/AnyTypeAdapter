@@ -205,7 +205,7 @@ class AnyTypeCollection private constructor(
     }
 
     companion object {
-        const val NO_POSITION = -1
+        internal const val NO_POSITION = -1
         val EMPTY = Builder().build()
     }
 }
