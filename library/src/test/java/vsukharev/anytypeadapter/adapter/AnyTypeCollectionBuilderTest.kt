@@ -1,11 +1,11 @@
-package vsukharev.anytypeadapter
+package vsukharev.anytypeadapter.adapter
 
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyZeroInteractions
-import vsukharev.anytypeadapter.adapter.AnyTypeCollection
+import vsukharev.anytypeadapter.common.MockInitializer
 import vsukharev.anytypeadapter.domain.Activity
 import vsukharev.anytypeadapter.domain.Track
 

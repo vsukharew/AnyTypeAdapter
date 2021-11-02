@@ -1,9 +1,9 @@
-package vsukharev.anytypeadapter
+package vsukharev.anytypeadapter.adapter
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import vsukharev.anytypeadapter.adapter.AnyTypeCollection
+import vsukharev.anytypeadapter.common.MockInitializer
 import vsukharev.anytypeadapter.domain.Activity
 import vsukharev.anytypeadapter.domain.Track
 
