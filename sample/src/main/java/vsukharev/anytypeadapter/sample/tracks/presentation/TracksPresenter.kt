@@ -1,6 +1,5 @@
 package vsukharev.anytypeadapter.sample.tracks.presentation
 
-import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import moxy.InjectViewState
