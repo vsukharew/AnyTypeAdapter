@@ -15,7 +15,7 @@ class RecyclerViewScrollListener(
             val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
             val totalItemCount = layoutManager.itemCount
             if (!isLoading && hasMore) {
-                if (lastVisibleItemPosition + threshold >= totalItemCount) {
+                if (lastVisibleItemPosition + threshold >= totalItemCount && totalItemCount > 0) {
                     isLoading = true
                     onLoadMore.invoke()
                 }
