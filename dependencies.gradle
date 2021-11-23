@@ -41,7 +41,8 @@ ext {
             moxy              : '2.1.2',
             retrofit          : '2.8.1',
             leakcanary        : '2.2',
-            junit             : '5.7.1',
+            junit5            : '5.7.1',
+            junit4            : '4.12',
             mockito           : '3.2.0',
     ]
     androidx = [
@@ -56,9 +57,10 @@ ext {
             lifecycle         : "androidx.lifecycle:lifecycle-runtime-ktx:${versions.androidx.lifecycle}"
     ]
     kotlin = [
-            language         : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin.language}",
-            coroutines       : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}",
-            coroutinesAndroid: "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}",
+            language          : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin.language}",
+            coroutines        : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}",
+            coroutinesAndroid : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}",
+            coroutinesUnitTest: "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}",
     ]
     moxy = [
             moxy    : "com.github.moxy-community:moxy:${versions.moxy}",
@@ -73,6 +75,7 @@ ext {
             compiler: "com.google.dagger:dagger-compiler:${versions.dagger}",
             dagger  : "com.google.dagger:dagger:${versions.dagger}",
     ]
-    junit = "org.junit.jupiter:junit-jupiter-engine:${versions.junit}"
+    junit5 = "org.junit.jupiter:junit-jupiter-engine:${versions.junit5}"
+    junit4 = "junit:junit:${versions.junit4}"
     mockito = "org.mockito.kotlin:mockito-kotlin:${versions.mockito}"
 }
