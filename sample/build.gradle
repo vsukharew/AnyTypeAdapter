@@ -55,7 +55,6 @@ dependencies {
     implementation androidx.lifecycle
     androidTestImplementation androidx.testRunner
     androidTestImplementation androidx.espresso
-    testImplementation junit
 
     implementation moxy.moxy
     implementation moxy.androidx

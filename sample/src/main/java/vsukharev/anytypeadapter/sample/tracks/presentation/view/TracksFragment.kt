@@ -26,7 +26,7 @@ import vsukharev.anytypeadapter.sample.common.presentation.BaseFragment
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PaginationAdapterItem
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PaginationDelegate
 import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyColoredHeaderDelegate
-import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator.PaginationState
+import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator.*
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.RecyclerViewScrollListener
 import vsukharev.anytypeadapter.sample.databinding.FragmentTracksBinding
 import vsukharev.anytypeadapter.sample.tracks.presentation.TracksPresenter
@@ -170,12 +170,12 @@ class TracksFragment : BaseFragment(), TracksView {
 
     override fun showData(
         data: List<TracksListItem>,
-        allDataLoaded: Boolean,
-        paginationState: PaginationState?
+        state: State<TracksListItem>
     ) {
+        val hasMore = state !is State.AllData || state is State.PaginationError || state is State.NewPageLoading
         scrollListener.apply {
             isLoading = false
-            hasMore = !allDataLoaded && paginationState != PaginationState.ERROR
+            this.hasMore = hasMore
         }
         AnyTypeCollection.Builder()
             .apply {
@@ -186,9 +186,9 @@ class TracksFragment : BaseFragment(), TracksView {
                     }
                 }
                 addIf(
-                    paginationItem.copy(isError = paginationState == PaginationState.ERROR),
+                    paginationItem.copy(isError = state is State.PaginationError),
                     paginationDelegate
-                ) { paginationState != null }
+                ) { hasMore }
             }
             .build()
             .let { anyTypeAdapter.setCollection(it) }
