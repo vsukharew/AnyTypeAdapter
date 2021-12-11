@@ -8,7 +8,6 @@ import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
-import vsukharev.anytypeadapter.item.AdapterItem
 
 /**
  * Adapter that is able to display items of any view type at the same time
@@ -16,6 +15,7 @@ import vsukharev.anytypeadapter.item.AdapterItem
 open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBinding>>() {
     protected var anyTypeCollection: AnyTypeCollection = AnyTypeCollection.EMPTY
     var diffStrategy: DiffStrategy = DiffStrategy.DiscardLatest()
+    var isPayloadEnabled = false
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -23,6 +23,18 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
     ): AnyTypeViewHolder<Any, ViewBinding> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return anyTypeCollection.currentItemViewTypeDelegate.createViewHolder(view)
+    }
+
+    override fun onBindViewHolder(
+        holder: AnyTypeViewHolder<Any, ViewBinding>,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isNotEmpty()) {
+            holder.applyPayload(payloads)
+        } else {
+            onBindViewHolder(holder, position)
+        }
     }
 
     override fun onBindViewHolder(holder: AnyTypeViewHolder<Any, ViewBinding>, position: Int) {
@@ -50,12 +62,12 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
     ) {
         val diffBlock = suspend {
             val adapter = this
-            val diffResult = DiffUtil.calculateDiff(
-                DiffUtilCallback(
-                    anyTypeCollection.items,
-                    collection.items
-                )
-            )
+            val diffCallback = if (isPayloadEnabled) {
+                PayloadDiffUtilCallback(anyTypeCollection, collection)
+            } else {
+                DiffUtilCallback(anyTypeCollection, collection)
+            }
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
             withContext(Dispatchers.Main) {
                 anyTypeCollection = collection
                 diffResult.dispatchUpdatesTo(adapter)
@@ -65,19 +77,34 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
         diffStrategy.calculateDiff(diffBlock)
     }
 
-    private class DiffUtilCallback(
-        private val oldList: List<AdapterItem<Any>>,
-        private val newList: List<AdapterItem<Any>>
-    ) : DiffUtil.Callback() {
+    private class PayloadDiffUtilCallback(
+        oldList: AnyTypeCollection,
+        newList: AnyTypeCollection
+    ) : DiffUtilCallback(oldList, newList) {
 
+        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+            val delegate = with(oldList) {
+                itemsMetaData[findCurrentItemViewTypePosition(oldItemPosition)].delegate
+            }
+            return delegate.getChangePayload(
+                oldList.items[oldItemPosition].data,
+                newList.items[newItemPosition].data
+            )
+        }
+    }
+
+    private open class DiffUtilCallback(
+        protected val oldList: AnyTypeCollection,
+        protected val newList: AnyTypeCollection
+    ) : DiffUtil.Callback() {
         override fun getOldListSize(): Int = oldList.size
 
         override fun getNewListSize(): Int = newList.size
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-            oldList[oldItemPosition].areItemsTheSame(newList[newItemPosition])
+            oldList.items[oldItemPosition].areItemsTheSame(newList.items[newItemPosition])
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-            oldList[oldItemPosition].areContentsTheSame(newList[newItemPosition])
+            oldList.items[oldItemPosition].areContentsTheSame(newList.items[newItemPosition])
     }
 }

@@ -5,21 +5,18 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
+import org.junit.jupiter.api.extension.BeforeAllCallback
+import org.junit.jupiter.api.extension.ExtensionContext
 
 @ExperimentalCoroutinesApi
-class CoroutineDispatcherRule(
-    val dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
-) : TestWatcher() {
+class MainDispatcherExtension : BeforeAllCallback, ExtensionContext.Store.CloseableResource {
+    private val dispatcher = TestCoroutineDispatcher()
 
-    override fun starting(description: Description?) {
-        super.starting(description)
+    override fun beforeAll(context: ExtensionContext?) {
         Dispatchers.setMain(dispatcher)
     }
 
-    override fun finished(description: Description?) {
-        super.finished(description)
+    override fun close() {
         Dispatchers.resetMain()
         dispatcher.cleanupTestCoroutines()
     }

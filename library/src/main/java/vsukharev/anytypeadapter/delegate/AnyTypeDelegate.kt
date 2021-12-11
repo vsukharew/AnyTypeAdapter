@@ -19,7 +19,7 @@ import vsukharev.anytypeadapter.item.AdapterItem
  * @see [RecyclerView.Adapter.onCreateViewHolder]
  * @see [RecyclerView.Adapter.getItemViewType]
  */
-abstract class AnyTypeDelegate<T, V: ViewBinding, H: AnyTypeViewHolder<T, V>> {
+abstract class AnyTypeDelegate<T, V : ViewBinding, H : AnyTypeViewHolder<T, V>> {
 
     /**
      * Creates a view holder.
@@ -34,6 +34,12 @@ abstract class AnyTypeDelegate<T, V: ViewBinding, H: AnyTypeViewHolder<T, V>> {
     abstract fun getItemViewType(): Int
 
     abstract fun getItemId(item: T): String
+
+    /**
+     * Returns something that may have changed between the two items during the collections diff calculation.
+     * Called only when [oldItem] and [newItem] have the same id
+     */
+    open fun getChangePayload(oldItem: T, newItem: T): Any? = null
 
     /**
      * Binds the data to view holder
