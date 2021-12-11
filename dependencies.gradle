@@ -42,7 +42,6 @@ ext {
             retrofit          : '2.8.1',
             leakcanary        : '2.2',
             junit5            : '5.7.1',
-            junit4            : '4.12',
             mockito           : '3.2.0',
     ]
     androidx = [
@@ -76,6 +75,5 @@ ext {
             dagger  : "com.google.dagger:dagger:${versions.dagger}",
     ]
     junit5 = "org.junit.jupiter:junit-jupiter-engine:${versions.junit5}"
-    junit4 = "junit:junit:${versions.junit4}"
     mockito = "org.mockito.kotlin:mockito-kotlin:${versions.mockito}"
 }

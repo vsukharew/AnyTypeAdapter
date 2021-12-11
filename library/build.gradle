@@ -42,7 +42,6 @@ dependencies {
     implementation androidx.constraintLayout
     implementation androidx.recyclerView
     testImplementation junit5
-    testImplementation junit4
     testImplementation mockito
     testImplementation kotlin.coroutinesUnitTest
     androidTestImplementation androidx.testRunner
