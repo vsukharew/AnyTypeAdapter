@@ -16,8 +16,8 @@ ext {
     ]
     versions = [
             kotlin            : [
-                    'language'  : '1.4.30',
-                    'coroutines': '1.3.9'
+                    'language'  : '1.6.0',
+                    'coroutines': '1.5.2'
             ],
             androidx          : [
                     'cardview'          : '1.0.0',
@@ -56,7 +56,6 @@ ext {
             lifecycle         : "androidx.lifecycle:lifecycle-runtime-ktx:${versions.androidx.lifecycle}"
     ]
     kotlin = [
-            language          : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin.language}",
             coroutines        : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}",
             coroutinesAndroid : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}",
             coroutinesUnitTest: "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}",
