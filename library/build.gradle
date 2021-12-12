@@ -35,7 +35,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation kotlin.language
     implementation kotlin.coroutines
     implementation androidx.appCompat
     implementation androidx.ktx

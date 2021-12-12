@@ -42,11 +42,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':library')
-
-    implementation kotlin.language
-    implementation kotlin.coroutines
     implementation kotlin.coroutinesAndroid
-
     implementation androidx.appCompat
     implementation androidx.ktx
     implementation androidx.constraintLayout
@@ -59,8 +55,6 @@ dependencies {
     implementation moxy.moxy
     implementation moxy.androidx
     kapt moxy.compiler
-
-    implementation 'ru.terrakok.cicerone:cicerone:5.1.1'
 
     implementation glide.glide
     kapt glide.compiler
