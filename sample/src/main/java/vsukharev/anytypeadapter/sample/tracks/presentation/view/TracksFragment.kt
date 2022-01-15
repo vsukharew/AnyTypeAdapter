@@ -172,7 +172,7 @@ class TracksFragment : BaseFragment(), TracksView {
         data: List<TracksListItem>,
         state: State<TracksListItem>
     ) {
-        val hasMore = state !is State.AllData || state is State.PaginationError || state is State.NewPageLoading
+        val hasMore = state is State.Data || state is State.PaginationError || state is State.NewPageLoading
         scrollListener.apply {
             isLoading = false
             this.hasMore = hasMore
