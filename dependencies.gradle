@@ -6,7 +6,7 @@ ext {
             library          : [
                     publishGroupId   : 'io.github.vsukharew',
                     publishArtifactId: 'anytypeadapter',
-                    versionName      : "2.0.0",
+                    versionName      : "2.1.0",
                     versionCode      : 1,
             ],
             sample           : [
