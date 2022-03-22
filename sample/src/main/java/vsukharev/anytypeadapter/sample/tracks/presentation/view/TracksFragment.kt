@@ -40,6 +40,7 @@ import javax.inject.Inject
  * Fragment showing the list of tracks
  */
 @ExperimentalCoroutinesApi
+@FlowPreview
 class TracksFragment : BaseFragment(), TracksView {
 
     private val anyTypeAdapter = AnyTypeAdapter()
@@ -74,7 +75,6 @@ class TracksFragment : BaseFragment(), TracksView {
         super.onCreate(savedInstanceState)
     }
 
-    @FlowPreview
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {

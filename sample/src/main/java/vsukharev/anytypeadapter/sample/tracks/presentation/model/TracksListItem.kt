@@ -5,4 +5,6 @@ import vsukharev.anytypeadapter.sample.tracks.domain.model.Track
 sealed class TracksListItem {
     data class TrackUi(val track: Track) : TracksListItem()
     data class Header(val value: String) : TracksListItem()
+    object Retry : TracksListItem()
+    object Progress : TracksListItem()
 }
