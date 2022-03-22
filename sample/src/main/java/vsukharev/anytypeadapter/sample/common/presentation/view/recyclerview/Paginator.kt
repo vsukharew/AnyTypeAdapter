@@ -1,7 +1,7 @@
 package vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import moxy.viewstate.strategy.alias.AddToEndSingle
@@ -14,7 +14,7 @@ import vsukharev.anytypeadapter.sample.common.presentation.model.emptyPage
  * @param T - raw data that is gotten from some data source
  * @param R - common type for all the data that is displayed in the UI e.g. data items themselves, progress bar, ad blocks
  */
-class Paginator<T, R> : CoroutineScope by MainScope() {
+class Paginator<T, R> : CoroutineScope by CoroutineScope(Dispatchers.IO) {
 
     private var previousState: State<T, R>? = null
     private var currentState: State<T, R> =
