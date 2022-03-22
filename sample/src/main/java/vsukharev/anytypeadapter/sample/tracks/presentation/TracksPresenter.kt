@@ -54,10 +54,12 @@ class TracksPresenter @Inject constructor(
                         hideSearchButton()
                     }
                     is State.NewPageLoading -> {
-                        showData(it.data, it)
+                        val data = it.data + TracksListItem.Progress
+                        showData(data, it)
                     }
                     is State.PaginationError -> {
-                        showData(it.data, it)
+                        val data = it.data + TracksListItem.Retry
+                        showData(data, it)
                     }
                     is State.AllData -> {
                         hideRefreshProgress()
