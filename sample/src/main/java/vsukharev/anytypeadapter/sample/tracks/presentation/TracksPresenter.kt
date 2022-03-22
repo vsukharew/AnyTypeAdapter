@@ -1,11 +1,12 @@
 package vsukharev.anytypeadapter.sample.tracks.presentation
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import moxy.InjectViewState
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result
-import vsukharev.anytypeadapter.sample.common.errorhandling.map
 import vsukharev.anytypeadapter.sample.common.extension.EMPTY
+import vsukharev.anytypeadapter.sample.common.presentation.model.Page
 import vsukharev.anytypeadapter.sample.common.presentation.presenter.BasePresenter
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator.*
@@ -16,18 +17,18 @@ import vsukharev.anytypeadapter.sample.tracks.presentation.model.TracksListItem
 import vsukharev.anytypeadapter.sample.tracks.presentation.view.TracksView
 import javax.inject.Inject
 
+@ExperimentalCoroutinesApi
 @InjectViewState
 class TracksPresenter @Inject constructor(
     private val tracksInteractor: TracksInteractor
 ) : BasePresenter<TracksView>() {
-
     private var lastHeader = String.EMPTY
     private var lastHeaderDuringSearch = String.EMPTY
 
-    private val paginator = Paginator<TracksListItem>().apply {
-        render = {
+    private val paginator = Paginator<Track, TracksListItem>().apply {
+        render = { state ->
             with(viewState) {
-                when (it) {
+                when (state) {
                     is State.Empty -> {
                         hideRefreshProgress()
                         hideProgress()
@@ -48,45 +49,41 @@ class TracksPresenter @Inject constructor(
                         hideData()
                         enableRefreshProgress()
                         showSearchButton()
-                        showEmptyError(it.error)
+                        showEmptyError(state.error)
                     }
                     is State.Refreshing -> {
                         hideSearchButton()
                     }
                     is State.NewPageLoading -> {
-                        val data = it.data + TracksListItem.Progress
-                        showData(data, it)
+                        val data = with(state) {
+                            searchResults.uiData.ifEmpty { data.uiData }
+                        } + TracksListItem.Progress
+                        showData(data, state)
                     }
                     is State.PaginationError -> {
-                        val data = it.data + TracksListItem.Retry
-                        showData(data, it)
+                        val data = state.data.uiData + TracksListItem.Retry
+                        showData(data, state)
                     }
                     is State.AllData -> {
                         hideRefreshProgress()
                         hideProgress()
                         enableRefreshProgress()
-                        val data = with(it) {
-                            if (searchResults.isNotEmpty()) {
-                                searchResults
-                            } else {
-                                data
-                            }
+                        val data = with(state) {
+                            searchResults.uiData.ifEmpty { data.uiData }
                         }
-                        showData(data, it)
+                        showData(data, state)
                     }
                     is State.Data -> {
                         enableRefreshProgress()
                         hideRefreshProgress()
                         hideProgress()
                         showSearchButton()
-                        val data = with(it) {
-                            if (searchResults.isNotEmpty()) {
-                                searchResults
-                            } else {
-                                data
+                        val data = with(state) {
+                            searchResults.uiData.ifEmpty {
+                                data.uiData
                             }
                         }
-                        showData(data, it)
+                        showData(data, state)
                     }
                 }
             }
@@ -133,9 +130,13 @@ class TracksPresenter @Inject constructor(
             page * PAGE_SIZE,
             PAGE_SIZE,
             searchString
-        ).map { tracks -> insertHeadersBetweenTracks(tracks, searchString) }
+        )
         val action = when (result) {
-            is Result.Success -> Action.NewPage(page, result.data, searchString)
+            is Result.Success -> {
+                val uiData = insertHeadersBetweenTracks(result.data, searchString)
+                val data = Page(result.data, uiData)
+                Action.NewPage(page, data, searchString)
+            }
             is Result.Failure -> Action.PageLoadingError(result.e)
         }
         paginator.proceed(action)
