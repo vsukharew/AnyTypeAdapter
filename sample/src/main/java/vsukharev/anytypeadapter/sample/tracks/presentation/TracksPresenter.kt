@@ -1,6 +1,5 @@
 package vsukharev.anytypeadapter.sample.tracks.presentation
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -100,7 +99,6 @@ class TracksPresenter @Inject constructor(
             paginator.sideEffects.consumeAsFlow().collectLatest { effect ->
                 when (effect) {
                     is SideEffect.LoadPage -> {
-                        Log.d("Channels", "receive: presenter - effect: $effect")
                         loadNewPage(effect.pageNumber, effect.searchString)
                     }
                     is SideEffect.ErrorEvent -> {
