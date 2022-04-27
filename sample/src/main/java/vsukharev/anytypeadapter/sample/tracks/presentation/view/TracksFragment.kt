@@ -8,10 +8,8 @@ import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
@@ -29,6 +27,7 @@ import vsukharev.anytypeadapter.sample.common.presentation.delegate.PartiallyCol
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator.*
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.RecyclerViewScrollListener
 import vsukharev.anytypeadapter.sample.databinding.FragmentTracksBinding
+import vsukharev.anytypeadapter.sample.tracks.domain.model.Track
 import vsukharev.anytypeadapter.sample.tracks.presentation.TracksPresenter
 import vsukharev.anytypeadapter.sample.tracks.presentation.model.TracksListItem
 import vsukharev.anytypeadapter.sample.tracks.presentation.view.adapter.EmptyTracksListDelegate
@@ -52,7 +51,6 @@ class TracksFragment : BaseFragment(), TracksView {
         android.R.color.white
     )
     private val paginationDelegate = PaginationDelegate { presenter.loadMore() }
-    private val paginationItem = PaginationAdapterItem(false)
 
     private val scrollListener: RecyclerViewScrollListener by lazy {
         RecyclerViewScrollListener { presenter.loadMore() }
@@ -107,7 +105,7 @@ class TracksFragment : BaseFragment(), TracksView {
             searchQueryFlow
                 .dropFirst()
                 .debounce(500L)
-                .collect { presenter.search(it) }
+                .collect(presenter::search)
         }
     }
 
@@ -170,9 +168,9 @@ class TracksFragment : BaseFragment(), TracksView {
 
     override fun showData(
         data: List<TracksListItem>,
-        state: State<TracksListItem>
+        state: State<Track, TracksListItem>
     ) {
-        val hasMore = state is State.Data || state is State.PaginationError || state is State.NewPageLoading
+        val hasMore = state is State.Data || state is State.NewPageLoading
         scrollListener.apply {
             isLoading = false
             this.hasMore = hasMore
@@ -183,12 +181,13 @@ class TracksFragment : BaseFragment(), TracksView {
                     when (it) {
                         is TracksListItem.Header -> add(it.value, headerDelegate)
                         is TracksListItem.TrackUi -> add(it.track, tracksDelegate)
+                        TracksListItem.Progress -> add(
+                            PaginationAdapterItem(false),
+                            paginationDelegate
+                        )
+                        TracksListItem.Retry -> add(PaginationAdapterItem(true), paginationDelegate)
                     }
                 }
-                addIf(
-                    paginationItem.copy(isError = state is State.PaginationError),
-                    paginationDelegate
-                ) { hasMore }
             }
             .build()
             .let { anyTypeAdapter.setCollection(it) }

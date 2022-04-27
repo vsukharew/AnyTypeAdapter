@@ -1,18 +1,19 @@
 package vsukharev.anytypeadapter.sample.common.extension
 
+import vsukharev.anytypeadapter.sample.common.presentation.model.Page
 import vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview.Paginator
 
 /**
  * these functions convert one state to the other
  */
 
-fun <T> Paginator.State<T>.toEmpty(
+fun <T, R> Paginator.State<T, R>.toEmpty(
     currentPage: Int = this.currentPage,
     currentSearchPage: Int = this.currentSearchPage,
-    data: List<T> = this.data,
-    searchResults: List<T> = this.searchResults,
+    data: Page<T, R> = this.data,
+    searchResults: Page<T, R> = this.searchResults,
     searchString: String? = this.searchString,
-): Paginator.State.Empty<T> =
+): Paginator.State.Empty<T, R> =
     Paginator.State.Empty(
         currentPage,
         currentSearchPage,
@@ -21,13 +22,13 @@ fun <T> Paginator.State<T>.toEmpty(
         searchString
     )
 
-fun <T> Paginator.State<T>.toEmptyProgress(
+fun <T, R> Paginator.State<T, R>.toEmptyProgress(
     currentPage: Int = this.currentPage,
     currentSearchPage: Int = this.currentSearchPage,
-    data: List<T> = this.data,
-    searchResults: List<T> = this.searchResults,
+    data: Page<T, R> = this.data,
+    searchResults: Page<T, R> = this.searchResults,
     searchString: String? = this.searchString,
-): Paginator.State.EmptyProgress<T> =
+): Paginator.State.EmptyProgress<T, R> =
     Paginator.State.EmptyProgress(
         currentPage,
         currentSearchPage,
@@ -36,13 +37,13 @@ fun <T> Paginator.State<T>.toEmptyProgress(
         searchString
     )
 
-fun <T> Paginator.State<T>.toRefreshing(
+fun <T, R> Paginator.State<T, R>.toRefreshing(
     currentPage: Int = this.currentPage,
     currentSearchPage: Int = this.currentSearchPage,
-    data: List<T> = this.data,
-    searchResults: List<T> = this.searchResults,
+    data: Page<T, R> = this.data,
+    searchResults: Page<T, R> = this.searchResults,
     searchString: String? = this.searchString,
-): Paginator.State.Refreshing<T> =
+): Paginator.State.Refreshing<T, R> =
     Paginator.State.Refreshing(
         currentPage,
         currentSearchPage,
@@ -51,13 +52,13 @@ fun <T> Paginator.State<T>.toRefreshing(
         searchString
     )
 
-fun <T> Paginator.State<T>.toNewPageLoading(
+fun <T, R> Paginator.State<T, R>.toNewPageLoading(
     currentPage: Int = this.currentPage,
     currentSearchPage: Int = this.currentSearchPage,
-    data: List<T> = this.data,
-    searchResults: List<T> = this.searchResults,
+    data: Page<T, R> = this.data,
+    searchResults: Page<T, R> = this.searchResults,
     searchString: String? = this.searchString,
-): Paginator.State.NewPageLoading<T> =
+): Paginator.State.NewPageLoading<T, R> =
     Paginator.State.NewPageLoading(
         currentPage,
         currentSearchPage,
@@ -66,13 +67,13 @@ fun <T> Paginator.State<T>.toNewPageLoading(
         searchString
     )
 
-fun <T> Paginator.State<T>.toData(
+fun <T, R> Paginator.State<T, R>.toData(
     currentPage: Int = this.currentPage,
     currentSearchPage: Int = this.currentSearchPage,
-    data: List<T> = this.data,
-    searchResults: List<T> = this.searchResults,
+    data: Page<T, R> = this.data,
+    searchResults: Page<T, R> = this.searchResults,
     searchString: String? = this.searchString,
-): Paginator.State.Data<T> =
+): Paginator.State.Data<T, R> =
     Paginator.State.Data(
         currentPage,
         currentSearchPage,
@@ -81,13 +82,13 @@ fun <T> Paginator.State<T>.toData(
         searchString
     )
 
-fun <T> Paginator.State<T>.toAllData(
+fun <T, R> Paginator.State<T, R>.toAllData(
     currentPage: Int = this.currentPage,
     currentSearchPage: Int = this.currentSearchPage,
-    data: List<T> = this.data,
-    searchResults: List<T> = this.searchResults,
+    data: Page<T, R> = this.data,
+    searchResults: Page<T, R> = this.searchResults,
     searchString: String? = this.searchString,
-): Paginator.State.AllData<T> =
+): Paginator.State.AllData<T, R> =
     Paginator.State.AllData(
         currentPage,
         currentSearchPage,
@@ -96,14 +97,14 @@ fun <T> Paginator.State<T>.toAllData(
         searchString
     )
 
-fun <T> Paginator.State<T>.toEmptyError(
+fun <T, R> Paginator.State<T, R>.toEmptyError(
     error: Throwable,
     currentPage: Int = this.currentPage,
     currentSearchPage: Int = this.currentSearchPage,
-    data: List<T> = this.data,
-    searchResults: List<T> = this.searchResults,
+    data: Page<T, R> = this.data,
+    searchResults: Page<T, R> = this.searchResults,
     searchString: String? = this.searchString,
-): Paginator.State.EmptyError<T> =
+): Paginator.State.EmptyError<T, R> =
     Paginator.State.EmptyError(
         error,
         currentPage,
@@ -113,13 +114,13 @@ fun <T> Paginator.State<T>.toEmptyError(
         searchString
     )
 
-fun <T> Paginator.State<T>.toPaginationError(
+fun <T, R> Paginator.State<T, R>.toPaginationError(
     currentPage: Int = this.currentPage,
     currentSearchPage: Int = this.currentSearchPage,
-    data: List<T> = this.data,
-    searchResults: List<T> = this.searchResults,
+    data: Page<T, R> = this.data,
+    searchResults: Page<T, R> = this.searchResults,
     searchString: String? = this.searchString,
-): Paginator.State.PaginationError<T> =
+): Paginator.State.PaginationError<T, R> =
     Paginator.State.PaginationError(
         currentPage,
         currentSearchPage,
