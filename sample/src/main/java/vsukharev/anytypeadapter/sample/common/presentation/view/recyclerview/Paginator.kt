@@ -118,8 +118,20 @@ class Paginator<T, R> : CoroutineScope by CoroutineScope(Dispatchers.IO) {
                 is State.AllData -> reduceTextChangedAllData(sideEffectListener, action, this)
                 is State.EmptyError -> reduceTextChangedEmptyError(sideEffectListener, action, this)
                 is State.Empty -> reduceTextChangedEmpty(sideEffectListener, action, this)
+                is State.EmptyProgress -> reduceTextChangedEmptyProgress(sideEffectListener, action, this)
                 else -> state
             }
+        }
+    }
+
+    private fun reduceTextChangedEmptyProgress(
+        sideEffectListener: (SideEffect) -> Unit,
+        action: Action.TextChanged,
+        state: State.EmptyProgress<T, R>
+    ): State<T, R> {
+        return state.run {
+            sideEffectListener.invoke(SideEffect.LoadPage(0, action.text))
+            toEmptyProgress(searchString = action.text)
         }
     }
 

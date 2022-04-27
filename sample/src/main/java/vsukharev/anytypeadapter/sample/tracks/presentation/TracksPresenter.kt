@@ -1,8 +1,12 @@
 package vsukharev.anytypeadapter.sample.tracks.presentation
 
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import moxy.InjectViewState
 import vsukharev.anytypeadapter.sample.common.errorhandling.Result
 import vsukharev.anytypeadapter.sample.common.extension.EMPTY
@@ -92,10 +96,11 @@ class TracksPresenter @Inject constructor(
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-        launch {
-            paginator.sideEffects.consumeEach { effect ->
+        launch(Dispatchers.IO) {
+            paginator.sideEffects.consumeAsFlow().collectLatest { effect ->
                 when (effect) {
                     is SideEffect.LoadPage -> {
+                        Log.d("Channels", "receive: presenter - effect: $effect")
                         loadNewPage(effect.pageNumber, effect.searchString)
                     }
                     is SideEffect.ErrorEvent -> {
@@ -139,7 +144,9 @@ class TracksPresenter @Inject constructor(
             }
             is Result.Failure -> Action.PageLoadingError(result.e)
         }
-        paginator.proceed(action)
+        withContext(Dispatchers.Main) {
+            paginator.proceed(action)
+        }
     }
 
     private fun insertHeadersBetweenTracks(

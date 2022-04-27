@@ -8,10 +8,8 @@ import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import vsukharev.anytypeadapter.adapter.AnyTypeAdapter
@@ -108,7 +106,7 @@ class TracksFragment : BaseFragment(), TracksView {
             searchQueryFlow
                 .dropFirst()
                 .debounce(500L)
-                .collect { presenter.search(it) }
+                .collect(presenter::search)
         }
     }
 
@@ -184,7 +182,10 @@ class TracksFragment : BaseFragment(), TracksView {
                     when (it) {
                         is TracksListItem.Header -> add(it.value, headerDelegate)
                         is TracksListItem.TrackUi -> add(it.track, tracksDelegate)
-                        TracksListItem.Progress -> add(PaginationAdapterItem(false), paginationDelegate)
+                        TracksListItem.Progress -> add(
+                            PaginationAdapterItem(false),
+                            paginationDelegate
+                        )
                         TracksListItem.Retry -> add(PaginationAdapterItem(true), paginationDelegate)
                     }
                 }
