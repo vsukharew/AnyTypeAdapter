@@ -51,7 +51,6 @@ class TracksFragment : BaseFragment(), TracksView {
         android.R.color.white
     )
     private val paginationDelegate = PaginationDelegate { presenter.loadMore() }
-    private val paginationItem = PaginationAdapterItem(false)
 
     private val scrollListener: RecyclerViewScrollListener by lazy {
         RecyclerViewScrollListener { presenter.loadMore() }
