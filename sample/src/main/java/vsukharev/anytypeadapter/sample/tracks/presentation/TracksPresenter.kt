@@ -51,7 +51,9 @@ class TracksPresenter @Inject constructor(
                         hideProgress()
                         hideData()
                         enableRefreshProgress()
-                        showSearchButton()
+                        state.searchString?.let {
+                            showSearchButton()
+                        } ?: hideSearchButton()
                         showEmptyError(state.error)
                     }
                     is State.Refreshing -> {
