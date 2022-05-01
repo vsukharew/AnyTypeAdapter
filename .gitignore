@@ -10,6 +10,7 @@
 /.idea/tasks.xml
 /.idea/gradle.xml
 /.idea/dictionaries
+/.idea/deploymentTargetDropDown.xml
 vcs.xml
 .DS_Store
 /build
