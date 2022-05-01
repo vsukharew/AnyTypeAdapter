@@ -15,7 +15,7 @@ ext {
     ]
     versions = [
             kotlin            : [
-                    'language'  : '1.6.0',
+                    'language'  : '1.6.21',
                     'coroutines': '1.5.2'
             ],
             androidx          : [
