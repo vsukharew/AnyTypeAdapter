@@ -11,6 +11,7 @@
 /.idea/gradle.xml
 /.idea/dictionaries
 /.idea/deploymentTargetDropDown.xml
+/.idea/jarRepositories.xml
 vcs.xml
 .DS_Store
 /build
