@@ -5,20 +5,17 @@ apply from: "../scripts/publishing.gradle"
 
 android {
     compileSdkVersion build.compileSdkVersion
-    buildToolsVersion build.buildToolsVersion
 
     defaultConfig {
         minSdkVersion build.minSdkVersion
-        targetSdkVersion build.targetSdkVersion
-        versionCode build.library.versionCode
-        versionName build.library.versionName
+        targetSdkVersion build.compileSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures {
         viewBinding true
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
     buildTypes {
         release {
