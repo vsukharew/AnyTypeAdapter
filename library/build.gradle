@@ -32,14 +32,10 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation kotlin.coroutines
-    implementation androidx.appCompat
-    implementation androidx.ktx
-    implementation androidx.constraintLayout
-    implementation androidx.recyclerView
-    testImplementation junit5
-    testImplementation mockito
-    testImplementation kotlin.coroutinesUnitTest
-    androidTestImplementation androidx.testRunner
-    androidTestImplementation androidx.espresso
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}"
+    implementation "androidx.core:core-ktx:${versions.androidx.ktx}"
+    implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerView}"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:${versions.junit5}"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:${versions.mockito}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}"
 }
