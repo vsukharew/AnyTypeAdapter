@@ -15,7 +15,7 @@ android {
         targetSdkVersion build.compileSdkVersion
         versionCode build.sample.versionCode
         versionName build.sample.versionName
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -26,6 +26,10 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+
+    kotlin.sourceSets.all {
+        languageSettings.optIn("kotlin.RequiresOptIn")
     }
 
     buildTypes {

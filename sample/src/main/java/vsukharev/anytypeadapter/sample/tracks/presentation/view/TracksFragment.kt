@@ -39,7 +39,7 @@ import javax.inject.Inject
  * Fragment showing the list of tracks
  */
 @ExperimentalCoroutinesApi
-@FlowPreview
+@OptIn(FlowPreview::class)
 class TracksFragment : BaseFragment(), TracksView {
 
     private val anyTypeAdapter = AnyTypeAdapter()
