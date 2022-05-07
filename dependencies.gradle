@@ -20,7 +20,7 @@ ext {
             ],
             androidx          : [
                     'cardview'          : '1.0.0',
-                    'recyclerView'      : '1.1.0',
+                    'recyclerView'      : '1.2.0',
                     'material'          : '1.5.0',
                     'constraintLayout'  : '2.1.3',
                     'appCompat'         : '1.4.1',
