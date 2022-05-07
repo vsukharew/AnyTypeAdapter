@@ -40,25 +40,25 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':library')
-    implementation kotlin.coroutinesAndroid
-    implementation androidx.appCompat
-    implementation androidx.ktx
-    implementation androidx.constraintLayout
-    implementation androidx.material
-    implementation androidx.swiperefreshlayout
-    implementation androidx.lifecycle
-    androidTestImplementation androidx.testRunner
-    androidTestImplementation androidx.espresso
 
-    implementation moxy.moxy
-    implementation moxy.androidx
-    kapt moxy.compiler
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}"
+    implementation "androidx.appcompat:appcompat:${versions.androidx.appCompat}"
+    implementation "androidx.core:core-ktx:${versions.androidx.ktx}"
+    implementation "androidx.constraintlayout:constraintlayout:${versions.androidx.constraintLayout}"
+    implementation "com.google.android.material:material:${versions.androidx.material}"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:${versions.androidx.swiperefreshlayout}"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${versions.androidx.lifecycle}"
+    androidTestImplementation "androidx.test:runner:${versions.androidx.testRunner}"
 
-    implementation glide.glide
-    kapt glide.compiler
+    implementation "com.github.moxy-community:moxy:${versions.moxy}"
+    implementation "com.github.moxy-community:moxy-androidx:${versions.moxy}"
+    kapt "com.github.moxy-community:moxy-compiler:${versions.moxy}"
 
-    implementation dagger.dagger
-    kapt dagger.compiler
+    implementation "com.github.bumptech.glide:glide:${versions.glide}"
+    kapt "com.github.bumptech.glide:compiler:${versions.glide}"
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
+    implementation "com.google.dagger:dagger:${versions.dagger}"
+    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
+
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:${versions.leakcanary}"
 }
