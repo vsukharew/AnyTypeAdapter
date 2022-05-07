@@ -8,6 +8,7 @@ import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import moxy.presenter.InjectPresenter
@@ -77,7 +78,7 @@ class TracksFragment : BaseFragment(), TracksView {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
             tracksRv.apply {
-                adapter = anyTypeAdapter
+                adapter = anyTypeAdapter.also { it.stateRestorationPolicy = PREVENT_WHEN_EMPTY }
                 addOnScrollListener(scrollListener)
             }
             tracksToolbar.apply {
