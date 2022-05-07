@@ -1,29 +1,33 @@
 package vsukharev.anytypeadapter.sample.common.presentation.view.recyclerview
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import vsukharev.anytypeadapter.sample.common.extension.*
+import vsukharev.anytypeadapter.sample.common.presentation.model.Page
+import vsukharev.anytypeadapter.sample.common.presentation.model.emptyPage
 
 /**
  * Class responsible for loading and showing data by pages
+ * @param T - raw data that is gotten from some data source
+ * @param R - common type for all the data that is displayed in the UI e.g. data items themselves, progress bar, ad blocks
  */
-class Paginator<T> : CoroutineScope by MainScope() {
+class Paginator<T, R> : CoroutineScope by CoroutineScope(Dispatchers.IO) {
 
-    private var previousState: State<T>? = null
-    private var currentState: State<T> =
-        State.EmptyProgress(START_PAGE, START_PAGE, emptyList(), emptyList())
+    private var previousState: State<T, R>? = null
+    private var currentState: State<T, R> =
+        State.EmptyProgress(START_PAGE, START_PAGE, emptyPage(), emptyPage())
 
-    var render: (State<T>) -> Unit = {}
+    var render: (State<T, R>) -> Unit = {}
         set(value) {
             field = value
             value.invoke(currentState)
         }
     var sideEffects = Channel<SideEffect>()
 
-    fun proceed(action: Action<T>) {
+    fun proceed(action: Action<T, R>) {
         val newState = reduce(action, currentState) {
             launch { sideEffects.send(it) }
         }
@@ -36,23 +40,23 @@ class Paginator<T> : CoroutineScope by MainScope() {
 
     fun cancel() = sideEffects.cancel()
 
-    private fun <T> reduce(
-        action: Action<T>,
-        state: State<T>,
+    private fun reduce(
+        action: Action<T, R>,
+        state: State<T, R>,
         sideEffectListener: (SideEffect) -> Unit
-    ): State<T> = when (action) {
+    ): State<T, R> = when (action) {
         Action.Refresh -> reduceRefreshAction(sideEffectListener, state)
         Action.LoadMore -> reduceLoadMoreAction(sideEffectListener, state)
-        is Action.NewPage<T> -> reduceNewPageAction(action, state)
+        is Action.NewPage<T, R> -> reduceNewPageAction(action, state)
         is Action.PageLoadingError ->
             reducePageLoadingErrorAction(sideEffectListener, action, state)
         is Action.TextChanged -> reduceTextChangedAction(sideEffectListener, action, state)
     }
 
-    private fun <T> reduceRefreshAction(
+    private fun reduceRefreshAction(
         sideEffectListener: (SideEffect) -> Unit,
-        state: State<T>
-    ): State<T> {
+        state: State<T, R>
+    ): State<T, R> {
         sideEffectListener.invoke(SideEffect.LoadPage(START_PAGE, state.searchString))
         return state.run {
             when (this) {
@@ -67,16 +71,20 @@ class Paginator<T> : CoroutineScope by MainScope() {
         }
     }
 
-    private fun <T> reduceLoadMoreAction(
+    private fun reduceLoadMoreAction(
         sideEffectListener: (SideEffect) -> Unit,
-        state: State<T>
-    ): State<T> {
+        state: State<T, R>
+    ): State<T, R> {
         return state.run {
             when (this) {
                 is State.Data,
                 is State.PaginationError -> {
+                    val pageNumber = when (searchString) {
+                        null -> currentPage + 1
+                        else -> currentSearchPage + 1
+                    }
                     sideEffectListener.invoke(
-                        SideEffect.LoadPage(currentPage + 1, searchString)
+                        SideEffect.LoadPage(pageNumber, searchString)
                     )
                     toNewPageLoading()
                 }
@@ -85,10 +93,10 @@ class Paginator<T> : CoroutineScope by MainScope() {
         }
     }
 
-    private fun <T> reduceNewPageAction(
-        action: Action.NewPage<T>,
-        state: State<T>
-    ): State<T> {
+    private fun reduceNewPageAction(
+        action: Action.NewPage<T, R>,
+        state: State<T, R>
+    ): State<T, R> {
         return state.run {
             when (this) {
                 is State.Refreshing -> reduceNewPageRefreshing(action, this)
@@ -99,38 +107,50 @@ class Paginator<T> : CoroutineScope by MainScope() {
         }
     }
 
-    private fun <T> reduceTextChangedAction(
+    private fun reduceTextChangedAction(
         sideEffectListener: (SideEffect) -> Unit,
         action: Action.TextChanged,
-        state: State<T>
-    ): State<T> {
+        state: State<T, R>
+    ): State<T, R> {
         return state.run {
             when (this) {
                 is State.Data -> reduceTextChangedData(sideEffectListener, action, this)
                 is State.AllData -> reduceTextChangedAllData(sideEffectListener, action, this)
                 is State.EmptyError -> reduceTextChangedEmptyError(sideEffectListener, action, this)
                 is State.Empty -> reduceTextChangedEmpty(sideEffectListener, action, this)
+                is State.EmptyProgress -> reduceTextChangedEmptyProgress(sideEffectListener, action, this)
                 else -> state
             }
         }
     }
 
-    private fun <T> reduceNewPageRefreshing(
-        action: Action.NewPage<T>,
-        state: State.Refreshing<T>
-    ): State<T> {
+    private fun reduceTextChangedEmptyProgress(
+        sideEffectListener: (SideEffect) -> Unit,
+        action: Action.TextChanged,
+        state: State.EmptyProgress<T, R>
+    ): State<T, R> {
+        return state.run {
+            sideEffectListener.invoke(SideEffect.LoadPage(0, action.text))
+            toEmptyProgress(searchString = action.text)
+        }
+    }
+
+    private fun reduceNewPageRefreshing(
+        action: Action.NewPage<T, R>,
+        state: State.Refreshing<T, R>
+    ): State<T, R> {
         return reduceNewPageEmptyProgress(action, state.toEmptyProgress())
     }
 
-    private fun <T> reduceNewPageEmptyProgress(
-        action: Action.NewPage<T>,
-        state: State.EmptyProgress<T>
-    ): State<T> {
+    private fun reduceNewPageEmptyProgress(
+        action: Action.NewPage<T, R>,
+        state: State.EmptyProgress<T, R>
+    ): State<T, R> {
         return state.run {
             when (action.searchString) {
                 null -> {
                     when {
-                        action.data.isEmpty() -> {
+                        action.data.rawData.isEmpty() -> {
                             toEmpty()
                         }
                         else -> {
@@ -139,22 +159,15 @@ class Paginator<T> : CoroutineScope by MainScope() {
                     }
                 }
                 else -> {
-                    val currentSearchPage = action.pageNumber + 1
                     when {
-                        action.data.isEmpty() && action.pageNumber == 0 -> {
+                        action.data.rawData.isEmpty() && action.pageNumber == 0 -> {
                             toEmpty()
                         }
-                        action.data.size < PAGE_SIZE -> {
-                            toAllData(
-                                currentSearchPage = currentSearchPage,
-                                searchResults = action.data
-                            )
+                        action.data.rawData.size < PAGE_SIZE -> {
+                            toAllData(searchResults = action.data)
                         }
                         else -> {
-                            toData(
-                                currentSearchPage = currentSearchPage,
-                                searchResults = action.data
-                            )
+                            toData(searchResults = action.data)
                         }
                     }
                 }
@@ -162,37 +175,42 @@ class Paginator<T> : CoroutineScope by MainScope() {
         }
     }
 
-    private fun <T> reduceNewPageNewPageLoading(
-        action: Action.NewPage<T>,
-        state: State.NewPageLoading<T>
-    ): State<T> {
+    private fun reduceNewPageNewPageLoading(
+        action: Action.NewPage<T, R>,
+        state: State.NewPageLoading<T, R>
+    ): State<T, R> {
         return state.run {
+            val currentPage = action.pageNumber + 1
             when (searchString) {
                 null -> {
-                    val newData = data + action.data
-                    if (action.data.size < PAGE_SIZE) {
-                        toAllData(data = newData)
+                    val newRawData = data.rawData + action.data.rawData
+                    val newUiData = data.uiData + action.data.uiData
+                    val newData = data.copy(newRawData, newUiData)
+                    if (action.data.rawData.size < PAGE_SIZE) {
+                        toAllData(currentPage = currentPage, data = newData)
                     } else {
-                        toData(currentPage = action.pageNumber, data = newData)
+                        toData(currentPage = currentPage, data = newData)
                     }
                 }
                 else -> {
-                    val currentSearchPage = action.pageNumber + 1
-                    val newData = searchResults + action.data
-                    toData(
-                        currentSearchPage = currentSearchPage,
-                        searchResults = newData
-                    )
+                    val newRawData = searchResults.rawData + action.data.rawData
+                    val newUiData = searchResults.uiData + action.data.uiData
+                    val newData = searchResults.copy(newRawData, newUiData)
+                    if (action.data.rawData.size < PAGE_SIZE) {
+                        toAllData(currentSearchPage = currentPage, searchResults = newData)
+                    } else {
+                        toData(currentSearchPage = currentPage, searchResults = newData)
+                    }
                 }
             }
         }
     }
 
-    private fun <T> reducePageLoadingErrorAction(
+    private fun reducePageLoadingErrorAction(
         sideEffectListener: (SideEffect) -> Unit,
         action: Action.PageLoadingError,
-        state: State<T>
-    ): State<T> {
+        state: State<T, R>
+    ): State<T, R> {
         return state.run {
             when (this) {
                 is State.EmptyProgress,
@@ -211,34 +229,30 @@ class Paginator<T> : CoroutineScope by MainScope() {
         }
     }
 
-    private fun <T> reduceTextChangedEmptyError(
+    private fun reduceTextChangedEmptyError(
         sideEffectListener: (SideEffect) -> Unit,
         action: Action.TextChanged,
-        state: State.EmptyError<T>
-    ): State<T> {
+        state: State.EmptyError<T, R>
+    ): State<T, R> {
         return reduceTextChangedEmpty(sideEffectListener, action, state.toEmpty())
     }
 
-    private fun <T> reduceTextChangedEmpty(
+    private fun reduceTextChangedEmpty(
         sideEffectListener: (SideEffect) -> Unit,
         action: Action.TextChanged,
-        state: State.Empty<T>
-    ): State<T> {
+        state: State.Empty<T, R>
+    ): State<T, R> {
         return state.run {
             if (action.text.isEmpty()) {
                 when {
-                    data.isEmpty() -> toEmpty(
+                    data.rawData.isEmpty() -> toEmpty(
                         currentPage = START_PAGE,
                         currentSearchPage = START_PAGE,
-                        searchResults = emptyList(),
+                        searchResults = emptyPage(),
                         searchString = null
                     )
                     else -> {
-                        if (previousState is State.Data) {
-                            toData(searchString = null)
-                        } else {
-                            toAllData(searchString = null)
-                        }
+                        toData(searchString = null)
                     }
                 }
             } else {
@@ -253,17 +267,17 @@ class Paginator<T> : CoroutineScope by MainScope() {
         }
     }
 
-    private fun <T> reduceTextChangedData(
+    private fun reduceTextChangedData(
         sideEffectListener: (SideEffect) -> Unit,
         action: Action.TextChanged,
-        state: State.Data<T>
-    ): State<T> {
+        state: State.Data<T, R>
+    ): State<T, R> {
         return state.run {
             when (action.text) {
                 String.EMPTY -> {
                     toData(
                         currentSearchPage = START_PAGE,
-                        searchResults = emptyList(),
+                        searchResults = emptyPage(),
                         searchString = null
                     )
                 }
@@ -280,19 +294,27 @@ class Paginator<T> : CoroutineScope by MainScope() {
         }
     }
 
-    private fun <T> reduceTextChangedAllData(
+    private fun reduceTextChangedAllData(
         sideEffectListener: (SideEffect) -> Unit,
         action: Action.TextChanged,
-        state: State.AllData<T>
-    ): State<T> {
+        state: State.AllData<T, R>
+    ): State<T, R> {
         return state.run {
             when (action.text) {
                 String.EMPTY -> {
-                    toAllData(
-                        currentSearchPage = START_PAGE,
-                        searchResults = emptyList(),
-                        searchString = null
-                    )
+                    if (data.rawData.size % PAGE_SIZE == 0 && state.currentPage > 0) {
+                        toAllData(
+                            currentSearchPage = START_PAGE,
+                            searchResults = emptyPage(),
+                            searchString = null
+                        )
+                    } else {
+                        toData(
+                            currentSearchPage = START_PAGE,
+                            searchResults = emptyPage(),
+                            searchString = null
+                        )
+                    }
                 }
                 else -> {
                     sideEffectListener.invoke(
@@ -307,90 +329,90 @@ class Paginator<T> : CoroutineScope by MainScope() {
         }
     }
 
-    sealed class State<out T> {
+    sealed class State<out T, out R> {
         abstract val currentPage: Int
         abstract val currentSearchPage: Int
-        abstract val data: List<T>
-        abstract val searchResults: List<T>
+        abstract val data: Page<T, R>
+        abstract val searchResults: Page<T, R>
         abstract val searchString: String?
 
-        data class Empty<T>(
+        data class Empty<T, R>(
             override val currentPage: Int,
             override val currentSearchPage: Int,
-            override val data: List<T>,
-            override val searchResults: List<T>,
+            override val data: Page<T, R>,
+            override val searchResults: Page<T, R>,
             override val searchString: String? = null
-        ) : State<T>()
+        ) : State<T, R>()
 
-        class EmptyProgress<T>(
+        class EmptyProgress<T, R>(
             override val currentPage: Int,
             override val currentSearchPage: Int,
-            override val data: List<T>,
-            override val searchResults: List<T>,
+            override val data: Page<T, R>,
+            override val searchResults: Page<T, R>,
             override val searchString: String? = null
-        ) : State<T>()
+        ) : State<T, R>()
 
-        class EmptyError<T>(
+        class EmptyError<T, R>(
             val error: Throwable,
             override val currentPage: Int,
             override val currentSearchPage: Int,
-            override val data: List<T>,
-            override val searchResults: List<T>,
+            override val data: Page<T, R>,
+            override val searchResults: Page<T, R>,
             override val searchString: String? = null
-        ) : State<T>()
+        ) : State<T, R>()
 
-        class PaginationError<T>(
+        class PaginationError<T, R>(
             override val currentPage: Int,
             override val currentSearchPage: Int,
-            override val data: List<T>,
-            override val searchResults: List<T>,
+            override val data: Page<T, R>,
+            override val searchResults: Page<T, R>,
             override val searchString: String? = null
-        ) : State<T>()
+        ) : State<T, R>()
 
-        class Refreshing<T>(
+        class Refreshing<T, R>(
             override val currentPage: Int,
             override val currentSearchPage: Int,
-            override val data: List<T>,
-            override val searchResults: List<T>,
+            override val data: Page<T, R>,
+            override val searchResults: Page<T, R>,
             override val searchString: String? = null
-        ) : State<T>()
+        ) : State<T, R>()
 
-        class NewPageLoading<T>(
+        class NewPageLoading<T, R>(
             override val currentPage: Int,
             override val currentSearchPage: Int,
-            override val data: List<T>,
-            override val searchResults: List<T>,
+            override val data: Page<T, R>,
+            override val searchResults: Page<T, R>,
             override val searchString: String? = null
-        ) : State<T>()
+        ) : State<T, R>()
 
-        class Data<T>(
+        class Data<T, R>(
             override val currentPage: Int,
             override val currentSearchPage: Int,
-            override val data: List<T>,
-            override val searchResults: List<T>,
+            override val data: Page<T, R>,
+            override val searchResults: Page<T, R>,
             override val searchString: String? = null,
-        ) : State<T>()
+        ) : State<T, R>()
 
-        class AllData<T>(
+        class AllData<T, R>(
             override val currentPage: Int,
             override val currentSearchPage: Int,
-            override val data: List<T>,
-            override val searchResults: List<T>,
+            override val data: Page<T, R>,
+            override val searchResults: Page<T, R>,
             override val searchString: String? = null
-        ) : State<T>()
+        ) : State<T, R>()
     }
 
-    sealed class Action<out T> {
-        object Refresh : Action<Nothing>()
-        object LoadMore : Action<Nothing>()
-        data class NewPage<T>(
+    sealed class Action<out T, out R> {
+        object Refresh : Action<Nothing, Nothing>()
+        object LoadMore : Action<Nothing, Nothing>()
+        data class NewPage<T, R>(
             val pageNumber: Int,
-            val data: List<T>,
+            val data: Page<T, R>,
             val searchString: String? = null
-        ) : Action<T>()
+        ) : Action<T, R>()
 
-        data class PageLoadingError(val error: Throwable) : Action<Nothing>()
-        data class TextChanged(val text: String) : Action<Nothing>()
+        data class PageLoadingError(val error: Throwable) : Action<Nothing, Nothing>()
+        data class TextChanged(val text: String) : Action<Nothing, Nothing>()
     }
 
     sealed class SideEffect {
@@ -399,7 +421,7 @@ class Paginator<T> : CoroutineScope by MainScope() {
     }
 
     @AddToEndSingle
-    interface PaginatorView<T> {
+    interface PaginatorView<T, R> {
         fun showProgress()
         fun hideProgress()
         fun hideRefreshProgress()
@@ -411,7 +433,7 @@ class Paginator<T> : CoroutineScope by MainScope() {
         fun hideEmptyError()
         fun showEmptyView()
         fun hideEmptyView()
-        fun showData(data: List<T>, state: State<T>)
+        fun showData(data: List<R>, state: State<T, R>)
         fun hideData()
         fun showPaginationError(error: Throwable)
     }

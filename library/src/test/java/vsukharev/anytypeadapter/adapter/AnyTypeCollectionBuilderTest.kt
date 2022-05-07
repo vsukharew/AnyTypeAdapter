@@ -164,8 +164,8 @@ class AnyTypeCollectionBuilderTest : MockInitializer() {
             .addIfNotEmpty(emptyList(), trackDelegate)
             .addIfNotEmpty(emptyList<Track>(), trackListDelegate)
             .apply {
-                verifyZeroInteractions(trackDelegate)
-                verifyZeroInteractions(trackListDelegate)
+                verifyNoInteractions(trackDelegate)
+                verifyNoInteractions(trackListDelegate)
             }
     }
 

@@ -24,7 +24,7 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
         binding.apply {
             mainBottomNavigationView.apply {
-                setOnNavigationItemSelectedListener {
+                setOnItemSelectedListener {
                     if (selectedItemId != it.itemId) {
                         tabManager.onMenuItemSelected(it.itemId)
                     } else {

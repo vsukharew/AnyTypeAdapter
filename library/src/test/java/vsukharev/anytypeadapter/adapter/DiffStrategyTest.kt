@@ -2,15 +2,13 @@ package vsukharev.anytypeadapter.adapter
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.*
 
 @ExperimentalCoroutinesApi
 class DiffStrategyTest {
-    private val dispatcher = TestCoroutineDispatcher()
     private val diffChannelMock = mock<Channel<suspend () -> Unit?>>().apply {
         stub {
             onBlocking { send(any()) }.doReturn(Unit)
@@ -20,11 +18,13 @@ class DiffStrategyTest {
 
     @Test
     fun `calculateDiff QueueStrategy Verify that diffBlock is sent to channel`() {
-        dispatcher.runBlockingTest {
-            val captor = argumentCaptor<suspend () -> Unit?>()
-            val strategy = DiffStrategy.Queue(diffChannelMock)
-            val diffBlock: suspend () -> Unit? = { }
+        val captor = argumentCaptor<suspend () -> Unit?>()
+        val strategy = DiffStrategy.Queue(diffChannelMock) // run the first coroutine
+        val diffBlock: suspend () -> Unit? = { }
+        runTest {
             strategy.calculateDiff(diffBlock)
+            // run the second one
+            // they're unable to run in parallel inside runTest { ... }
             verify(diffChannelMock).send(captor.capture())
             assert(diffBlock == captor.firstValue)
         }
