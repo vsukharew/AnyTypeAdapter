@@ -31,17 +31,7 @@ android {
 
 dependencies {
     ...
-    implementation 'io.github.vsukharew:anytypeadapter:x.y.z@aar'
-    ...
-}
-```
-You might want to add the library's dependencies. In this case add: 
-```
-dependencies {
-    ...
-    implementation ('io.github.vsukharew:anytypeadapter:x.y.z@aar') {
-        transitive = true
-    }
+    implementation 'io.github.vsukharew:anytypeadapter:x.y.z'
     ...
 }
 ```
@@ -49,7 +39,7 @@ dependencies {
 ## Usage:
 1. Inherit```AnyTypeDelegate``` and ```AnyTypeViewHolder```
 ```kotlin
-class TracksDelegate : AnyTypeDelegate<Track, DelegateTrackBinding, Holder>() {
+class TrackDelegate : AnyTypeDelegate<Track, DelegateTrackBinding, Holder>() {
 
     override fun createViewHolder(itemView: View): Holder = Holder(
         // generated view binding file
@@ -63,9 +53,32 @@ class TracksDelegate : AnyTypeDelegate<Track, DelegateTrackBinding, Holder>() {
     class Holder(
         binding: DelegateTrackBinding
     ) : AnyTypeViewHolder<Track, DelegateTrackBinding>(binding) {
-        // views declaration 
+        // views declaration
 
         override fun bind(item: Track) {
+            // bind data
+        }
+    }
+}
+```
+```kotlin
+class PerformerDelegate : AnyTypeDelegate<Performer, DelegatePerformerBinding, Holder>() {
+
+    override fun createViewHolder(itemView: View): Holder = Holder(
+        // generated view binding file
+        DelegatePerformerBinding.bind(itemView)
+    )
+
+    override fun getItemViewType(): Int = R.layout.delegate_performer
+
+    override fun getItemId(item: Performer): String = item.id
+
+    class Holder(
+        binding: DelegatePerformerBinding
+    ) : AnyTypeViewHolder<Performer, DelegatePerformerBinding>(binding) {
+        // views declaration
+
+        override fun bind(item: Performer) {
             // bind data
         }
     }
@@ -74,17 +87,17 @@ class TracksDelegate : AnyTypeDelegate<Track, DelegateTrackBinding, Holder>() {
 
 In case of not having data to be bound inherit ```NoDataDelegate``` and ```NoDataViewHolder```
 ```kotlin
-class TracksErrorDelegate(
-    private val retryClickListener: () -> Unit
-) : NoDataDelegate<DelegateTracksErrorBinding>() {
+class GoPremiumDelegate(
+    private val subscribeToPremiumListener: () -> Unit
+) : NoDataDelegate<GoPremiumBinding>() {
 
-    override fun createViewHolder(itemView: View): NoDataViewHolder<DelegateTracksErrorBinding> =
-        Holder(DelegateTracksErrorBinding.bind(itemView))
+    override fun createViewHolder(itemView: View): NoDataViewHolder<GoPremiumDelegate> =
+        Holder(GoPremiumBinding.bind(itemView))
 
-    override fun getItemViewType(): Int = R.layout.delegate_tracks_error
+    override fun getItemViewType(): Int = R.layout.delegate_go_premium
 
-    inner class Holder(binding: DelegateTracksErrorBinding) :
-        NoDataViewHolder<DelegateTracksErrorBinding>(binding) {
+    inner class Holder(binding: GoPremiumDelegate) :
+        NoDataViewHolder<GoPremiumDelegate>(binding) {
         init {
             binding.retryBtn.setOnClickListener {
                 retryClickListener.invoke()
@@ -96,15 +109,18 @@ class TracksErrorDelegate(
 2. Create adapter and delegates instances
 ```kotlin
 //class-scope variables
-val tracksDelegate = TracksDelegate()
-val errorDelegate = TracksErrorDelegate() { /*retry implementation*/ }
+val trackDelegate = TrackDelegate()
+val performerDelegate = PerformerDelegate()
+val goPremiumDelegate = GoPremiumDelegate() { /* subscribe to premium implementation */ }
 val adapter = AnyTypeAdapter()
 ```
 3. Create `AnyTypeCollection`, fill it with the data and pass it to adapter
 ```kotlin
+// combine builder methods depending on your data
 AnyTypeCollection.Builder()
-    .add(tracks, tracksDelegate)
-    .addIf(errorDelegate) { error is TracksLoadingException } // combine builder methods depending on your data
+    .add(tracks, trackDelegate)
+    .addIf(goPremiumDelegate) { user !is PremiumUser }
+    .addIfNotEmpty(performers, performerDelegate)
     .build()
     .let { anyTypeAdapter.setCollection(it) }
-```            
+```
