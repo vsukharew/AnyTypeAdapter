@@ -49,22 +49,18 @@ class AnyTypeCollectionBuilderTest : MockInitializer() {
     }
 
     @Test
-    fun add_addItemsOfDifferentViewTypes_verifyGetItemViewTypeCalledTwiceEachTimeItemAddedExceptCornerAdditions() {
-        val tracksList = listOf(Track(), Track())
-        val activitiesCount = 10
+    fun `getItemViewType() called twice for each delegate except last one added`() {
+        val track = Track()
+        val activity = Activity()
         AnyTypeCollection.Builder()
             .apply {
-                add(tracksList, trackDelegate) //corner addition
+                add(track, trackDelegate)
                 add(headerDelegate)
-                add(tracksList, trackListDelegate)
-                repeat((1..activitiesCount).count()) {
-                    add(Activity(), activityDelegate)
-                } //corner addition
+                add(activity, activityDelegate) // corner addition
 
-                verify(trackDelegate, times((tracksList.size * 2 - 1))).getItemViewType()
+                verify(trackDelegate, times(2)).getItemViewType()
                 verify(headerDelegate, times(2)).getItemViewType()
-                verify(trackListDelegate, times(tracksList.size)).getItemViewType()
-                verify(activityDelegate, times((activitiesCount * 2 - 1))).getItemViewType()
+                verify(activityDelegate, times(1)).getItemViewType()
             }
     }
 

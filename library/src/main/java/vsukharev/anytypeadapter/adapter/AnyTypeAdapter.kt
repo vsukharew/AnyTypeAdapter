@@ -46,10 +46,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
     override fun getItemCount(): Int = anyTypeCollection.size
 
     override fun getItemViewType(position: Int): Int {
-        return anyTypeCollection.run {
-            findCurrentItemViewTypePosition(position).also { currentItemViewTypePosition = it }
-            currentItemViewTypeDelegate.getItemViewType()
-        }
+        return anyTypeCollection.getItemViewType(position)
     }
 
     /**
@@ -84,7 +81,7 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
 
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
             val delegate = with(oldList) {
-                itemsMetaData[findCurrentItemViewTypePosition(oldItemPosition)].delegate
+                itemsMetaData[getItemViewType(oldItemPosition)].delegate
             }
             return delegate.getChangePayload(
                 oldList.items[oldItemPosition].data,
