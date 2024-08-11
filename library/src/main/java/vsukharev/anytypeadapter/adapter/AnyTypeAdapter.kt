@@ -22,7 +22,9 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
         viewType: Int
     ): AnyTypeViewHolder<Any, ViewBinding> {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return anyTypeCollection.currentItemViewTypeDelegate.createViewHolder(view)
+        val delegate = anyTypeCollection.itemViewTypesToDelegates[viewType]
+        requireNotNull(delegate)
+        return delegate.createViewHolder(view)
     }
 
     override fun onBindViewHolder(
@@ -39,14 +41,17 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
 
     override fun onBindViewHolder(holder: AnyTypeViewHolder<Any, ViewBinding>, position: Int) {
         with(anyTypeCollection) {
-            currentItemViewTypeDelegate.bind(items[position], holder)
+            val item = items[position]
+            val itemViewType = item.itemViewType
+            val delegate = itemViewTypesToDelegates[itemViewType]
+            delegate?.bind(item, holder)
         }
     }
 
     override fun getItemCount(): Int = anyTypeCollection.size
 
     override fun getItemViewType(position: Int): Int {
-        return anyTypeCollection.getItemViewType(position)
+        return anyTypeCollection.items[position].itemViewType
     }
 
     /**
@@ -81,9 +86,10 @@ open class AnyTypeAdapter : RecyclerView.Adapter<AnyTypeViewHolder<Any, ViewBind
 
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
             val delegate = with(oldList) {
-                itemsMetaData[getItemViewType(oldItemPosition)].delegate
+                val itemViewType = items[oldItemPosition].itemViewType
+                itemViewTypesToDelegates[itemViewType]
             }
-            return delegate.getChangePayload(
+            return delegate?.getChangePayload(
                 oldList.items[oldItemPosition].data,
                 newList.items[newItemPosition].data
             )

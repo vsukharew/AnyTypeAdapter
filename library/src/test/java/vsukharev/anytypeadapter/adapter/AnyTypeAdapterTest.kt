@@ -1,7 +1,11 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package vsukharev.anytypeadapter.adapter
 
 import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.*
@@ -51,5 +55,37 @@ class AnyTypeAdapterTest : MockInitializer() {
             .let { adapter.setCollection(it) }
         adapter.onBindViewHolder(trackHolder as AnyTypeViewHolder<Any, ViewBinding>, 0)
         verify(trackHolder, times(0)).applyPayload(anyList())
+    }
+
+    @Test
+    fun `getItemCount - return value should be equal to size of AnyTypeCollection`() {
+        val adapter = AnyTypeAdapter().apply {
+            diffStrategy = DiffStrategy.DiscardLatest(dispatcher)
+        }
+        val collection = AnyTypeCollection.Builder()
+            .add(listOf(Track(), Track()), trackDelegate)
+            .build()
+        adapter.setCollection(collection)
+
+        val expectedItemCount = collection.size
+        val actualItemCount = adapter.itemCount
+        assertEquals(expectedItemCount, actualItemCount)
+    }
+
+    @Test
+    fun `getItemViewType - return value should be equal to AdapterItem`() {
+        val adapter = AnyTypeAdapter().apply {
+            diffStrategy = DiffStrategy.DiscardLatest(dispatcher)
+        }
+        val collection = AnyTypeCollection.Builder()
+            .add(listOf(Track(), Track()), trackDelegate)
+            .build()
+        adapter.setCollection(collection)
+
+        collection.items.forEachIndexed { index, adapterItem ->
+            val expectedItemViewType = adapterItem.itemViewType
+            val actualItemViewType = adapter.getItemViewType(index)
+            assertEquals(expectedItemViewType, actualItemViewType)
+        }
     }
 }

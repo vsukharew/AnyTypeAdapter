@@ -16,7 +16,8 @@ import vsukharev.anytypeadapter.holder.AnyTypeViewHolder
  */
 data class AdapterItem<T>(
     val id: String,
-    val data: T
+    val data: T,
+    val itemViewType: Int,
 ) {
     /**
      * Checks if the items have equal identifiers
@@ -30,20 +31,3 @@ data class AdapterItem<T>(
      */
     fun areContentsTheSame(other: AdapterItem<T>): Boolean = data == other.data
 }
-
-/**
- * Metadata for [AdapterItem]
- *
- * This class helps to determine which data at which position should be bound
- *
- * This class is intentionally created separately from [AdapterItem]
- * because one instance of this class provides metadata about each [AdapterItem] instance
- * of the given type
- *
- * @property position position the first [AdapterItem] of the given type is placed at
- * @property delegate delegate creating appropriate [AnyTypeViewHolder] and binding data to
- */
-data class AdapterItemMetaData<T, V: ViewBinding>(
-    val position: Int,
-    val delegate: AnyTypeDelegate<T, V, AnyTypeViewHolder<T, V>>
-)

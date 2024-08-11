@@ -1,50 +1,56 @@
 package vsukharev.anytypeadapter.adapter
 
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import vsukharev.anytypeadapter.common.MockInitializer
 import vsukharev.anytypeadapter.domain.Activity
 import vsukharev.anytypeadapter.domain.Track
+import vsukharev.anytypeadapter.item.AdapterItem
 
 class AnyTypeCollectionBuilderTest : MockInitializer() {
 
     @Test
-    fun add_addItemsOfDifferentViewTypes_eachTimeViewTypeIsDifferentNewItemIsAddedToItemsMetaDataCollection() {
-        var itemsCount = 0
-        var itemsMetadataCount = 0
+    fun `itemViewTypes-to-delegates has that size how many different by type items were added`() {
+        val times = 10
         AnyTypeCollection.Builder()
             .apply {
-                repeat((1..10).count()) {
-                    add(Track(), trackDelegate).also { itemsCount++ }
-                }.also { itemsMetadataCount++ }
-                add(headerDelegate).also { itemsCount++; itemsMetadataCount++ }
-                repeat((1..10).count()) {
-                    add(Activity(), activityDelegate).also { itemsCount++ }
-                }.also { itemsMetadataCount++ }
+                repeat(times) { add(Track(), trackDelegate) }
+                add(headerDelegate)
+                repeat(times) { add(Activity(), activityDelegate) }
             }
             .build()
             .apply {
-                assert(itemsMetaData.size == itemsMetadataCount && items.size == itemsCount)
+                val expectedDifferentViewTypesCount = 3
+                val actualDifferentViewTypesCount = itemViewTypesToDelegates.size
+                assertEquals(expectedDifferentViewTypesCount, actualDifferentViewTypesCount)
             }
     }
 
     @Test
-    fun add_addItemsOfDifferentViewTypes_verifyGetItemIdCalledEachTimeWhenItemAdded() {
-        val tracksCount = 10
-        val activitiesCount = 10
+    fun `all items are added`() {
+        val times = 10
+        val allItems = mutableListOf<Any>()
         AnyTypeCollection.Builder()
             .apply {
-                repeat((1..tracksCount).count()) {
-                    add(Track(), trackDelegate)
+                repeat(times) {
+                    val track = Track()
+                    add(track, trackDelegate)
+                    allItems.add(track)
                 }
-                add(headerDelegate)
-                repeat((1..activitiesCount).count()) {
-                    add(Activity(), activityDelegate)
+                add(headerDelegate).also { allItems.add(Unit) }
+                repeat(times) {
+                    val activity = Activity()
+                    add(activity, activityDelegate)
+                    allItems.add(activity)
                 }
-
-                verify(trackDelegate, times(tracksCount)).getItemId(any())
-                verify(headerDelegate, times(1)).getItemId(any())
-                verify(activityDelegate, times(activitiesCount)).getItemId(any())
+            }
+            .build()
+            .apply {
+                val expectedItems: List<Any> = allItems
+                val actualItems = items.map(AdapterItem<Any>::data)
+                assertEquals(expectedItems, actualItems)
             }
     }
 
@@ -58,104 +64,146 @@ class AnyTypeCollectionBuilderTest : MockInitializer() {
                 add(headerDelegate)
                 add(activity, activityDelegate) // corner addition
 
-                verify(trackDelegate, times(2)).getItemViewType()
-                verify(headerDelegate, times(2)).getItemViewType()
+                verify(trackDelegate, times(1)).getItemViewType()
+                verify(headerDelegate, times(1)).getItemViewType()
                 verify(activityDelegate, times(1)).getItemViewType()
             }
     }
 
     @Test
-    fun add_addSingleItem_verifyGetItemIdCalledWithAddedItem() {
-        val track = Track()
-        val captor = argumentCaptor<Track>()
+    fun `each time when new item is added getItemId() is called`() {
+        val times = 10
         AnyTypeCollection.Builder()
             .apply {
-                add(track, trackDelegate)
-                verify(trackDelegate).getItemId(captor.capture())
-                assert(track == captor.lastValue)
+                repeat(times) {
+                    val track = Track()
+                    add(track, trackDelegate)
+                    verify(trackDelegate).getItemId(track)
+                }
+                add(headerDelegate)
+                verify(headerDelegate).getItemId(Unit)
+                repeat(times) {
+                    val activity = Activity()
+                    add(activity, activityDelegate)
+                    verify(activityDelegate).getItemId(activity)
+                }
             }
     }
 
     @Test
-    fun add_addList_verifyGetItemIdCalledWithEachListItem() {
+    fun `each time item is added getItemViewType() is called`() {
+        val track = Track()
+        val activity = Activity()
+        AnyTypeCollection.Builder()
+            .apply {
+                add(track, trackDelegate)
+                add(headerDelegate)
+                add(activity, activityDelegate)
+
+                verify(trackDelegate, times(1)).getItemViewType()
+                verify(headerDelegate, times(1)).getItemViewType()
+                verify(activityDelegate, times(1)).getItemViewType()
+            }
+    }
+
+    @Test
+    fun `each time list item is added getItemId() is called`() {
         val tracksList = listOf(Track(), Track())
         val captor = argumentCaptor<Track>()
         AnyTypeCollection.Builder()
             .apply {
                 add(tracksList, trackDelegate)
                 verify(trackDelegate, times(tracksList.size)).getItemId(captor.capture())
-                assert(tracksList == captor.allValues)
+                val expectedArguments: List<Track> = tracksList
+                val actualArguments = captor.allValues
+                assertEquals(expectedArguments, actualArguments)
             }
     }
 
     @Test
-    fun addIf_predicateIsEitherTrueEitherFalse_itemIsAddedOnlyWhenPredicateIsTrue() {
-        var itemsCount = 0
-        var itemsMetadataCount = 0
+    fun `single item is added only when predicate of addIf() returns true`() {
+        val times = 10
         AnyTypeCollection.Builder()
             .apply {
-                repeat((1..10).count()) {
-                    (addIf(Track(), trackDelegate) { it % 2 == 0 }).also { itemsCount++ }
-                }.also { itemsMetadataCount++ }
+                repeat(times) {
+                    addIf(Track(), trackDelegate) { it % 2 == 0 }
+                }
             }
             .build()
             .apply {
-                assert(itemsMetaData.size == itemsMetadataCount && size == itemsCount / 2)
+                val expectedItemsCount = times / 2
+                val actualItemsCount = size
+                assertEquals(expectedItemsCount, actualItemsCount)
             }
     }
 
     @Test
-    fun addIf_predicateIsEitherTrueEitherFalse_noDataItemIsAddedOnlyWhenPredicateIsTrue() {
-        var itemsCount = 0
-        var itemsMetadataCount = 0
-        AnyTypeCollection.Builder()
-            .addIf(headerDelegate) { true }.also { itemsCount++; itemsMetadataCount++ }
-            .addIf(headerDelegate) { false }.also { itemsCount++ }
-            .build()
-            .apply { assert(itemsMetaData.size == itemsMetadataCount && size != itemsCount && size == 1) }
-    }
-
-    @Test
-    fun addIf_dataIsListAndPredicateIsEitherTrueEitherFalse_itemIsAddedOnlyWhenPredicateIsTrue() {
-        var itemsCount = 0
-        var itemsMetadataCount = 0
+    fun `list is added only when predicate of addIf() returns true`() {
+        val times = 10
         AnyTypeCollection.Builder()
             .apply {
-                repeat((1..10).count()) {
-                    (addIf(listOf(Track()), trackDelegate) { it % 2 == 0 }).also { itemsCount++ }
-                }.also { itemsMetadataCount++ }
+                repeat(times) {
+                    addIf(listOf(Track()), trackDelegate) { it % 2 == 0 }
+                }
             }
             .build()
             .apply {
-                assert(itemsMetaData.size == itemsMetadataCount && items.size == itemsCount / 2)
+                val expectedItemsCount = times / 2
+                val actualItemsCount = size
+                assertEquals(expectedItemsCount, actualItemsCount)
             }
     }
 
     @Test
-    fun addIf_predicateIsEitherTrueEitherFalse_verifyGetItemIdCalledOnlyWhenPredicateIsTrue() {
-        var itemsCount = 0
-        var itemsMetadataCount = 0
+    fun `no-data-item is added only when predicate of addIf() returns true`() {
+        val times = 10
         AnyTypeCollection.Builder()
             .apply {
-                repeat((1..10).count()) {
-                    (addIf(Track(), trackDelegate) { it % 2 == 0 }).also { itemsCount++ }
-                }.also { itemsMetadataCount++ }
-
-                verify(trackDelegate, times((itemsCount / 2))).getItemId(any())
+                repeat(times) {
+                    addIf(headerDelegate) { it % 2 == 0 }
+                }
+            }
+            .build()
+            .apply {
+                val expectedItemsCount = times / 2
+                val actualItemsCount = size
+                assertEquals(expectedItemsCount, actualItemsCount)
             }
     }
 
     @Test
-    fun addIfNotEmpty_inputListIsEmpty_dataListShouldNotBeAdded() {
+    fun `when predicate of addIf returns true getItemId() is called`() {
+        val times = 10
+        val tracks = buildList {
+            repeat(times) {
+                add(Track())
+            }
+        }
+        val captor = argumentCaptor<Track>()
+        AnyTypeCollection.Builder()
+            .apply {
+                tracks.forEachIndexed { index, track ->
+                    addIf(track, trackDelegate) { index % 2 == 0 }
+                }
+            }
+            .build()
+            .apply {
+                verify(trackDelegate, times(size)).getItemId(captor.capture())
+                assertTrue(captor.allValues.all { it in tracks })
+            }
+    }
+
+    @Test
+    fun `empty lists should not be added`() {
         AnyTypeCollection.Builder()
             .addIfNotEmpty(emptyList(), trackDelegate)
             .addIfNotEmpty(emptyList<Track>(), trackListDelegate)
             .build()
-            .apply { assert(itemsMetaData.isEmpty() && items.isEmpty()) }
+            .apply { assert(itemViewTypesToDelegates.isEmpty() && items.isEmpty()) }
     }
 
     @Test
-    fun addIfNotEmpty_inputListIsEmpty_noneDelegateMethodsGetCalled() {
+    fun `if empty list is added delegate methods should not be called`() {
         AnyTypeCollection.Builder()
             .addIfNotEmpty(emptyList(), trackDelegate)
             .addIfNotEmpty(emptyList<Track>(), trackListDelegate)
@@ -166,30 +214,40 @@ class AnyTypeCollectionBuilderTest : MockInitializer() {
     }
 
     @Test
-    fun addIfNotEmpty_inputListIsNotEmpty_dataListShouldBeAdded() {
+    fun `non empty lists should be added`() {
         AnyTypeCollection.Builder()
             .addIfNotEmpty(listOf(Track()), trackDelegate)
             .addIfNotEmpty(listOf(Track()), trackListDelegate)
             .build()
-            .apply { assert(itemsMetaData.isNotEmpty() && items.isNotEmpty()) }
+            .apply { assert(itemViewTypesToDelegates.isNotEmpty() && items.isNotEmpty()) }
     }
 
     @Test
-    fun addIfNotEmpty_inputListIsNotEmpty_delegateMethodsGetCalled() {
+    fun `if non empty list is added delegate methods should be called`() {
+        val tracks = listOf(Track())
+        val trackCaptor = argumentCaptor<Track>()
+        val tracksListCaptor = argumentCaptor<List<Track>>()
         AnyTypeCollection.Builder()
-            .addIfNotEmpty(listOf(Track()), trackDelegate)
-            .addIfNotEmpty(listOf(Track()), trackListDelegate)
+            .addIfNotEmpty(tracks, trackDelegate)
+            .addIfNotEmpty(tracks, trackListDelegate)
             .apply {
-                verify(trackDelegate).getItemId(any())
-                verify(trackListDelegate).getItemId(any())
+                verify(trackDelegate).getItemId(trackCaptor.capture())
+                verify(trackDelegate).getItemViewType()
+                val expectedArgument: List<Track> = tracks
+                val actualArgument = trackCaptor.allValues
+                assertEquals(expectedArgument, actualArgument)
+            }.apply {
+                verify(trackListDelegate).getItemId(tracksListCaptor.capture())
+                verify(trackListDelegate).getItemViewType()
+                val expectedArgument: List<Track> = tracks
+                val actualArgument = tracksListCaptor.firstValue
+                assertEquals(expectedArgument, actualArgument)
             }
     }
 
     @Test
-    fun build_emptyCollection_shouldGetEmptyCollectionOfRanges() {
-        val collection = AnyTypeCollection.EMPTY
-        val expected = emptyList<IntRange>()
-        val actual = collection.positionsRanges
-        assert(expected == actual)
+    fun `empty collection has empty itemViewType-to-delegate map`() {
+        val emptyCollection = AnyTypeCollection.EMPTY
+        assertTrue(emptyCollection.itemViewTypesToDelegates.isEmpty())
     }
 }
