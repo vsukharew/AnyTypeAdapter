@@ -24,7 +24,15 @@ class AnyTypeCollection private constructor(
     /**
      * Saved position value provided in [RecyclerView.Adapter.getItemViewType]
      */
-    internal var currentItemViewTypePosition: Int = NO_POSITION
+    private var currentItemViewTypePosition: Int
+
+    init {
+        currentItemViewTypePosition = if (items.isNotEmpty()) {
+            0
+        } else {
+            NO_POSITION
+        }
+    }
 
     /**
      * Returns delegate at the given position in the [itemsMetaData] collection
@@ -40,22 +48,31 @@ class AnyTypeCollection private constructor(
 
     val size: Int = items.size
 
+    internal fun getItemViewType(adapterPosition: Int): Int {
+        currentItemViewTypePosition = findCurrentItemViewTypePosition(
+            currentItemViewTypePosition,
+            adapterPosition
+        )
+        return currentItemViewTypeDelegate.getItemViewType()
+    }
+
     /**
      * Finds position for the current item view type given current [adapterPosition]
      * @see [AnyTypeCollection.itemsMetaData]
      */
-    fun findCurrentItemViewTypePosition(adapterPosition: Int): Int {
+    private fun findCurrentItemViewTypePosition(
+        currentItemViewTypePosition: Int,
+        adapterPosition: Int
+    ): Int {
         val currentPositionsRange = positionsRanges.getOrNull(currentItemViewTypePosition)
         return if (currentPositionsRange?.contains(adapterPosition) == true) {
             currentItemViewTypePosition
         } else {
-            with(positionsRanges) {
-                binarySearch {
-                    when {
-                        adapterPosition in it -> 0
-                        adapterPosition < it.first -> 1
-                        else -> -1
-                    }
+            positionsRanges.binarySearch {
+                when {
+                    adapterPosition in it -> 0
+                    adapterPosition < it.first -> 1
+                    else -> -1
                 }
             }
         }
@@ -73,8 +90,9 @@ class AnyTypeCollection private constructor(
             delegate: AnyTypeDelegate<T, V, H>
         ): Builder {
             return apply {
+                val itemViewType = delegate.getItemViewType()
                 val isCurrentViewTypeEqualToLastAdded = with(itemsMetaData) {
-                    isNotEmpty() && get(lastIndex).delegate.getItemViewType() == delegate.getItemViewType()
+                    isNotEmpty() && get(lastIndex).delegate.getItemViewType() == itemViewType
                 }
 
                 // Put new view type only if it isn't equal to the previous one
@@ -97,7 +115,9 @@ class AnyTypeCollection private constructor(
                         /* do nothing */
                     }
                 }
-                items.add(AdapterItem(delegate.getItemId(item), item))
+                with(delegate) {
+                    items.add(AdapterItem(getItemId(item), item))
+                }
             }
         }
 
@@ -172,7 +192,7 @@ class AnyTypeCollection private constructor(
             item: T,
             delegate: AnyTypeDelegate<T, V, H>
         ): Builder {
-            return apply { addIf(item, delegate) { item.count() > 0 } }
+            return apply { addIf(item, delegate) { item.any() } }
         }
 
         /**
@@ -196,16 +216,12 @@ class AnyTypeCollection private constructor(
                     }
                 }
             }
-            return AnyTypeCollection(items, itemsMetaData, positionsRanges).apply {
-                if (items.isNotEmpty()) {
-                    currentItemViewTypePosition = 0
-                }
-            }
+            return AnyTypeCollection(items, itemsMetaData, positionsRanges)
         }
     }
 
     companion object {
-        internal const val NO_POSITION = -1
+        private const val NO_POSITION = -1
         val EMPTY = Builder().build()
     }
 }
